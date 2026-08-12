@@ -65,7 +65,7 @@ frontend/src/
 │       ├── DocEditor.module.css      # 极简 UI 样式设计系统
 │       ├── components/
 │       │   ├── SlashMenu/            # 斜杠快捷插入菜单
-│       │   ├── BubbleToolbar/        # 选区气泡工具栏 (字号、样式、调色盘)
+│       │   ├── BubbleToolbar/        # 选区气泡工具栏 (字号、样式、调色盘、对齐控制)
 │       │   ├── Callout/              # 高亮嵌套容器与 Icon/Theme 选择器面板
 │       │   ├── Excalidraw/           # Excalidraw 嵌入式画图块
 │       │   └── DragHandle/           # 拖拽把手与放置指示线视图

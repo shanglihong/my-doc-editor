@@ -21,9 +21,9 @@
 
 **目标**: 创建 Tiptap Editor 核心封装与数据模型契约，此阶段阻塞后续所有 User Story
 
-- [ ] T005 定义 TypeScript 数据类型与 AST 接口于 [../../frontend/src/components/DocEditor/types.ts](../../frontend/src/components/DocEditor/types.ts)
-- [ ] T006 [P] 实现 Tiptap 编辑器基础 Hook 与主容器于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
-- [ ] T007 [P] 实现编辑器命令式 Ref 控制接口 (`DocEditorRef`) 于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
+- [x] T005 定义 TypeScript 数据类型与 AST 接口于 [../../frontend/src/components/DocEditor/types.ts](../../frontend/src/components/DocEditor/types.ts)
+- [x] T006 [P] 实现 Tiptap 编辑器基础 Hook 与主容器于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
+- [x] T007 [P] 实现编辑器命令式 Ref 控制接口 (`DocEditorRef`) 于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
 
 **检查点**: 基础 Tiptap 编辑器可渲染并输出空白文档。
 
@@ -31,22 +31,22 @@
 
 ## 阶段 3：User Story 1 - 基础文档编辑、斜杠菜单、气泡格式与拖拽重排 (Priority: P1) 🎯 MVP
 
-**目标**: 交付基础文本排版、标题、列表、表格、斜杠菜单（`/`）、选区气泡工具栏（字号/调色盘）及左侧把手拖拽重排功能。
+**目标**: 交付基础文本排版（默认居左）、标题、列表、表格、斜杠菜单（`/`）、选区气泡工具栏（字号/调色盘/文本对齐控制）及左侧把手拖拽重排功能。
 
-**独立测试方法**: 在编辑器中输入文字，使用 `/` 插入标题与表格，选中文本调整字号与前景色/高亮底色，悬浮左侧拖拽把手进行块上下换位。
+**独立测试方法**: 在编辑器中输入文字，使用 `/` 插入标题与表格，选中文本调整字号、前景色/高亮底色与文本对齐（左/中/右），悬浮左侧拖拽把手进行块上下换位。
 
 ### 自动化单元与集成测试 (User Story 1)
 
-- [ ] T008 [P] [US1] 编写斜杠菜单与格式工具栏交互测试于 [../../frontend/src/tests/DocEditor.test.tsx](../../frontend/src/tests/DocEditor.test.tsx)
+- [x] T008 [P] [US1] 编写斜杠菜单与格式工具栏交互测试于 [../../frontend/src/tests/DocEditor.test.tsx](../../frontend/src/tests/DocEditor.test.tsx)
 
 ### 功能实现 (User Story 1)
 
-- [ ] T009 [P] [US1] 实现自定义字号 Mark 扩展于 [../../frontend/src/components/DocEditor/extensions/FontSizeMark.ts](../../frontend/src/components/DocEditor/extensions/FontSizeMark.ts)
-- [ ] T010 [P] [US1] 实现斜杠菜单 (`/`) 快捷插入块组件于 [../../frontend/src/components/DocEditor/components/SlashMenu/index.tsx](../../frontend/src/components/DocEditor/components/SlashMenu/index.tsx)
-- [ ] T011 [P] [US1] 实现选中文本悬浮气泡工具栏组件（字号/加粗/颜色/高亮底色）于 [../../frontend/src/components/DocEditor/components/BubbleToolbar/index.tsx](../../frontend/src/components/DocEditor/components/BubbleToolbar/index.tsx)
-- [ ] T012 [US1] 实现基于块左侧悬浮把手的拖拽重排 ProseMirror 插件于 [../../frontend/src/components/DocEditor/extensions/DragHandlePlugin.ts](../../frontend/src/components/DocEditor/extensions/DragHandlePlugin.ts)
-- [ ] T013 [US1] 实现拖拽指示线 UI 渲染于 [../../frontend/src/components/DocEditor/components/DragHandle/index.tsx](../../frontend/src/components/DocEditor/components/DragHandle/index.tsx)
-- [ ] T014 [US1] 集成表格扩展 (`@tiptap/extension-table`) 并定制极简卡片样式于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
+- [x] T009 [P] [US1] 实现自定义字号 Mark 扩展于 [../../frontend/src/components/DocEditor/extensions/FontSizeMark.ts](../../frontend/src/components/DocEditor/extensions/FontSizeMark.ts)
+- [x] T010 [P] [US1] 实现斜杠菜单 (`/`) 快捷插入块组件于 [../../frontend/src/components/DocEditor/components/SlashMenu/index.tsx](../../frontend/src/components/DocEditor/components/SlashMenu/index.tsx)
+- [x] T011 [P] [US1] 实现选中文本悬浮气泡工具栏组件（字号/加粗/颜色/高亮底色/文本对齐方式选择器）于 [../../frontend/src/components/DocEditor/components/BubbleToolbar/index.tsx](../../frontend/src/components/DocEditor/components/BubbleToolbar/index.tsx)
+- [x] T012 [US1] 实现基于块左侧悬浮把手的拖拽重排 ProseMirror 插件于 [../../frontend/src/components/DocEditor/extensions/DragHandlePlugin.ts](../../frontend/src/components/DocEditor/extensions/DragHandlePlugin.ts)
+- [x] T013 [US1] 实现拖拽指示线 UI 渲染于 [../../frontend/src/components/DocEditor/components/DragHandle/index.tsx](../../frontend/src/components/DocEditor/components/DragHandle/index.tsx)
+- [x] T014 [US1] 集成表格扩展 (`@tiptap/extension-table`) 并定制极简卡片样式于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
 
 **检查点**: MVP 功能开发完毕，已具备基础文档与列表/表格编辑、格式工具栏及拖拽换位能力。
 
@@ -60,12 +60,12 @@
 
 ### 功能实现 (User Story 2)
 
-- [ ] T015 [P] [US2] 实现代码块语法高亮扩展于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
-- [ ] T016 [US2] 实现 Callout 嵌套容器 Tiptap Node 扩展于 [../../frontend/src/components/DocEditor/extensions/CalloutExtension.ts](../../frontend/src/components/DocEditor/extensions/CalloutExtension.ts)
-- [ ] T017 [US2] 实现 Callout 容器 React NodeView 界面于 [../../frontend/src/components/DocEditor/components/Callout/CalloutView.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutView.tsx)
-- [ ] T018 [US2] 实现 Callout Icon/Emoji 弹出选择器与 8+ 主题色板组件于 [../../frontend/src/components/DocEditor/components/Callout/CalloutToolbar.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutToolbar.tsx)
-- [ ] T019 [US2] 实现 Excalidraw 画图 Tiptap Node 扩展于 [../../frontend/src/components/DocEditor/extensions/ExcalidrawExtension.ts](../../frontend/src/components/DocEditor/extensions/ExcalidrawExtension.ts)
-- [ ] T020 [US2] 实现 Excalidraw 嵌入式画布 React NodeView 组件于 [../../frontend/src/components/DocEditor/components/Excalidraw/ExcalidrawView.tsx](../../frontend/src/components/DocEditor/components/Excalidraw/ExcalidrawView.tsx)
+- [x] T015 [P] [US2] 实现代码块语法高亮扩展于 [../../frontend/src/components/DocEditor/index.tsx](../../frontend/src/components/DocEditor/index.tsx)
+- [x] T016 [US2] 实现 Callout 嵌套容器 Tiptap Node 扩展于 [../../frontend/src/components/DocEditor/extensions/CalloutExtension.ts](../../frontend/src/components/DocEditor/extensions/CalloutExtension.ts)
+- [x] T017 [US2] 实现 Callout 容器 React NodeView 界面于 [../../frontend/src/components/DocEditor/components/Callout/CalloutView.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutView.tsx)
+- [x] T018 [US2] 实现 Callout Icon/Emoji 弹出选择器与 8+ 主题色板组件于 [../../frontend/src/components/DocEditor/components/Callout/CalloutToolbar.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutToolbar.tsx)
+- [x] T019 [US2] 实现 Excalidraw 画图 Tiptap Node 扩展于 [../../frontend/src/components/DocEditor/extensions/ExcalidrawExtension.ts](../../frontend/src/components/DocEditor/extensions/ExcalidrawExtension.ts)
+- [x] T020 [US2] 实现 Excalidraw 嵌入式画布 React NodeView 组件于 [../../frontend/src/components/DocEditor/components/Excalidraw/ExcalidrawView.tsx](../../frontend/src/components/DocEditor/components/Excalidraw/ExcalidrawView.tsx)
 
 **检查点**: 高亮嵌套容器与 Excalidraw 画图块独立运行正常。
 
@@ -79,9 +79,9 @@
 
 ### 功能实现 (User Story 3)
 
-- [ ] T021 [P] [US3] 实现 Block AST JSON 转换与序列化模块于 [../../frontend/src/components/DocEditor/utils/serializer.ts](../../frontend/src/components/DocEditor/utils/serializer.ts)
-- [ ] T022 [P] [US3] 实现 Markdown 与包含 Excalidraw/Callout 的 AST 双向解析与导出模块于 [../../frontend/src/components/DocEditor/utils/serializer.ts](../../frontend/src/components/DocEditor/utils/serializer.ts)
-- [ ] T023 [US3] 编写 Markdown/AST 双向无损转换单元测试于 [../../frontend/src/tests/serializer.test.ts](../../frontend/src/tests/serializer.test.ts)
+- [x] T021 [P] [US3] 实现 Block AST JSON 转换与序列化模块于 [../../frontend/src/components/DocEditor/utils/serializer.ts](../../frontend/src/components/DocEditor/utils/serializer.ts)
+- [x] T022 [P] [US3] 实现 Markdown 与包含 Excalidraw/Callout 的 AST 双向解析与导出模块于 [../../frontend/src/components/DocEditor/utils/serializer.ts](../../frontend/src/components/DocEditor/utils/serializer.ts)
+- [x] T023 [US3] 编写 Markdown/AST 双向无损转换单元测试于 [../../frontend/src/tests/serializer.test.ts](../../frontend/src/tests/serializer.test.ts)
 
 **检查点**: 复杂文档与数据在双向转换后无内容或格式丢失。
 
@@ -91,8 +91,8 @@
 
 **目标**: 进行性能优化、视觉微调与端到端场景核查
 
-- [ ] T024 [P] 统一 CSS 变量名，优化深色/浅色模式及微交互视觉于 [../../frontend/src/components/DocEditor/DocEditor.module.css](../../frontend/src/components/DocEditor/DocEditor.module.css)
-- [ ] T025 按照 [quickstart.md](./quickstart.md) 手动验证 6 大核心场景并进行代码清理
+- [x] T024 [P] 统一 CSS 变量名，优化深色/浅色模式及微交互视觉于 [../../frontend/src/components/DocEditor/DocEditor.module.css](../../frontend/src/components/DocEditor/DocEditor.module.css)
+- [x] T025 按照 [quickstart.md](./quickstart.md) 手动验证 6 大核心场景并进行代码清理
 
 ---
 

@@ -53,11 +53,12 @@ export interface InlineContentNode {
 }
 
 export interface MarkState {
-  type: 'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'fontSize' | 'color' | 'highlight';
+  type: 'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'fontSize' | 'color' | 'highlight' | 'textAlign';
   attrs?: {
     size?: 'small' | 'normal' | 'large' | 'huge'; // 对应字号控制
     color?: string; // HEX 前景色
     highlightColor?: string; // HEX 背景高亮色
+    align?: 'left' | 'center' | 'right'; // 文本对齐控制
   };
 }
 ```
@@ -134,5 +135,6 @@ export interface SelectionState {
   activeMarks: Record<string, boolean>;
   activeFontSize: string;
   activeColor: string;
+  activeTextAlign: 'left' | 'center' | 'right';
 }
 ```

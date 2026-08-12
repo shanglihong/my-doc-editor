@@ -22,7 +22,7 @@
   position: relative;
   width: 100%;
   max-width: 900px;
-  margin: 0 auto;
+  margin: 0;
   padding: 40px 32px;
   background-color: var(--de-bg-body);
   color: var(--de-text-main);
@@ -115,27 +115,103 @@
 }
 
 /* Callout Container Block */
-.calloutBlock {
+.calloutWrapper {
   position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   padding: 16px;
   margin: 1em 0;
   border-radius: var(--de-radius-md);
-  border-left: 4px solid #0066ff;
-  background-color: #f0f7ff;
+  border-left: 4px solid var(--de-primary);
+  background-color: var(--de-bg-hover);
   transition: var(--de-transition);
 }
 
-.calloutIcon {
+.calloutHeader {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+}
+
+.calloutIcon {
   font-size: 1.25rem;
   user-select: none;
+}
+
+.calloutToolbar {
+  position: relative;
+}
+
+.calloutToolbarBtn {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  padding-top: 2px;
+}
+
+.calloutPickerPopover {
+  position: absolute;
+  right: 0;
+  top: 28px;
+  background: #ffffff;
+  border: 1px solid var(--de-border-color);
+  border-radius: var(--de-radius-md);
+  box-shadow: var(--de-shadow-lg);
+  padding: 12px;
+  width: 260px;
+  z-index: 1000;
+}
+
+.pickerSection {
+  margin-bottom: 10px;
+}
+
+.pickerTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--de-text-muted);
+  margin-bottom: 6px;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.themeOption {
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: center;
+}
+
+.themeOptionActive {
+  box-shadow: 0 0 0 2px var(--de-primary);
+}
+
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.emojiOption {
+  font-size: 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.emojiOption:hover {
+  background: var(--de-bg-hover);
 }
 
 .calloutContent {
@@ -143,11 +219,11 @@
   min-width: 0;
 }
 
-.calloutContent > :first-child {
+.calloutContent> :first-child {
   margin-top: 0;
 }
 
-.calloutContent > :last-child {
+.calloutContent> :last-child {
   margin-bottom: 0;
 }
 
@@ -159,6 +235,31 @@
   overflow: hidden;
   box-shadow: var(--de-shadow-sm);
   background: #ffffff;
+}
+
+.excalidrawHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--de-border-color);
+}
+
+.excalidrawTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--de-text-muted);
+}
+
+.excalidrawToggleBtn {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--de-border-color);
+  background: #ffffff;
+  color: var(--de-primary);
+  cursor: pointer;
 }
 
 .excalidrawContainer {

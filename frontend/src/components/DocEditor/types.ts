@@ -1,0 +1,116 @@
+/**
+ * 个人知识库文档编辑器 TypeScript 数据模型与接口规范
+ */
+
+export type BlockType =
+  | 'paragraph'
+  | 'heading'
+  | 'bulletList'
+  | 'orderedList'
+  | 'taskList'
+  | 'blockquote'
+  | 'codeBlock'
+  | 'table'
+  | 'callout'
+  | 'excalidraw'
+  | 'horizontalRule';
+
+export interface MarkState {
+  type: 'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'fontSize' | 'color' | 'highlight';
+  attrs?: {
+    size?: 'small' | 'normal' | 'large' | 'huge' | string;
+    color?: string;
+    highlightColor?: string;
+  };
+}
+
+export interface InlineContentNode {
+  type: 'text';
+  text: string;
+  marks?: MarkState[];
+}
+
+export interface CalloutAttributes {
+  icon?: string;
+  iconType?: 'lucide' | 'emoji';
+  themeColor?: 'blue' | 'yellow' | 'green' | 'red' | 'purple' | 'gray' | 'pink' | 'black' | 'custom' | string;
+  customBg?: string;
+  customBorder?: string;
+}
+
+export interface ExcalidrawAttributes {
+  elements?: Array<Record<string, any>>;
+  appState?: Record<string, any>;
+  caption?: string;
+  previewSvg?: string;
+}
+
+export interface BlockNode {
+  id: string;
+  type: BlockType;
+  attrs?: Record<string, any>;
+  content?: InlineContentNode[] | BlockNode[];
+  children?: BlockNode[];
+}
+
+export interface DocumentNode {
+  type: 'doc';
+  version?: '1.0';
+  content: BlockNode[];
+}
+
+export interface DragState {
+  isDragging: boolean;
+  draggedBlockId: string | null;
+  targetBlockId: string | null;
+  dropPosition: 'before' | 'after' | 'inside';
+}
+
+export interface SelectionState {
+  isTextSelected: boolean;
+  from: number;
+  to: number;
+  activeMarks: Record<string, boolean>;
+  activeFontSize: string;
+  activeColor: string;
+}
+
+export interface DocEditorProps {
+  /** 初始内容，支持传递 JSON Block AST 对象或 Markdown 文本 */
+  value?: DocumentNode | string;
+
+  /** 内容发生变更时的回调 */
+  onChange?: (doc: DocumentNode, markdown: string) => void;
+
+  /** 是否只读模式 */
+  readOnly?: boolean;
+
+  /** 自定义占位符文本 */
+  placeholder?: string;
+
+  /** 编辑器主题样式 */
+  theme?: 'light' | 'dark' | 'auto';
+
+  /** 样式类名扩展 */
+  className?: string;
+
+  /** 是否启用 Excalidraw 画图块扩展 */
+  enableExcalidraw?: boolean;
+}
+
+export interface DocEditorRef {
+  /** 获取当前文档的结构化 JSON AST 对象 */
+  getJSON: () => DocumentNode;
+
+  /** 获取当前文档转换后的标准 Markdown 文本 */
+  getMarkdown: () => string;
+
+  /** 设置文档内容 (传入 JSON AST 或 Markdown) */
+  setContent: (content: DocumentNode | string) => void;
+
+  /** 清空当前编辑器 */
+  clear: () => void;
+
+  /** 使编辑器获得焦点 */
+  focus: () => void;
+}
