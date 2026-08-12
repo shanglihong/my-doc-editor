@@ -12,7 +12,7 @@ export type BlockType =
   | 'codeBlock'
   | 'table'
   | 'callout'
-  | 'excalidraw'
+  | 'drawio'
   | 'horizontalRule';
 
 export interface MarkState {
@@ -38,11 +38,18 @@ export interface CalloutAttributes {
   customBorder?: string;
 }
 
-export interface ExcalidrawAttributes {
-  elements?: Array<Record<string, any>>;
-  appState?: Record<string, any>;
-  caption?: string;
-  previewSvg?: string;
+export interface DrawIOBlockAttrs {
+  xml: string;
+  svg: string;
+  alignment?: 'left' | 'center' | 'right';
+  width?: string;
+  height?: string;
+}
+
+export interface DrawIOModalState {
+  isOpen: boolean;
+  initialXml: string;
+  nodePos: number | null;
 }
 
 export interface BlockNode {
@@ -94,8 +101,8 @@ export interface DocEditorProps {
   /** 样式类名扩展 */
   className?: string;
 
-  /** 是否启用 Excalidraw 画图块扩展 */
-  enableExcalidraw?: boolean;
+  /** 是否启用 draw.io 画图块扩展 */
+  enableDrawIO?: boolean;
 }
 
 export interface DocEditorRef {

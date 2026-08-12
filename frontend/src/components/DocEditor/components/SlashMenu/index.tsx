@@ -11,6 +11,7 @@ import {
   Minus,
   Info,
   Palette,
+  Workflow,
 } from 'lucide-react';
 import styles from '../../DocEditor.module.css';
 import type { SlashMenuItem } from './SlashMenuPlugin';
@@ -36,6 +37,7 @@ const iconMap: Record<string, React.FC<{ className?: string }>> = {
   Minus,
   Info,
   Palette,
+  Workflow,
 };
 
 export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, command }, ref) => {

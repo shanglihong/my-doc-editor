@@ -69,9 +69,9 @@ export function astToMarkdown(ast: DocumentNode): string {
       const icon = block.attrs?.icon || '💡';
       const theme = block.attrs?.themeColor || 'blue';
       lines.push(`> [!NOTE] icon="${icon}" theme="${theme}"\n> ${extractText(block.content)}\n`);
-    } else if (block.type === 'excalidraw') {
+    } else if (block.type === 'drawio') {
       const jsonStr = JSON.stringify(block.attrs || {});
-      lines.push(`\`\`\`excalidraw\n${jsonStr}\n\`\`\`\n`);
+      lines.push(`\`\`\`drawio\n${jsonStr}\n\`\`\`\n`);
     } else if (block.type === 'horizontalRule') {
       lines.push('---\n');
     } else {
@@ -118,7 +118,7 @@ export function markdownToAST(markdown: string): DocumentNode {
         attrs: { level: 3 },
         content: [{ type: 'text', text: line.substring(4) }] as any,
       });
-    } else if (line.startsWith('```excalidraw')) {
+    } else if (line.startsWith('```drawio')) {
       i++;
       let jsonStr = '';
       while (i < lines.length && !lines[i].startsWith('```')) {
@@ -129,14 +129,14 @@ export function markdownToAST(markdown: string): DocumentNode {
         const attrs = JSON.parse(jsonStr.trim());
         blocks.push({
           id: `block-${blocks.length}`,
-          type: 'excalidraw',
+          type: 'drawio',
           attrs,
         });
       } catch {
         blocks.push({
           id: `block-${blocks.length}`,
-          type: 'excalidraw',
-          attrs: {},
+          type: 'drawio',
+          attrs: { xml: '', svg: '' },
         });
       }
     } else if (line.startsWith('```')) {

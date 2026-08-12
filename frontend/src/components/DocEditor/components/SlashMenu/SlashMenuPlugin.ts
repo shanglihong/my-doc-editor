@@ -93,11 +93,11 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: 'Excalidraw 画图 (Excalidraw)',
-    description: '插入自由手绘、流程图与架构图画布',
-    iconName: 'Palette',
+    title: 'draw.io 图表 (draw.io Diagram)',
+    description: '插入流程图、架构图与专业矢量图表',
+    iconName: 'Workflow',
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).insertExcalidraw().run();
+      editor.chain().focus().deleteRange(range).insertDrawIO().run();
     },
   },
 ];

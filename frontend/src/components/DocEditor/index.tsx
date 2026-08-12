@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
@@ -13,11 +13,12 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 
 import styles from './DocEditor.module.css';
-import type { DocEditorProps, DocEditorRef, DocumentNode, BlockNode } from './types';
+import type { DocEditorProps, DocEditorRef, DocumentNode, BlockNode, DrawIOModalState } from './types';
 import { FontSizeMark } from './extensions/FontSizeMark';
 import { DragHandlePlugin } from './extensions/DragHandlePlugin';
 import { CalloutExtension } from './extensions/CalloutExtension';
-import { ExcalidrawExtension } from './extensions/ExcalidrawExtension';
+import { DrawIOExtension } from './extensions/DrawIOExtension';
+import { DrawIOModal } from './components/DrawIO/DrawIOModal';
 import { SlashMenuExtension } from './components/SlashMenu/SlashMenuPlugin';
 import { BubbleToolbar } from './components/BubbleToolbar';
 import { DragHandleUI } from './components/DragHandle';
@@ -61,6 +62,37 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       visible: false,
       top: 0,
     });
+    const [drawioModalState, setDrawioModalState] = useState<DrawIOModalState>({
+      isOpen: false,
+      initialXml: '',
+      nodePos: null,
+    });
+
+    useEffect(() => {
+      const handleOpenModal = (e: Event) => {
+        const customEvent = e as CustomEvent;
+        setDrawioModalState({
+          isOpen: true,
+          initialXml: customEvent.detail?.xml || '',
+          nodePos: customEvent.detail?.nodePos ?? null,
+        });
+      };
+
+      window.addEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
+      return () => {
+        window.removeEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
+      };
+    }, []);
+
+    const handleSaveDrawIO = (xml: string, svg: string) => {
+      if (!editor || drawioModalState.nodePos === null) return;
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(drawioModalState.nodePos)
+        .updateAttributes('drawioBlock', { xml, svg })
+        .run();
+    };
 
     const editor = useEditor({
       editable: !readOnly,
@@ -91,7 +123,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         }),
         FontSizeMark,
         CalloutExtension,
-        ExcalidrawExtension,
+        DrawIOExtension,
         SlashMenuExtension,
         DragHandlePlugin.configure({
           onNodeChange: (data) => {
@@ -311,6 +343,12 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         />
         <BubbleToolbar editor={editor} isDragging={dragState.isDragging} />
         <EditorContent editor={editor} className={styles.editorContent} />
+        <DrawIOModal
+          isOpen={drawioModalState.isOpen}
+          initialXml={drawioModalState.initialXml}
+          onSave={handleSaveDrawIO}
+          onClose={() => setDrawioModalState((prev) => ({ ...prev, isOpen: false }))}
+        />
       </div>
     );
   }

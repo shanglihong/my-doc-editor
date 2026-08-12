@@ -11,7 +11,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@excalidraw/excalidraw": "^0.18.1",
     "@tiptap/extension-color": "^3.30.0",
     "@tiptap/extension-highlight": "^3.30.0",
     "@tiptap/extension-table": "^3.30.0",
