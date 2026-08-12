@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Editor } from '@tiptap/react';
+import { TextSelection } from '@tiptap/pm/state';
 import {
   Bold,
   Italic,
@@ -18,9 +19,10 @@ import { FONT_SIZES, COLOR_PALETTE, HIGHLIGHT_PALETTE } from '../../utils/defaul
 
 export interface BubbleToolbarProps {
   editor: Editor | null;
+  isDragging?: boolean;
 }
 
-export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor }) => {
+export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
@@ -34,9 +36,22 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor }) => {
     if (!editor) return;
 
     const updatePosition = () => {
-      const { selection } = editor.state;
-      if (selection.empty || !editor.isFocused) {
+      if (isDragging) {
         setPosition((prev) => ({ ...prev, visible: false }));
+        setShowFontSizePicker(false);
+        setShowColorPicker(false);
+        setShowHighlightPicker(false);
+        return;
+      }
+
+      const { selection } = editor.state;
+      // 严格限定：必须是 TextSelection（文本选区）且选中了非空文本，排除 NodeSelection（节点选区）
+      const isTextSelection = selection instanceof TextSelection;
+      if (selection.empty || selection.from === selection.to || !isTextSelection) {
+        setPosition((prev) => ({ ...prev, visible: false }));
+        setShowFontSizePicker(false);
+        setShowColorPicker(false);
+        setShowHighlightPicker(false);
         return;
       }
 
@@ -57,14 +72,15 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor }) => {
     };
 
     editor.on('selectionUpdate', updatePosition);
-    editor.on('blur', () => setPosition((prev) => ({ ...prev, visible: false })));
+    editor.on('transaction', updatePosition);
 
     return () => {
       editor.off('selectionUpdate', updatePosition);
+      editor.off('transaction', updatePosition);
     };
-  }, [editor]);
+  }, [editor, isDragging]);
 
-  if (!editor || !position.visible) {
+  if (!editor || !position.visible || isDragging) {
     return null;
   }
 
@@ -76,6 +92,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor }) => {
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
+      onMouseDown={(e) => e.preventDefault()}
     >
       {/* 字号选择 */}
       <div style={{ position: 'relative' }}>

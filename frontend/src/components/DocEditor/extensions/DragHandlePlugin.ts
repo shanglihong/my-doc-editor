@@ -22,6 +22,21 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
         key: dragHandlePluginKey,
         props: {
           handleDOMEvents: {
+            dragstart: (_view, event) => {
+              const targetEl = event.target as HTMLElement;
+              const isFromDragHandle =
+                targetEl &&
+                (targetEl.classList.contains('dragHandle') ||
+                  targetEl.closest('[class*="dragHandle"]') !== null);
+
+              // 强制：如果触发源不是左侧留白区的六点拖拽把手，全量阻断并停止冒泡正文 Block 的原生拖拽
+              if (!isFromDragHandle) {
+                event.preventDefault();
+                event.stopPropagation();
+                return true;
+              }
+              return false;
+            },
             mousemove: (view, event) => {
               if (!this.options.onNodeChange) return false;
 
@@ -51,7 +66,7 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
               }
 
               // 必须严格匹配 .ProseMirror > * 级别的直接 Block 子节点
-              const blockDom = targetEl.closest('.ProseMirror > *') as HTMLElement;
+              let blockDom = targetEl.closest('.ProseMirror > *') as HTMLElement;
               if (!blockDom || !editorDom.contains(blockDom)) {
                 this.options.onNodeChange(null);
                 return false;
@@ -65,7 +80,14 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
               }
 
               try {
-                const pos = view.posAtDOM(blockDom, 0);
+                // 针对 Tiptap 表格节点特别适配：DOM 元素可能为 tableWrapper，实际节点为其中的 table 元素
+                const domForPos = blockDom.querySelector('table') || blockDom;
+                let pos = view.posAtDOM(domForPos, 0);
+
+                if (pos === null || pos === undefined) {
+                  pos = view.posAtDOM(blockDom, 0);
+                }
+
                 if (pos === null || pos === undefined) {
                   this.options.onNodeChange(null);
                   return false;
@@ -80,7 +102,29 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                   return false;
                 }
 
-                const relativeTop = rect.top - containerRect.top + 2;
+                // 判空规则：仅空白段落与标题隐藏把手；表格、Callout、代码块、Excalidraw 等实体块不受影响
+                const isTextNode = node.type.name === 'paragraph' || node.type.name === 'heading';
+                const isContentEmpty = isTextNode && node.textContent.trim() === '';
+
+                if (isContentEmpty) {
+                  this.options.onNodeChange(null);
+                  return false;
+                }
+
+                // 垂直对齐规则：单行文案 Block 几何居中对齐，多行/卡片/表格 Block 对齐首行
+                const handleHeight = 24;
+                const isHeadingNode = node.type.name === 'heading';
+                const singleLineThreshold = isHeadingNode ? 52 : 36;
+                let relativeTop: number;
+
+                if (node.type.name === 'table') {
+                  // 表格块：对齐表格首行/表头区域
+                  relativeTop = rect.top - containerRect.top + 8;
+                } else if (rect.height <= singleLineThreshold) {
+                  relativeTop = rect.top - containerRect.top + (rect.height - handleHeight) / 2;
+                } else {
+                  relativeTop = rect.top - containerRect.top + 2;
+                }
 
                 this.options.onNodeChange({
                   node,

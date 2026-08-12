@@ -35,6 +35,24 @@
 }
 
 /* Tiptap Core & ProseMirror overrides */
+.excalidrawContainer {
+  width: 100%;
+  height: 480px;
+}
+
+/* 预览模式下隐退全量 Excalidraw 杂音文本、UI 菜单与按钮 */
+.excalidrawPreview :global(.excalidraw .layer-ui__wrapper),
+.excalidrawPreview :global(.excalidraw .App-menu),
+.excalidrawPreview :global(.excalidraw .island),
+.excalidrawPreview :global(.excalidraw .zen-mode-button),
+.excalidrawPreview :global(.excalidraw .footer-center),
+.excalidrawPreview :global(.excalidraw .disable-zen-mode--visible),
+.excalidrawPreview :global(.excalidraw .hint-hint),
+.excalidrawPreview :global(.excalidraw .toast),
+.excalidrawPreview :global(.excalidraw .excalidraw-hint) {
+  display: none !important;
+}
+
 .editorContent {
   outline: none;
   min-height: 500px;
@@ -118,6 +136,60 @@
   content: attr(data-placeholder);
   float: left;
   height: 0;
+  pointer-events: none;
+}
+
+/* Table Styles - 极简卡片视觉规格 */
+.editorContent :global(.ProseMirror .tableWrapper) {
+  margin: 1em 0;
+  overflow-x: auto;
+  border-radius: var(--de-radius-md);
+  border: 1px solid var(--de-border-color);
+  box-shadow: var(--de-shadow-sm);
+  background: #ffffff;
+}
+
+.editorContent :global(.ProseMirror table) {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.editorContent :global(.ProseMirror td),
+.editorContent :global(.ProseMirror th) {
+  min-width: 80px;
+  border: 1px solid var(--de-border-color);
+  padding: 10px 14px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.editorContent :global(.ProseMirror th) {
+  font-weight: 600;
+  text-align: left;
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.editorContent :global(.ProseMirror td > *),
+.editorContent :global(.ProseMirror th > *) {
+  margin: 0;
+}
+
+.editorContent :global(.ProseMirror .selectedCell:after) {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(37, 99, 235, 0.12);
   pointer-events: none;
 }
 

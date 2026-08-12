@@ -1,7 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { NodeSelection } from '@tiptap/pm/state';
 import { Markdown } from 'tiptap-markdown';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
@@ -45,11 +44,18 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     },
     ref
   ) => {
-    const [dragState, setDragState] = useState<{ visible: boolean; top: number; left: number; pos: number }>({
+    const [dragState, setDragState] = useState<{
+      visible: boolean;
+      top: number;
+      left: number;
+      pos: number;
+      isDragging?: boolean;
+    }>({
       visible: false,
       top: 0,
       left: 10,
       pos: 0,
+      isDragging: false,
     });
     const [dropIndicatorState, setDropIndicatorState] = useState<{ visible: boolean; top: number }>({
       visible: false,
@@ -280,6 +286,8 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
               // fallback
             }
           }
+          setDropIndicatorState({ visible: false, top: 0 });
+          setDragState((prev) => ({ ...prev, isDragging: false }));
         }}
       >
         {dropIndicatorState.visible && (
@@ -293,18 +301,15 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           left={dragState.left}
           pos={dragState.pos}
           visible={dragState.visible}
-          onMouseDown={() => {
-            if (!editor || !dragState.visible) return;
-            try {
-              const { tr, doc } = editor.state;
-              const selection = NodeSelection.create(doc, dragState.pos);
-              editor.view.dispatch(tr.setSelection(selection));
-            } catch (_e) {
-              // fallback
-            }
+          onDragStart={() => {
+            setDragState((prev) => ({ ...prev, isDragging: true }));
+          }}
+          onDragEnd={() => {
+            setDragState((prev) => ({ ...prev, isDragging: false }));
+            setDropIndicatorState({ visible: false, top: 0 });
           }}
         />
-        <BubbleToolbar editor={editor} />
+        <BubbleToolbar editor={editor} isDragging={dragState.isDragging} />
         <EditorContent editor={editor} className={styles.editorContent} />
       </div>
     );
