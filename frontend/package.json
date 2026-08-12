@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "setup:drawio": "node scripts/setup-drawio.mjs",
+    "postinstall": "node scripts/setup-drawio.mjs"
   },
   "dependencies": {
     "@tiptap/extension-color": "^3.30.0",

@@ -99,7 +99,7 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
       <div style={{ flex: 1, position: 'relative', width: '100%', height: 'calc(100% - 48px)' }}>
         <iframe
           ref={iframeRef}
-          src="/drawio/index.html"
+          src="/drawio-embed.html"
           onLoad={handleIframeLoad}
           style={{
             width: '100%',

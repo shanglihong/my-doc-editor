@@ -28,3 +28,7 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# draw.io webapp 静态资源（通过 npm run setup:drawio 自动下载，不提交 git）
+frontend/public/drawio/
+tmp_*/
