@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { NodeSelection } from '@tiptap/pm/state';
 import { Markdown } from 'tiptap-markdown';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
@@ -44,7 +45,13 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     },
     ref
   ) => {
-    const [dragState, setDragState] = useState<{ visible: boolean; top: number }>({
+    const [dragState, setDragState] = useState<{ visible: boolean; top: number; left: number; pos: number }>({
+      visible: false,
+      top: 0,
+      left: 10,
+      pos: 0,
+    });
+    const [dropIndicatorState, setDropIndicatorState] = useState<{ visible: boolean; top: number }>({
       visible: false,
       top: 0,
     });
@@ -56,6 +63,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           heading: {
             levels: [1, 2, 3],
           },
+          dropcursor: false,
         }),
         Markdown.configure({
           html: false,
@@ -82,7 +90,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         DragHandlePlugin.configure({
           onNodeChange: (data) => {
             if (data) {
-              setDragState({ visible: true, top: data.top });
+              setDragState({ visible: true, top: data.top, left: data.left, pos: data.pos });
             } else {
               setDragState((prev) => ({ ...prev, visible: false }));
             }
@@ -147,8 +155,155 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     );
 
     return (
-      <div className={`${styles.editorContainer} ${className}`}>
-        <DragHandleUI top={dragState.top} visible={dragState.visible} />
+      <div
+        className={`${styles.editorContainer} ${className}`}
+        onMouseLeave={() => {
+          setDragState((prev) => ({ ...prev, visible: false }));
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (e.dataTransfer) {
+            e.dataTransfer.dropEffect = 'move';
+          }
+          if (!editor) return;
+          const editorDom = editor.view.dom;
+          const containerRect = e.currentTarget.getBoundingClientRect();
+          const blocks = Array.from(editorDom.children) as HTMLElement[];
+
+          if (blocks.length === 0) return;
+
+          const mouseY = e.clientY;
+          let calculatedLineTop = 0;
+
+          // 算法：归一化 N+1 个绝对线位置插槽
+          if (mouseY < blocks[0].getBoundingClientRect().top + blocks[0].getBoundingClientRect().height / 2) {
+            // 插槽 0: 第一个 Block 顶部
+            calculatedLineTop = blocks[0].getBoundingClientRect().top - containerRect.top;
+          } else if (
+            mouseY >=
+            blocks[blocks.length - 1].getBoundingClientRect().top +
+              blocks[blocks.length - 1].getBoundingClientRect().height / 2
+          ) {
+            // 插槽 N: 最后一个 Block 底部
+            calculatedLineTop = blocks[blocks.length - 1].getBoundingClientRect().bottom - containerRect.top;
+          } else {
+            // 插槽 1 ~ N-1: 相邻 Block 缝隙间，统一归一化吸附在下一个 Block 的顶端 (next.top)
+            for (let i = 0; i < blocks.length - 1; i++) {
+              const currentRect = blocks[i].getBoundingClientRect();
+              const nextRect = blocks[i + 1].getBoundingClientRect();
+              const currentMid = currentRect.top + currentRect.height / 2;
+              const nextMid = nextRect.top + nextRect.height / 2;
+
+              if (mouseY >= currentMid && mouseY < nextMid) {
+                calculatedLineTop = nextRect.top - containerRect.top;
+                break;
+              }
+            }
+          }
+
+          setDropIndicatorState({ visible: true, top: calculatedLineTop });
+        }}
+        onDragLeave={() => {
+          setDropIndicatorState({ visible: false, top: 0 });
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDropIndicatorState({ visible: false, top: 0 });
+          if (!editor) return;
+
+          const posStr = e.dataTransfer.getData('application/x-tiptap-dragged-pos');
+          if (!posStr) return;
+          const fromPos = parseInt(posStr, 10);
+          if (isNaN(fromPos)) return;
+
+          const editorDom = editor.view.dom;
+          const blocks = Array.from(editorDom.children) as HTMLElement[];
+          if (blocks.length === 0) return;
+
+          const mouseY = e.clientY;
+          let targetBlockDom: HTMLElement | null = null;
+          let dropAfter = false;
+
+          if (mouseY < blocks[0].getBoundingClientRect().top + blocks[0].getBoundingClientRect().height / 2) {
+            targetBlockDom = blocks[0];
+            dropAfter = false;
+          } else if (
+            mouseY >=
+            blocks[blocks.length - 1].getBoundingClientRect().top +
+              blocks[blocks.length - 1].getBoundingClientRect().height / 2
+          ) {
+            targetBlockDom = blocks[blocks.length - 1];
+            dropAfter = true;
+          } else {
+            for (let i = 0; i < blocks.length - 1; i++) {
+              const currentRect = blocks[i].getBoundingClientRect();
+              const nextRect = blocks[i + 1].getBoundingClientRect();
+              const currentMid = currentRect.top + currentRect.height / 2;
+              const nextMid = nextRect.top + nextRect.height / 2;
+
+              if (mouseY >= currentMid && mouseY < nextMid) {
+                targetBlockDom = blocks[i + 1];
+                dropAfter = false;
+                break;
+              }
+            }
+          }
+
+          if (targetBlockDom) {
+            try {
+              const domPos = editor.view.posAtDOM(targetBlockDom, 0);
+              if (domPos !== null && domPos !== undefined) {
+                const resolved = editor.state.doc.resolve(Math.min(domPos, editor.state.doc.content.size));
+                const blockStart = resolved.before(1);
+                let targetPos = blockStart;
+
+                if (dropAfter) {
+                  targetPos = resolved.after(1);
+                }
+
+                if (fromPos !== targetPos) {
+                  const nodeToMove = editor.state.doc.nodeAt(fromPos);
+                  if (nodeToMove) {
+                    const tr = editor.state.tr;
+                    if (fromPos < targetPos) {
+                      tr.insert(targetPos, nodeToMove);
+                      tr.delete(fromPos, fromPos + nodeToMove.nodeSize);
+                    } else {
+                      tr.delete(fromPos, fromPos + nodeToMove.nodeSize);
+                      tr.insert(targetPos, nodeToMove);
+                    }
+                    editor.view.dispatch(tr);
+                  }
+                }
+              }
+            } catch (_err) {
+              // fallback
+            }
+          }
+        }}
+      >
+        {dropIndicatorState.visible && (
+          <div
+            className={styles.dropIndicator}
+            style={{ top: `${dropIndicatorState.top}px` }}
+          />
+        )}
+        <DragHandleUI
+          top={dragState.top}
+          left={dragState.left}
+          pos={dragState.pos}
+          visible={dragState.visible}
+          onMouseDown={() => {
+            if (!editor || !dragState.visible) return;
+            try {
+              const { tr, doc } = editor.state;
+              const selection = NodeSelection.create(doc, dragState.pos);
+              editor.view.dispatch(tr.setSelection(selection));
+            } catch (_e) {
+              // fallback
+            }
+          }}
+        />
         <BubbleToolbar editor={editor} />
         <EditorContent editor={editor} className={styles.editorContent} />
       </div>

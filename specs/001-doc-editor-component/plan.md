@@ -68,7 +68,7 @@ frontend/src/
 │       │   ├── BubbleToolbar/        # 选区气泡工具栏 (字号、样式、调色盘、对齐控制)
 │       │   ├── Callout/              # 高亮嵌套容器与 Icon/Theme 选择器面板
 │       │   ├── Excalidraw/           # Excalidraw 嵌入式画图块
-│       │   └── DragHandle/           # 拖拽把手与放置指示线视图
+│       │   └── DragHandle/           # 容器左侧留白区内的 + 添加块按钮、六点拖拽把手与放置指示线视图
 │       ├── extensions/
 │       │   ├── CalloutExtension.ts   # Callout Container 扩展节点
 │       │   ├── ExcalidrawExtension.ts# Excalidraw 扩展节点
