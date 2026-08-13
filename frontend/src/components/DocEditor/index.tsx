@@ -23,6 +23,8 @@ import { SlashMenuExtension } from './components/SlashMenu/SlashMenuPlugin';
 import { BubbleToolbar } from './components/BubbleToolbar';
 import { DragHandleUI } from './components/DragHandle';
 
+import { BlockTypeMenu } from './components/BlockTypeMenu';
+
 export * from './types';
 export * from './utils/defaultTheme';
 
@@ -50,13 +52,28 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       top: number;
       left: number;
       pos: number;
+      nodeType?: string;
+      nodeLevel?: number;
+      isEmpty?: boolean;
       isDragging?: boolean;
     }>({
       visible: false,
       top: 0,
       left: 10,
       pos: 0,
+      nodeType: 'paragraph',
+      nodeLevel: undefined,
+      isEmpty: false,
       isDragging: false,
+    });
+    const [typeMenuState, setTypeMenuState] = useState<{
+      isOpen: boolean;
+      pos: number;
+      anchorRect: DOMRect | null;
+    }>({
+      isOpen: false,
+      pos: 0,
+      anchorRect: null,
     });
     const [dropIndicatorState, setDropIndicatorState] = useState<{ visible: boolean; top: number }>({
       visible: false,
@@ -128,7 +145,15 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         DragHandlePlugin.configure({
           onNodeChange: (data) => {
             if (data) {
-              setDragState({ visible: true, top: data.top, left: data.left, pos: data.pos });
+              setDragState({
+                visible: true,
+                top: data.top,
+                left: data.left,
+                pos: data.pos,
+                nodeType: data.nodeType,
+                nodeLevel: data.nodeLevel,
+                isEmpty: data.isEmpty,
+              });
             } else {
               setDragState((prev) => ({ ...prev, visible: false }));
             }
@@ -333,13 +358,32 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           left={dragState.left}
           pos={dragState.pos}
           visible={dragState.visible}
+          nodeType={dragState.nodeType}
+          nodeLevel={dragState.nodeLevel}
+          isEmpty={dragState.isEmpty}
+          onMouseDown={() => setTypeMenuState((prev) => ({ ...prev, isOpen: false }))}
           onDragStart={() => {
+            setTypeMenuState((prev) => ({ ...prev, isOpen: false }));
             setDragState((prev) => ({ ...prev, isDragging: true }));
           }}
           onDragEnd={() => {
             setDragState((prev) => ({ ...prev, isDragging: false }));
             setDropIndicatorState({ visible: false, top: 0 });
           }}
+          onOpenTypeMenu={(pos, anchorRect) => {
+            setTypeMenuState({
+              isOpen: true,
+              pos,
+              anchorRect,
+            });
+          }}
+        />
+        <BlockTypeMenu
+          editor={editor}
+          pos={typeMenuState.pos}
+          anchorRect={typeMenuState.anchorRect}
+          isOpen={typeMenuState.isOpen}
+          onClose={() => setTypeMenuState((prev) => ({ ...prev, isOpen: false }))}
         />
         <BubbleToolbar editor={editor} isDragging={dragState.isDragging} />
         <EditorContent editor={editor} className={styles.editorContent} />

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import styles from '../../DocEditor.module.css';
 import { FONT_SIZES, COLOR_PALETTE, HIGHLIGHT_PALETTE } from '../../utils/defaultTheme';
+import { calculateSmartPosition } from '../../utils/floatingPosition';
 
 export interface BubbleToolbarProps {
   editor: Editor | null;
@@ -26,9 +27,15 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number; visible: boolean }>({
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+    placement: 'top' | 'bottom';
+    visible: boolean;
+  }>({
     top: 0,
     left: 0,
+    placement: 'top',
     visible: false,
   });
 
@@ -45,7 +52,6 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       }
 
       const { selection } = editor.state;
-      // 严格限定：必须是 TextSelection（文本选区）且选中了非空文本，排除 NodeSelection（节点选区）
       const isTextSelection = selection instanceof TextSelection;
       if (selection.empty || selection.from === selection.to || !isTextSelection) {
         setPosition((prev) => ({ ...prev, visible: false }));
@@ -60,13 +66,34 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       const start = view.coordsAtPos(from);
       const end = view.coordsAtPos(to);
 
-      const editorDom = view.dom.getBoundingClientRect();
-      const left = (start.left + end.left) / 2 - editorDom.left;
-      const top = start.top - editorDom.top - 45;
+      const container = view.dom.closest('[class*="editorContainer"]') as HTMLElement;
+      const containerRect = container
+        ? container.getBoundingClientRect()
+        : new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+
+      const targetRect = new DOMRect(
+        Math.min(start.left, end.left),
+        Math.min(start.top, end.top),
+        Math.max(1, Math.abs(end.left - start.left)),
+        Math.max(20, Math.abs(end.bottom - start.top))
+      );
+
+      const toolbarWidth = 380;
+      const toolbarHeight = 40;
+
+      const posResult = calculateSmartPosition({
+        targetRect,
+        containerRect,
+        menuWidth: toolbarWidth,
+        menuHeight: toolbarHeight,
+        preferredPlacement: 'top',
+        offset: 8,
+      });
 
       setPosition({
-        top: Math.max(0, top),
-        left: Math.max(10, left - 100),
+        top: posResult.top,
+        left: posResult.left,
+        placement: posResult.placement,
         visible: true,
       });
     };
@@ -83,6 +110,12 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
   if (!editor || !position.visible || isDragging) {
     return null;
   }
+
+  // 子下拉框展开策略：当 Toolbar 本身在选区下方（placement === 'bottom'）时，下拉框向下；在选区上方（placement === 'top'）时，下拉框向上展现
+  const dropdownStyle: React.CSSProperties =
+    position.placement === 'bottom'
+      ? { top: '100%', marginTop: '4px' }
+      : { bottom: '100%', marginBottom: '4px' };
 
   return (
     <div
@@ -111,7 +144,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
           <div
             style={{
               position: 'absolute',
-              top: '100%',
+              ...dropdownStyle,
               left: 0,
               background: '#fff',
               border: '1px solid #e2e8f0',
@@ -211,7 +244,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
           <div
             style={{
               position: 'absolute',
-              top: '100%',
+              ...dropdownStyle,
               left: 0,
               background: '#fff',
               border: '1px solid #e2e8f0',
@@ -268,7 +301,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
           <div
             style={{
               position: 'absolute',
-              top: '100%',
+              ...dropdownStyle,
               left: 0,
               background: '#fff',
               border: '1px solid #e2e8f0',

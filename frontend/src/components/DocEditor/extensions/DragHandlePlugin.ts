@@ -3,8 +3,18 @@ import { Plugin, PluginKey } from '@tiptap/pm/state';
 
 export const dragHandlePluginKey = new PluginKey('dragHandlePlugin');
 
+export interface DragHandleData {
+  node: any;
+  pos: number;
+  top: number;
+  left: number;
+  nodeType: string;
+  nodeLevel?: number;
+  isEmpty: boolean;
+}
+
 export interface DragHandleOptions {
-  onNodeChange?: (data: { node: any; pos: number; top: number; left: number } | null) => void;
+  onNodeChange?: (data: DragHandleData | null) => void;
 }
 
 export const DragHandlePlugin = Extension.create<DragHandleOptions>({
@@ -102,14 +112,9 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                   return false;
                 }
 
-                // 判空规则：仅空白段落与标题隐藏把手；表格、Callout、代码块、Excalidraw 等实体块不受影响
+                // 判空规则：检测段落与标题是否为空内容
                 const isTextNode = node.type.name === 'paragraph' || node.type.name === 'heading';
                 const isContentEmpty = isTextNode && node.textContent.trim() === '';
-
-                if (isContentEmpty) {
-                  this.options.onNodeChange(null);
-                  return false;
-                }
 
                 // 垂直对齐规则：单行文案 Block 几何居中对齐，多行/卡片/表格 Block 对齐首行
                 const handleHeight = 24;
@@ -130,7 +135,10 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                   node,
                   pos: blockStartPos,
                   top: relativeTop,
-                  left: 16,
+                  left: 10,
+                  nodeType: node.type.name,
+                  nodeLevel: node.attrs?.level,
+                  isEmpty: isContentEmpty,
                 });
               } catch (_err) {
                 this.options.onNodeChange(null);
@@ -144,3 +152,4 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
     ];
   },
 });
+

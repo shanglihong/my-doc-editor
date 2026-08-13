@@ -1,20 +1,7 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import {
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Table,
-  Code,
-  Quote,
-  Minus,
-  Info,
-  Palette,
-  Workflow,
-} from 'lucide-react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import styles from '../../DocEditor.module.css';
 import type { SlashMenuItem } from './SlashMenuPlugin';
+import { BlockIcon } from '../../utils/blockIcons';
 
 export interface SlashMenuProps {
   items: SlashMenuItem[];
@@ -25,27 +12,51 @@ export interface SlashMenuRef {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 }
 
-const iconMap: Record<string, React.FC<{ className?: string }>> = {
-  Heading1,
-  Heading2,
-  Heading3,
-  List,
-  ListOrdered,
-  Table,
-  Code,
-  Quote,
-  Minus,
-  Info,
-  Palette,
-  Workflow,
+const iconNameToBlockTypeMap: Record<string, { type: string; level?: number }> = {
+  Heading1: { type: 'heading', level: 1 },
+  Heading2: { type: 'heading', level: 2 },
+  Heading3: { type: 'heading', level: 3 },
+  List: { type: 'bulletList' },
+  ListOrdered: { type: 'orderedList' },
+  Table: { type: 'table' },
+  Code: { type: 'codeBlock' },
+  Quote: { type: 'blockquote' },
+  Minus: { type: 'paragraph' },
+  Info: { type: 'callout' },
+  Palette: { type: 'callout' },
+  Workflow: { type: 'drawioBlock' },
 };
 
 export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, command }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedIndex(0);
   }, [items]);
+
+  useEffect(() => {
+    if (items.length === 0) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (menuRef.current && menuRef.current.contains(e.target as Node)) {
+        const { scrollTop, scrollHeight, clientHeight } = menuRef.current;
+        const delta = e.deltaY;
+        const isAtTop = scrollTop === 0 && delta < 0;
+        const isAtBottom = Math.abs(scrollTop + clientHeight - scrollHeight) < 2 && delta > 0;
+        if (isAtTop || isAtBottom) {
+          e.preventDefault();
+        }
+        return;
+      }
+      e.preventDefault();
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [items.length]);
 
   const selectItem = (index: number) => {
     const item = items[index];
@@ -77,9 +88,9 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
   }
 
   return (
-    <div className={styles.slashMenu}>
+    <div ref={menuRef} className={styles.slashMenu}>
       {items.map((item, index) => {
-        const IconComponent = iconMap[item.iconName] || List;
+        const blockTypeInfo = iconNameToBlockTypeMap[item.iconName] || { type: 'paragraph' };
         return (
           <div
             key={item.title}
@@ -90,11 +101,10 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
             onMouseEnter={() => setSelectedIndex(index)}
           >
             <div className={styles.slashMenuIcon}>
-              <IconComponent />
+              <BlockIcon type={blockTypeInfo.type} level={blockTypeInfo.level} size={15} />
             </div>
             <div>
-              <div style={{ fontWeight: 500 }}>{item.title}</div>
-              <div style={{ fontSize: '12px', color: '#64748b' }}>{item.description}</div>
+              <div style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a' }}>{item.title}</div>
             </div>
           </div>
         );
@@ -102,5 +112,6 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
     </div>
   );
 });
+
 
 SlashMenu.displayName = 'SlashMenu';
