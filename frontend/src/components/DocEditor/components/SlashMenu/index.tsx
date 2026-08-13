@@ -21,7 +21,7 @@ const iconNameToBlockTypeMap: Record<string, { type: string; level?: number }> =
   Table: { type: 'table' },
   Code: { type: 'codeBlock' },
   Quote: { type: 'blockquote' },
-  Minus: { type: 'paragraph' },
+  Minus: { type: 'horizontalRule' },
   Info: { type: 'callout' },
   Palette: { type: 'callout' },
   Workflow: { type: 'drawioBlock' },
@@ -104,7 +104,7 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
               <BlockIcon type={blockTypeInfo.type} level={blockTypeInfo.level} size={15} />
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a' }}>{item.title}</div>
+              <div style={{ fontWeight: 400, fontSize: '13px', color: '#0f172a' }}>{item.title}</div>
             </div>
           </div>
         );

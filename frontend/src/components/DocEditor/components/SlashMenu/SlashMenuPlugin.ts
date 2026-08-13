@@ -13,7 +13,7 @@ export interface SlashMenuItem {
 
 export const getSlashMenuItems = (): SlashMenuItem[] => [
   {
-    title: '一级标题 (Heading 1)',
+    title: '一级标题',
     description: '高亮大标题，构建主要大纲结构',
     iconName: 'Heading1',
     command: ({ editor, range }) => {
@@ -21,7 +21,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '二级标题 (Heading 2)',
+    title: '二级标题',
     description: '中等标题，区分不同讨论模块',
     iconName: 'Heading2',
     command: ({ editor, range }) => {
@@ -29,7 +29,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '三级标题 (Heading 3)',
+    title: '三级标题',
     description: '小标题，罗列具体子项目内容',
     iconName: 'Heading3',
     command: ({ editor, range }) => {
@@ -37,7 +37,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '无序列表 (Bullet List)',
+    title: '无序列表',
     description: '创建简单清晰的无序列表项',
     iconName: 'List',
     command: ({ editor, range }) => {
@@ -45,7 +45,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '有序列表 (Ordered List)',
+    title: '有序列表',
     description: '创建带编号的顺序步骤清单',
     iconName: 'ListOrdered',
     command: ({ editor, range }) => {
@@ -53,7 +53,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '表格 (Table)',
+    title: '表格',
     description: '插入 3x3 极简卡片风格数据表格',
     iconName: 'Table',
     command: ({ editor, range }) => {
@@ -61,7 +61,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '代码块 (Code Block)',
+    title: '代码块',
     description: '插入支持多语言高亮的代码段落',
     iconName: 'Code',
     command: ({ editor, range }) => {
@@ -69,7 +69,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '引用块 (Blockquote)',
+    title: '引用块',
     description: '插入强调式观点或参考文案',
     iconName: 'Quote',
     command: ({ editor, range }) => {
@@ -77,7 +77,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '分割线 (Horizontal Rule)',
+    title: '分割线',
     description: '插入分割线切分章节',
     iconName: 'Minus',
     command: ({ editor, range }) => {
@@ -85,7 +85,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: '高亮容器 (Callout Box)',
+    title: '高亮容器',
     description: '插入带图标与多主题高亮块，可内嵌子块',
     iconName: 'Info',
     command: ({ editor, range }) => {
@@ -93,7 +93,7 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
-    title: 'draw.io 图表 (draw.io Diagram)',
+    title: 'DrawIO 图表',
     description: '插入流程图、架构图与专业矢量图表',
     iconName: 'Workflow',
     command: ({ editor, range }) => {
@@ -124,6 +124,7 @@ export const SlashMenuExtension = Extension.create({
 
           return {
             onStart: (props: any) => {
+              window.dispatchEvent(new CustomEvent('SLASH_MENU_CHANGE', { detail: { isOpen: true } }));
               component = new ReactRenderer(SlashMenu, {
                 props,
                 editor: props.editor,
@@ -161,6 +162,7 @@ export const SlashMenuExtension = Extension.create({
 
             onKeyDown(props: any) {
               if (props.event.key === 'Escape') {
+                window.dispatchEvent(new CustomEvent('SLASH_MENU_CHANGE', { detail: { isOpen: false } }));
                 if (component?.element) {
                   component.element.remove();
                 }
@@ -172,6 +174,7 @@ export const SlashMenuExtension = Extension.create({
             },
 
             onExit() {
+              window.dispatchEvent(new CustomEvent('SLASH_MENU_CHANGE', { detail: { isOpen: false } }));
               if (component?.element) {
                 component.element.remove();
               }

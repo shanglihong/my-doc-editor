@@ -21,9 +21,10 @@ import { calculateSmartPosition } from '../../utils/floatingPosition';
 export interface BubbleToolbarProps {
   editor: Editor | null;
   isDragging?: boolean;
+  isTypeMenuOpen?: boolean;
 }
 
-export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging }) => {
+export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging, isTypeMenuOpen }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
@@ -43,7 +44,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     if (!editor) return;
 
     const updatePosition = () => {
-      if (isDragging) {
+      if (isDragging || isTypeMenuOpen) {
         setPosition((prev) => ({ ...prev, visible: false }));
         setShowFontSizePicker(false);
         setShowColorPicker(false);
@@ -53,7 +54,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
 
       const { selection } = editor.state;
       const isTextSelection = selection instanceof TextSelection;
-      if (selection.empty || selection.from === selection.to || !isTextSelection) {
+      const isInCodeBlock = editor.isActive('codeBlock');
+      if (selection.empty || selection.from === selection.to || !isTextSelection || isInCodeBlock) {
         setPosition((prev) => ({ ...prev, visible: false }));
         setShowFontSizePicker(false);
         setShowColorPicker(false);
@@ -107,7 +109,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     };
   }, [editor, isDragging]);
 
-  if (!editor || !position.visible || isDragging) {
+  if (!editor || !position.visible || isDragging || isTypeMenuOpen) {
     return null;
   }
 
@@ -186,7 +188,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <button
         className={`${styles.toolbarBtn} ${editor.isActive('bold') ? styles.toolbarBtnActive : ''}`}
         onClick={() => editor.chain().focus().toggleBold().run()}
-        title="加粗 (Bold)"
+        title="加粗"
       >
         <Bold size={16} />
       </button>
@@ -195,7 +197,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <button
         className={`${styles.toolbarBtn} ${editor.isActive('italic') ? styles.toolbarBtnActive : ''}`}
         onClick={() => editor.chain().focus().toggleItalic().run()}
-        title="斜体 (Italic)"
+        title="斜体"
       >
         <Italic size={16} />
       </button>
@@ -204,7 +206,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <button
         className={`${styles.toolbarBtn} ${editor.isActive('underline') ? styles.toolbarBtnActive : ''}`}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
-        title="下划线 (Underline)"
+        title="下划线"
       >
         <Underline size={16} />
       </button>
@@ -213,7 +215,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <button
         className={`${styles.toolbarBtn} ${editor.isActive('strike') ? styles.toolbarBtnActive : ''}`}
         onClick={() => editor.chain().focus().toggleStrike().run()}
-        title="删除线 (Strike)"
+        title="删除线"
       >
         <Strikethrough size={16} />
       </button>

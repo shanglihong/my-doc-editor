@@ -1,16 +1,18 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { createLowlight, all } from 'lowlight';
 import { Markdown } from 'tiptap-markdown';
 import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
-import { TableHeader } from '@tiptap/extension-table-header';
-import { TableCell } from '@tiptap/extension-table-cell';
+import { CustomTableCell, CustomTableHeader } from './extensions/CustomTableExtensions';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
+import { Placeholder } from '@tiptap/extension-placeholder';
 
 import styles from './DocEditor.module.css';
 import type { DocEditorProps, DocEditorRef, DocumentNode, BlockNode, DrawIOModalState } from './types';
@@ -22,8 +24,11 @@ import { DrawIOModal } from './components/DrawIO/DrawIOModal';
 import { SlashMenuExtension } from './components/SlashMenu/SlashMenuPlugin';
 import { BubbleToolbar } from './components/BubbleToolbar';
 import { DragHandleUI } from './components/DragHandle';
-
 import { BlockTypeMenu } from './components/BlockTypeMenu';
+import { CodeBlockComponent } from './components/CodeBlock/CodeBlockComponent';
+import { TableBubbleMenu } from './components/TableBubbleMenu';
+
+const lowlight = createLowlight(all);
 
 export * from './types';
 export * from './utils/defaultTheme';
@@ -119,6 +124,15 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
             levels: [1, 2, 3],
           },
           dropcursor: false,
+          codeBlock: false,
+        }),
+        CodeBlockLowlight.configure({
+          lowlight,
+          defaultLanguage: 'plaintext',
+        }).extend({
+          addNodeView() {
+            return ReactNodeViewRenderer(CodeBlockComponent);
+          },
         }),
         Markdown.configure({
           html: false,
@@ -129,8 +143,8 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           resizable: true,
         }),
         TableRow,
-        TableHeader,
-        TableCell,
+        CustomTableHeader,
+        CustomTableCell,
         TextStyle,
         Color,
         Highlight.configure({ multicolor: true }),
@@ -138,29 +152,65 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         TextAlign.configure({
           types: ['heading', 'paragraph'],
         }),
+        Placeholder.configure({
+          placeholder: ({ node }: { node: any }) => {
+            if (node.type.name === 'codeBlock') {
+              return '';
+            }
+            if (node.type.name === 'heading') {
+              return `标题 ${node.attrs?.level || 1}`;
+            }
+            return "输入 '/' 唤起快捷菜单，或直接输入内容...";
+          },
+          emptyNodeClass: 'is-empty',
+        }),
         FontSizeMark,
         CalloutExtension,
         DrawIOExtension,
         SlashMenuExtension,
         DragHandlePlugin.configure({
           onNodeChange: (data) => {
-            if (data) {
-              setDragState({
-                visible: true,
-                top: data.top,
-                left: data.left,
-                pos: data.pos,
-                nodeType: data.nodeType,
-                nodeLevel: data.nodeLevel,
-                isEmpty: data.isEmpty,
-              });
-            } else {
-              setDragState((prev) => ({ ...prev, visible: false }));
-            }
+            setTypeMenuState((typeMenu) => {
+              if (typeMenu.isOpen) {
+                // 当菜单打开时，锁定拖拽按钮在当前菜单关联的位置上，不随 MouseMove 飘动或隐藏
+                return typeMenu;
+              }
+              if (data) {
+                setDragState({
+                  visible: true,
+                  top: data.top,
+                  left: data.left,
+                  pos: data.pos,
+                  nodeType: data.nodeType,
+                  nodeLevel: data.nodeLevel,
+                  isEmpty: data.isEmpty,
+                });
+              } else {
+                setDragState((prev) => ({ ...prev, visible: false }));
+              }
+              return typeMenu;
+            });
           },
         }),
       ],
       content: typeof value === 'string' ? value : undefined,
+      editorProps: {
+        handleDOMEvents: {
+          copy: (view, event) => {
+            const { state } = view;
+            const { selection } = state;
+            if (selection.$anchor.parent.type.name === 'codeBlock') {
+              const text = state.doc.textBetween(selection.from, selection.to, '\n');
+              if (text && event.clipboardData) {
+                event.clipboardData.setData('text/plain', text);
+                event.preventDefault();
+                return true;
+              }
+            }
+            return false;
+          },
+        },
+      },
       onUpdate: ({ editor }) => {
         if (!onChange) return;
         const json = editor.getJSON();
@@ -216,6 +266,48 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       }),
       [editor]
     );
+
+    const [isSlashMenuOpen, setIsSlashMenuOpen] = useState(false);
+
+    useEffect(() => {
+      const handleSlashMenuChange = (e: any) => {
+        setIsSlashMenuOpen(!!e.detail?.isOpen);
+        if (e.detail?.isOpen) {
+          setTypeMenuState((prev) => ({ ...prev, isOpen: false }));
+        }
+      };
+
+      const handleGlobalMouseDown = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (!target) return;
+        const isInsideDrag =
+          target.closest('[class*="combinedDragHandleBtn"]') ||
+          target.closest('[class*="dragHandle"]') ||
+          target.closest('[class*="blockIconBtn"]');
+        const isInsideBlockMenu = target.closest('[class*="blockTypeMenu"]');
+
+        if (!isInsideDrag) {
+          setDragState((prev) => ({ ...prev, visible: false }));
+        }
+        if (!isInsideDrag && !isInsideBlockMenu) {
+          setTypeMenuState((prev) => ({ ...prev, isOpen: false }));
+        }
+      };
+
+      const handleGlobalKeyDown = () => {
+        setDragState((prev) => ({ ...prev, visible: false }));
+      };
+
+      window.addEventListener('SLASH_MENU_CHANGE', handleSlashMenuChange);
+      window.addEventListener('mousedown', handleGlobalMouseDown);
+      window.addEventListener('keydown', handleGlobalKeyDown);
+
+      return () => {
+        window.removeEventListener('SLASH_MENU_CHANGE', handleSlashMenuChange);
+        window.removeEventListener('mousedown', handleGlobalMouseDown);
+        window.removeEventListener('keydown', handleGlobalKeyDown);
+      };
+    }, []);
 
     return (
       <div
@@ -344,7 +436,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
             }
           }
           setDropIndicatorState({ visible: false, top: 0 });
-          setDragState((prev) => ({ ...prev, isDragging: false }));
+          setDragState((prev) => ({ ...prev, visible: false, isDragging: false }));
         }}
       >
         {dropIndicatorState.visible && (
@@ -357,7 +449,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           top={dragState.top}
           left={dragState.left}
           pos={dragState.pos}
-          visible={dragState.visible}
+          visible={(dragState.visible || typeMenuState.isOpen) && !isSlashMenuOpen}
           nodeType={dragState.nodeType}
           nodeLevel={dragState.nodeLevel}
           isEmpty={dragState.isEmpty}
@@ -367,7 +459,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
             setDragState((prev) => ({ ...prev, isDragging: true }));
           }}
           onDragEnd={() => {
-            setDragState((prev) => ({ ...prev, isDragging: false }));
+            setDragState((prev) => ({ ...prev, visible: false, isDragging: false }));
             setDropIndicatorState({ visible: false, top: 0 });
           }}
           onOpenTypeMenu={(pos, anchorRect) => {
@@ -383,9 +475,21 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           pos={typeMenuState.pos}
           anchorRect={typeMenuState.anchorRect}
           isOpen={typeMenuState.isOpen}
-          onClose={() => setTypeMenuState((prev) => ({ ...prev, isOpen: false }))}
+          onClose={() => {
+            setTypeMenuState((prev) => ({ ...prev, isOpen: false }));
+            setDragState((prev) => ({ ...prev, visible: false }));
+          }}
         />
-        <BubbleToolbar editor={editor} isDragging={dragState.isDragging} />
+        <BubbleToolbar
+          editor={editor}
+          isDragging={dragState.isDragging}
+          isTypeMenuOpen={typeMenuState.isOpen}
+        />
+        <TableBubbleMenu
+          editor={editor}
+          isDragging={dragState.isDragging}
+          isTypeMenuOpen={typeMenuState.isOpen}
+        />
         <EditorContent editor={editor} className={styles.editorContent} />
         <DrawIOModal
           isOpen={drawioModalState.isOpen}

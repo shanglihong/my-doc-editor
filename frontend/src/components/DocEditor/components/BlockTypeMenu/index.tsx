@@ -34,7 +34,7 @@ const MENU_OPTIONS: MenuItemOption[] = [
   {
     key: 'heading-1',
     label: '一级标题',
-    description: '转换为最高层级大标题 (H1)',
+    description: '转换为最高层级大标题',
     type: 'heading',
     level: 1,
     action: (editor, _pos) => {
@@ -44,7 +44,7 @@ const MENU_OPTIONS: MenuItemOption[] = [
   {
     key: 'heading-2',
     label: '二级标题',
-    description: '转换为章节中级标题 (H2)',
+    description: '转换为章节中级标题',
     type: 'heading',
     level: 2,
     action: (editor, _pos) => {
@@ -54,7 +54,7 @@ const MENU_OPTIONS: MenuItemOption[] = [
   {
     key: 'heading-3',
     label: '三级标题',
-    description: '转换为小节标题 (H3)',
+    description: '转换为小节标题',
     type: 'heading',
     level: 3,
     action: (editor, _pos) => {
@@ -187,8 +187,8 @@ export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
     ? container.getBoundingClientRect()
     : new DOMRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const menuWidth = 240;
-  const menuHeight = 320;
+  const menuWidth = 196;
+  const menuHeight = 280;
 
   const posResult = calculateSmartPosition({
     targetRect: anchorRect,

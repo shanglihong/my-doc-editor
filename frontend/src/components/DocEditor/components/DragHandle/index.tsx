@@ -30,48 +30,36 @@ export const DragHandleUI: React.FC<DragHandleProps> = ({
   onDragEnd,
   onOpenTypeMenu,
 }) => {
-  if (!visible) return null;
-
   return (
     <div
-      className={styles.dragHandleContainer}
+      className={styles.combinedDragHandleBtn}
       style={{
         top: `${top}px`,
         left: `${left}px`,
         opacity: visible ? 1 : 0,
+        pointerEvents: visible ? 'auto' : 'none',
+        transform: visible ? 'scale(1) translateY(0)' : 'scale(0.85) translateY(4px)',
       }}
-    >
-      {/* 左侧 Block 类型 / 加号图标按钮 */}
-      <button
-        type="button"
-        className={styles.blockIconBtn}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (onOpenTypeMenu) {
-            const rect = e.currentTarget.getBoundingClientRect();
-            onOpenTypeMenu(pos, rect);
-          }
-        }}
-        title={isEmpty ? '点此选择 Block 类型' : '点击切换 Block 类型'}
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <BlockIcon type={nodeType} level={nodeLevel} isEmpty={isEmpty} size={14} />
-      </button>
+      draggable
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onOpenTypeMenu) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          onOpenTypeMenu(pos, rect);
+        }
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        if (onMouseDown) onMouseDown();
+      }}
+      onDragStart={(e) => {
+        if (onDragStart) onDragStart();
+        e.dataTransfer.setData('application/x-tiptap-dragged-pos', String(pos));
+        e.dataTransfer.effectAllowed = 'move';
 
-      {/* 右侧六点拖拽把手 */}
-      <div
-        className={styles.dragHandle}
-        draggable
-        onMouseDown={onMouseDown}
-        onDragStart={(e) => {
-          if (onDragStart) onDragStart();
-          e.dataTransfer.setData('application/x-tiptap-dragged-pos', String(pos));
-          e.dataTransfer.effectAllowed = 'move';
-
-          const handleEl = e.currentTarget;
-          const handleRect = handleEl.getBoundingClientRect();
-          const handleCenterY = handleRect.top + handleRect.height / 2;
+        const handleEl = e.currentTarget;
+        const handleRect = handleEl.getBoundingClientRect();
+        const handleCenterY = handleRect.top + handleRect.height / 2;
 
           const container = handleEl.closest('[class*="editorContainer"]');
           if (container) {
@@ -119,10 +107,14 @@ export const DragHandleUI: React.FC<DragHandleProps> = ({
         onDragEnd={() => {
           if (onDragEnd) onDragEnd();
         }}
-        title="按住拖拽重排块位置"
+        title={isEmpty ? '点击选择类型 / 按住拖拽' : '点击切换类型 / 按住拖拽'}
       >
-        <GripVertical size={15} color="#94a3b8" />
+        <div className={styles.dragHandleIconWrap}>
+          <BlockIcon type={nodeType} level={nodeLevel} isEmpty={isEmpty} size={14} />
+        </div>
+        <div className={styles.dragHandleGripWrap}>
+          <GripVertical size={14} color="#94a3b8" />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };

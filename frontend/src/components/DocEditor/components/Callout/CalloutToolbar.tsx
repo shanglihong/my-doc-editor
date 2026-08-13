@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Settings2 } from 'lucide-react';
 import { CALLOUT_THEMES } from '../../utils/defaultTheme';
 import type { CalloutTheme } from '../../utils/defaultTheme';
 import styles from '../../DocEditor.module.css';
@@ -28,7 +29,7 @@ export const CalloutToolbar: React.FC<CalloutToolbarProps> = ({
         onClick={() => setShowPicker(!showPicker)}
         title="更换主题与图标"
       >
-        样式与图标
+        <Settings2 size={14} />
       </button>
 
       {showPicker && (

@@ -116,10 +116,11 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                 const isTextNode = node.type.name === 'paragraph' || node.type.name === 'heading';
                 const isContentEmpty = isTextNode && node.textContent.trim() === '';
 
-                // 垂直对齐规则：单行文案 Block 几何居中对齐，多行/卡片/表格 Block 对齐首行
+                // 垂直对齐规则：单行文案 Block 几何居中对齐，多行/卡片/表格 Block 精准对齐首行文字中线
                 const handleHeight = 24;
                 const isHeadingNode = node.type.name === 'heading';
-                const singleLineThreshold = isHeadingNode ? 52 : 36;
+                const level = node.attrs?.level || 1;
+                const singleLineThreshold = isHeadingNode ? (level === 1 ? 52 : level === 2 ? 44 : 38) : 34;
                 let relativeTop: number;
 
                 if (node.type.name === 'table') {
@@ -128,7 +129,14 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                 } else if (rect.height <= singleLineThreshold) {
                   relativeTop = rect.top - containerRect.top + (rect.height - handleHeight) / 2;
                 } else {
-                  relativeTop = rect.top - containerRect.top + 2;
+                  // 多行 Block 首行中线对齐
+                  if (isHeadingNode && level === 1) {
+                    relativeTop = rect.top - containerRect.top + 6;
+                  } else if (isHeadingNode && level === 2) {
+                    relativeTop = rect.top - containerRect.top + 3.5;
+                  } else {
+                    relativeTop = rect.top - containerRect.top + 1;
+                  }
                 }
 
                 this.options.onNodeChange({
