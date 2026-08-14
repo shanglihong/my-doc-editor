@@ -13,8 +13,10 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
 
   const [isRetrying, setIsRetrying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [, setHoverStateListener] = useState(0);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const imageWrapperRef = useRef<HTMLDivElement>(null);
 
   const clearHideTimeout = () => {
     if (hideTimeoutRef.current) {
@@ -59,6 +61,7 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
   };
 
   const handleMouseLeave = (e: React.MouseEvent) => {
+    if (isResizing) return;
     clearHideTimeout();
     const relatedTarget = e.relatedTarget as HTMLElement | null;
     if (
@@ -80,14 +83,12 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
     }, 250);
   };
 
-  // 决定最终展示的图片 source
-  const displaySrc = attrs.blobSrc || attrs.src;
+  const displaySrc = attrs.src;
 
   const handleAlignmentChange = (newAlign: 'left' | 'center' | 'right') => {
     updateAttributes({ alignment: newAlign });
   };
 
-  // 明确判断描述框是否应该展出
   const isCaptionVisible = !!attrs.showCaption;
 
   const handleToggleCaption = () => {
@@ -99,19 +100,18 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
   };
 
   const handleRetryUpload = async () => {
-    if (!attrs.blobSrc) return;
+    if (!attrs.src) return;
     setIsRetrying(true);
     updateAttributes({ status: 'uploading', errorMessage: null });
 
     try {
-      const res = await fetch(attrs.blobSrc);
+      const res = await fetch(attrs.src);
       const blob = await res.blob();
       const result = await ImageUploadService.uploadImage(blob);
 
       updateAttributes({
         src: result.url,
         status: 'ready',
-        blobSrc: null,
       });
     } catch (err: any) {
       updateAttributes({
@@ -123,23 +123,34 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
     }
   };
 
-  const handleConvertToLocal = async () => {
-    if (!attrs.src || attrs.storageType === 'local') return;
+  // 极简右侧拖拽手柄
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    updateAttributes({ status: 'uploading' });
-    try {
-      const result = await ImageUploadService.fetchAndStoreUrl(attrs.src);
-      updateAttributes({
-        src: result.url,
-        storageType: 'local',
-        status: 'ready',
-      });
-    } catch {
-      updateAttributes({
-        status: 'error',
-        errorMessage: '转存至本地存储目录失败',
-      });
-    }
+    if (!imageWrapperRef.current) return;
+
+    const startX = e.clientX;
+    const startWidth = imageWrapperRef.current.offsetWidth;
+    setIsResizing(true);
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      moveEvent.preventDefault();
+      const currentX = moveEvent.clientX;
+      const diffX = currentX - startX;
+
+      const newWidth = Math.max(120, Math.min(1200, startWidth + diffX));
+      updateAttributes({ width: `${newWidth}px` });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   const alignmentClass =
@@ -151,6 +162,7 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
 
   const activeToolbar = getActiveToolbarInfo(editor, isHovered ? 'image' : undefined);
   const showBubbleMenu = editor?.isEditable && activeToolbar.type === 'image';
+  const showHandles = editor?.isEditable && (selected || isHovered || isResizing);
 
   return (
     <NodeViewWrapper
@@ -159,14 +171,13 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className={styles.imageWrapper}>
-        {/* 存储模式 Badge */}
-        {attrs.status === 'ready' && (
-          <span className={styles.storageBadge}>
-            {attrs.storageType === 'local' ? '本地存储' : '网络外链'}
-          </span>
-        )}
-
+      <div
+        ref={imageWrapperRef}
+        className={styles.imageWrapper}
+        style={{
+          width: attrs.width !== 'auto' ? attrs.width : undefined,
+        }}
+      >
         {/* 核心图片 */}
         {displaySrc && (
           <img
@@ -174,9 +185,18 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
             alt={attrs.caption || attrs.alt || '图片'}
             className={styles.image}
             style={{
-              width: attrs.width !== 'auto' ? attrs.width : undefined,
+              width: '100%',
               height: attrs.height !== 'auto' ? attrs.height : undefined,
             }}
+          />
+        )}
+
+        {/* 极简右侧拖拽条 (Resize Bar) */}
+        {showHandles && (
+          <div
+            className={styles.minimalResizeBar}
+            onMouseDown={handleResizeMouseDown}
+            title="拖动调整宽度"
           />
         )}
 
@@ -193,22 +213,20 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
           <div className={styles.errorOverlay}>
             <AlertCircle size={24} />
             <span>{attrs.errorMessage || '图片保存失败'}</span>
-            {attrs.blobSrc && (
-              <button
-                type="button"
-                className={styles.retryBtn}
-                onClick={handleRetryUpload}
-                disabled={isRetrying}
-              >
-                <RefreshCw size={14} className={isRetrying ? styles.spinner : ''} />
-                重试上传
-              </button>
-            )}
+            <button
+              type="button"
+              className={styles.retryBtn}
+              onClick={handleRetryUpload}
+              disabled={isRetrying}
+            >
+              <RefreshCw size={14} className={isRetrying ? styles.spinner : ''} />
+              重试上传
+            </button>
           </div>
         )}
       </div>
 
-      {/* 图片描述 Caption 编辑框：由 isCaptionVisible 开关严格控制 */}
+      {/* 图片描述 Caption 编辑框 */}
       {isCaptionVisible && (
         <input
           type="text"
@@ -225,7 +243,6 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
         <ImageBubbleMenu
           editor={editor}
           alignment={attrs.alignment}
-          storageType={attrs.storageType}
           caption={attrs.caption || ''}
           showCaption={isCaptionVisible}
           getPos={props.getPos}
@@ -233,7 +250,6 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
           onAlignChange={handleAlignmentChange}
           onCaptionChange={(cap) => updateAttributes({ caption: cap, showCaption: true })}
           onToggleCaption={handleToggleCaption}
-          onConvertToLocal={handleConvertToLocal}
           onDelete={deleteNode}
         />
       )}

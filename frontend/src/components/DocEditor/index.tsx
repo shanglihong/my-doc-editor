@@ -22,7 +22,6 @@ import { DoubleTapInsertPlugin } from './extensions/DoubleTapInsertPlugin';
 import { CalloutExtension } from './extensions/CalloutExtension';
 import { DrawIOExtension } from './extensions/DrawIOExtension';
 import { ImageBlockExtension } from './extensions/ImageBlock/ImageBlockExtension';
-import { ImageInsertModal } from './extensions/ImageBlock/ImageInsertModal';
 import { ImageUploadService } from './services/imageUploadService';
 import { DrawIOModal } from './components/DrawIO/DrawIOModal';
 import { SlashMenuExtension } from './components/SlashMenu/SlashMenuPlugin';
@@ -95,147 +94,6 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       initialXml: '',
       nodePos: null,
     });
-    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-
-    useEffect(() => {
-      const handleOpenModal = (e: Event) => {
-        const customEvent = e as CustomEvent;
-        setDrawioModalState({
-          isOpen: true,
-          initialXml: customEvent.detail?.xml || '',
-          nodePos: customEvent.detail?.nodePos ?? null,
-        });
-      };
-
-      const handleOpenImageModal = () => {
-        setIsImageModalOpen(true);
-      };
-
-      window.addEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
-      window.addEventListener('OPEN_IMAGE_MODAL', handleOpenImageModal);
-      return () => {
-        window.removeEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
-        window.removeEventListener('OPEN_IMAGE_MODAL', handleOpenImageModal);
-      };
-    }, []);
-
-    const handleSaveDrawIO = (xml: string, svg: string) => {
-      if (!editor || drawioModalState.nodePos === null) return;
-      editor
-        .chain()
-        .focus()
-        .setNodeSelection(drawioModalState.nodePos)
-        .updateAttributes('drawioBlock', { xml, svg })
-        .run();
-    };
-
-    const handleInsertLocalImageFile = (file: File) => {
-      if (!editor) return;
-      const previewUrl = URL.createObjectURL(file);
-      editor
-        .chain()
-        .focus()
-        .setImageBlock({
-          src: previewUrl,
-          blobSrc: previewUrl,
-          storageType: 'local',
-          status: 'uploading',
-          alignment: 'center',
-        })
-        .run();
-
-      ImageUploadService.uploadImage(file)
-        .then((result) => {
-          editor.state.doc.descendants((docNode, pos) => {
-            if (
-              docNode.type.name === 'imageBlock' &&
-              docNode.attrs.blobSrc === previewUrl
-            ) {
-              const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
-                ...docNode.attrs,
-                src: result.url,
-                blobSrc: null,
-                status: 'ready',
-              });
-              editor.view.dispatch(trUpdate);
-            }
-          });
-        })
-        .catch((err) => {
-          editor.state.doc.descendants((docNode, pos) => {
-            if (
-              docNode.type.name === 'imageBlock' &&
-              docNode.attrs.blobSrc === previewUrl
-            ) {
-              const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
-                ...docNode.attrs,
-                status: 'error',
-                errorMessage: err?.message || '图片保存失败',
-              });
-              editor.view.dispatch(trUpdate);
-            }
-          });
-        });
-    };
-
-    const handleInsertImageUrl = (url: string, storeLocally: boolean) => {
-      if (!editor) return;
-      if (storeLocally) {
-        editor
-          .chain()
-          .focus()
-          .setImageBlock({
-            src: url,
-            storageType: 'local',
-            status: 'uploading',
-            alignment: 'center',
-          })
-          .run();
-
-        ImageUploadService.fetchAndStoreUrl(url)
-          .then((result) => {
-            editor.state.doc.descendants((docNode, pos) => {
-              if (
-                docNode.type.name === 'imageBlock' &&
-                docNode.attrs.src === url
-              ) {
-                const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
-                  ...docNode.attrs,
-                  src: result.url,
-                  status: 'ready',
-                });
-                editor.view.dispatch(trUpdate);
-              }
-            });
-          })
-          .catch(() => {
-            editor.state.doc.descendants((docNode, pos) => {
-              if (
-                docNode.type.name === 'imageBlock' &&
-                docNode.attrs.src === url
-              ) {
-                const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
-                  ...docNode.attrs,
-                  status: 'error',
-                  errorMessage: '转存外链图片失败',
-                });
-                editor.view.dispatch(trUpdate);
-              }
-            });
-          });
-      } else {
-        editor
-          .chain()
-          .focus()
-          .setImageBlock({
-            src: url,
-            storageType: 'external',
-            status: 'ready',
-            alignment: 'center',
-          })
-          .run();
-      }
-    };
 
     const editor = useEditor({
       editable: !readOnly,
@@ -492,6 +350,96 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         onChange(docNode, markdown);
       },
     });
+
+    const handleSaveDrawIO = (xml: string, svg: string) => {
+      if (!editor || drawioModalState.nodePos === null) return;
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(drawioModalState.nodePos)
+        .updateAttributes('drawioBlock', { xml, svg })
+        .run();
+    };
+
+    const handleInsertLocalImageFile = (file: File) => {
+      if (!editor) return;
+      const previewUrl = URL.createObjectURL(file);
+      editor
+        .chain()
+        .focus()
+        .setImageBlock({
+          src: previewUrl,
+          status: 'uploading',
+          alignment: 'center',
+        })
+        .run();
+
+      ImageUploadService.uploadImage(file)
+        .then((result) => {
+          editor.state.doc.descendants((docNode, pos) => {
+            if (
+              docNode.type.name === 'imageBlock' &&
+              docNode.attrs.src === previewUrl
+            ) {
+              const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
+                ...docNode.attrs,
+                src: result.url,
+                status: 'ready',
+              });
+              editor.view.dispatch(trUpdate);
+            }
+          });
+        })
+        .catch((err) => {
+          editor.state.doc.descendants((docNode, pos) => {
+            if (
+              docNode.type.name === 'imageBlock' &&
+              docNode.attrs.src === previewUrl
+            ) {
+              const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
+                ...docNode.attrs,
+                status: 'error',
+                errorMessage: err?.message || '图片保存失败',
+              });
+              editor.view.dispatch(trUpdate);
+            }
+          });
+        });
+    };
+
+    useEffect(() => {
+      const handleOpenModal = (e: Event) => {
+        const customEvent = e as CustomEvent;
+        setDrawioModalState({
+          isOpen: true,
+          initialXml: customEvent.detail?.xml || '',
+          nodePos: customEvent.detail?.nodePos ?? null,
+        });
+      };
+
+      const handleOpenImageFilePicker = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e: Event) => {
+          const files = (e.target as HTMLInputElement).files;
+          if (files && files.length > 0) {
+            handleInsertLocalImageFile(files[0]);
+          }
+        };
+        input.click();
+      };
+
+      window.addEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
+      window.addEventListener('TRIGGER_OPEN_IMAGE_FILE_PICKER', handleOpenImageFilePicker);
+      window.addEventListener('OPEN_IMAGE_MODAL', handleOpenImageFilePicker);
+
+      return () => {
+        window.removeEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
+        window.removeEventListener('TRIGGER_OPEN_IMAGE_FILE_PICKER', handleOpenImageFilePicker);
+        window.removeEventListener('OPEN_IMAGE_MODAL', handleOpenImageFilePicker);
+      };
+    }, [editor]);
 
     useImperativeHandle(
       ref,
@@ -772,12 +720,6 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           initialXml={drawioModalState.initialXml}
           onSave={handleSaveDrawIO}
           onClose={() => setDrawioModalState((prev) => ({ ...prev, isOpen: false }))}
-        />
-        <ImageInsertModal
-          isOpen={isImageModalOpen}
-          onClose={() => setIsImageModalOpen(false)}
-          onInsertLocalFile={handleInsertLocalImageFile}
-          onInsertUrl={handleInsertImageUrl}
         />
       </div>
     );

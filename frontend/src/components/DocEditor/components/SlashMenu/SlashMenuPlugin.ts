@@ -55,11 +55,11 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
   },
   {
     title: '图片',
-    description: '插入本地图片、剪贴板粘贴或网络图片外链',
+    description: '选择本地图片生成图片 Block',
     iconName: 'Image',
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).run();
-      window.dispatchEvent(new CustomEvent('OPEN_IMAGE_MODAL'));
+      window.dispatchEvent(new CustomEvent('TRIGGER_OPEN_IMAGE_FILE_PICKER'));
     },
   },
   {

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, UploadCloud } from 'lucide-react';
+import { X, Upload, Link2 } from 'lucide-react';
 import styles from './ImageInsertModal.module.css';
 import { validateImageFile } from './utils';
 
@@ -48,26 +48,28 @@ export const ImageInsertModal: React.FC<ImageInsertModalProps> = ({
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>插入图片 Block</h3>
+          <span className={styles.title}>插入图片</span>
           <button type="button" className={styles.closeBtn} onClick={onClose}>
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        <div className={styles.tabs}>
+        <div className={styles.segmentedControl}>
           <button
             type="button"
-            className={`${styles.tab} ${tab === 'upload' ? styles.activeTab : ''}`}
+            className={`${styles.segment} ${tab === 'upload' ? styles.segmentActive : ''}`}
             onClick={() => setTab('upload')}
           >
-            本地文件导入
+            <Upload size={14} />
+            <span>本地图片</span>
           </button>
           <button
             type="button"
-            className={`${styles.tab} ${tab === 'url' ? styles.activeTab : ''}`}
+            className={`${styles.segment} ${tab === 'url' ? styles.segmentActive : ''}`}
             onClick={() => setTab('url')}
           >
-            网络图片链接
+            <Link2 size={14} />
+            <span>网络外链</span>
           </button>
         </div>
 
@@ -77,11 +79,8 @@ export const ImageInsertModal: React.FC<ImageInsertModalProps> = ({
               className={styles.dropzone}
               onClick={() => fileInputRef.current?.click()}
             >
-              <UploadCloud size={36} />
-              <span>点击选择本地图片或拖拽图片到此处</span>
-              <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                支持 PNG, JPEG, GIF, WebP (最大 10MB)
-              </span>
+              <Upload size={24} className={styles.uploadIcon} />
+              <div className={styles.dropzoneText}>点击或拖拽图片至此处上传</div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -92,18 +91,15 @@ export const ImageInsertModal: React.FC<ImageInsertModalProps> = ({
             </div>
           ) : (
             <form onSubmit={handleUrlSubmit} className={styles.urlForm}>
-              <div className={styles.inputGroup}>
-                <label className={styles.label}>图片 URL 地址</label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/image.png"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  className={styles.input}
-                  autoFocus
-                  required
-                />
-              </div>
+              <input
+                type="url"
+                placeholder="粘贴图片 URL 链接..."
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                className={styles.input}
+                autoFocus
+                required
+              />
 
               <label className={styles.checkboxGroup}>
                 <input
@@ -111,10 +107,10 @@ export const ImageInsertModal: React.FC<ImageInsertModalProps> = ({
                   checked={storeLocally}
                   onChange={(e) => setStoreLocally(e.target.checked)}
                 />
-                <span>转存至本地存储目录（防盗链 / 离线可用）</span>
+                <span>自动转存至本地目录</span>
               </label>
 
-              <div className={styles.footer} style={{ padding: 0, background: 'transparent' }}>
+              <div className={styles.footer}>
                 <button type="button" className={styles.cancelBtn} onClick={onClose}>
                   取消
                 </button>

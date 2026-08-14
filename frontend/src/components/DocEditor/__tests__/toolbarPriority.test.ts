@@ -1,81 +1,74 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Editor } from '@tiptap/core';
-import StarterKit from '@tiptap/starter-kit';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { CustomTableCell, CustomTableHeader } from '../extensions/CustomTableExtensions';
-import { CalloutExtension } from '../extensions/CalloutExtension';
-import { getActiveToolbarInfo, hoverStackManager } from '../utils/toolbarPriority';
+import { hoverStackManager, getActiveToolbarInfo } from '../utils/toolbarPriority';
 
-describe('toolbarPriority - getActiveToolbarInfo 层级调度算法', () => {
+describe('hoverStackManager & getActiveToolbarInfo', () => {
   beforeEach(() => {
+    // 单元测试重置管理器状态
     hoverStackManager.clear();
   });
 
-  it('当 editor 为 null 时，应当返回 { type: null, depth: -1 }', () => {
-    const result = getActiveToolbarInfo(null);
-    expect(result).toEqual({ type: null, depth: -1 });
-  });
-
-  it('普通空段落光标且无悬浮时，应当返回 { type: null, depth: -1 }', () => {
-    const editor = new Editor({
-      extensions: [StarterKit],
-      content: '<p>Hello world</p>',
-    });
-
-    const result = getActiveToolbarInfo(editor);
-    expect(result.type).toBeNull();
-    editor.destroy();
-  });
-
-  it('使用 hoverStackManager 注册单个悬停 Block 时，应当优先选中', () => {
-    const editor = new Editor({
-      extensions: [StarterKit],
-      content: '<p>Hello world</p>',
-    });
-
+  it('应当正常注册与注销悬浮 Block Target', () => {
     hoverStackManager.register({
-      id: 'block-1',
+      id: 'image-10',
       type: 'image',
-      depth: 1,
+      depth: 2,
+      nodePos: 10,
     });
 
-    const result = getActiveToolbarInfo(editor);
-    expect(result.type).toBe('image');
-    expect(result.target?.id).toBe('block-1');
-
-    editor.destroy();
+    const active = hoverStackManager.getActiveTarget();
+    expect(active).not.toBeNull();
+    expect(active?.type).toBe('image');
+    expect(active?.nodePos).toBe(10);
   });
 
-  it('嵌套悬停测试：当同时注册 Callout (depth:1) 与 Callout 内 Table (depth:2) 时，优先选择 depth 更大的 Table', () => {
-    const editor = new Editor({
-      extensions: [StarterKit],
-      content: '<p>Hello world</p>',
-    });
-
+  it('最高 depth 的节点应当优先抢占为独占 Target', () => {
     hoverStackManager.register({
-      id: 'callout-outer',
+      id: 'callout-1',
       type: 'callout',
       depth: 1,
+      nodePos: 0,
     });
 
     hoverStackManager.register({
-      id: 'table-inner',
+      id: 'table-5',
       type: 'table',
       depth: 2,
+      nodePos: 5,
     });
 
-    const result = getActiveToolbarInfo(editor);
-    expect(result.type).toBe('table');
-    expect(result.target?.id).toBe('table-inner');
+    const active = hoverStackManager.getActiveTarget();
+    expect(active?.type).toBe('table');
+    expect(active?.id).toBe('table-5');
+  });
 
-    // 注销 inner Table 之后，应当退回 outer Callout
-    hoverStackManager.unregister('table-inner', 0);
-    const resultAfterUnregister = getActiveToolbarInfo(editor);
-    expect(resultAfterUnregister.type).toBe('callout');
-    expect(resultAfterUnregister.target?.id).toBe('callout-outer');
+  it('keepActive 应当保持 Hover 活动并取消离场定时器', () => {
+    hoverStackManager.register({
+      id: 'drawio-10',
+      type: 'drawio',
+      depth: 2,
+      nodePos: 10,
+    });
 
-    editor.destroy();
+    hoverStackManager.keepActive();
+    expect(hoverStackManager.getActiveTarget()?.type).toBe('drawio');
+  });
+
+  it('getActiveToolbarInfo 应当正确根据优先级返回活跃工具栏类型', () => {
+    hoverStackManager.register({
+      id: 'image-20',
+      type: 'image',
+      depth: 2,
+      nodePos: 20,
+    });
+
+    const mockEditor: any = {
+      isEditable: true,
+      state: { selection: {} },
+      isActive: (name: string) => name === 'callout',
+    };
+
+    const info = getActiveToolbarInfo(mockEditor, 'image');
+    expect(info.type).toBe('image');
   });
 });

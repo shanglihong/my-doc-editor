@@ -40,9 +40,6 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
       src: {
         default: '',
       },
-      blobSrc: {
-        default: null,
-      },
       alt: {
         default: '',
       },
@@ -60,9 +57,6 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
       },
       alignment: {
         default: 'center',
-      },
-      storageType: {
-        default: 'local',
       },
       status: {
         default: 'ready',
@@ -123,49 +117,37 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
 
             event.preventDefault();
 
-            // 校验文件
             const validation = validateImageFile(file);
             if (!validation.valid) {
               alert(validation.error);
               return true;
             }
 
-            // 乐观 UI 即时预览
             const previewUrl = URL.createObjectURL(file);
-            const { tr } = view.state;
             const nodeType = view.state.schema.nodes.imageBlock;
-
             if (!nodeType) return false;
 
             const node = nodeType.create({
               src: previewUrl,
-              blobSrc: previewUrl,
-              storageType: 'local',
               status: 'uploading',
               alignment: 'center',
             });
 
-            const transaction = tr.replaceSelectionWith(node);
+            const transaction = view.state.tr.replaceSelectionWith(node);
             view.dispatch(transaction);
 
-            // 异步后台上传
             ImageUploadService.uploadImage(file)
               .then((result) => {
                 view.state.doc.descendants((docNode, pos) => {
                   if (
                     docNode.type.name === 'imageBlock' &&
-                    docNode.attrs.blobSrc === previewUrl
+                    docNode.attrs.src === previewUrl
                   ) {
-                    const trUpdate = view.state.tr.setNodeMarkup(
-                      pos,
-                      undefined,
-                      {
-                        ...docNode.attrs,
-                        src: result.url,
-                        blobSrc: null,
-                        status: 'ready',
-                      }
-                    );
+                    const trUpdate = view.state.tr.setNodeMarkup(pos, undefined, {
+                      ...docNode.attrs,
+                      src: result.url,
+                      status: 'ready',
+                    });
                     view.dispatch(trUpdate);
                   }
                 });
@@ -174,17 +156,13 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
                 view.state.doc.descendants((docNode, pos) => {
                   if (
                     docNode.type.name === 'imageBlock' &&
-                    docNode.attrs.blobSrc === previewUrl
+                    docNode.attrs.src === previewUrl
                   ) {
-                    const trUpdate = view.state.tr.setNodeMarkup(
-                      pos,
-                      undefined,
-                      {
-                        ...docNode.attrs,
-                        status: 'error',
-                        errorMessage: err?.message || '图片上传保存失败',
-                      }
-                    );
+                    const trUpdate = view.state.tr.setNodeMarkup(pos, undefined, {
+                      ...docNode.attrs,
+                      status: 'error',
+                      errorMessage: err?.message || '图片保存失败',
+                    });
                     view.dispatch(trUpdate);
                   }
                 });
@@ -214,13 +192,10 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
 
             const previewUrl = URL.createObjectURL(imageFile);
             const nodeType = view.state.schema.nodes.imageBlock;
-
             if (!nodeType) return false;
 
             const node = nodeType.create({
               src: previewUrl,
-              blobSrc: previewUrl,
-              storageType: 'local',
               status: 'uploading',
               alignment: 'center',
             });
@@ -229,24 +204,18 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
             const tr = view.state.tr.insert(insertPos, node);
             view.dispatch(tr);
 
-            // 异步后台上传
             ImageUploadService.uploadImage(imageFile)
               .then((result) => {
                 view.state.doc.descendants((docNode, pos) => {
                   if (
                     docNode.type.name === 'imageBlock' &&
-                    docNode.attrs.blobSrc === previewUrl
+                    docNode.attrs.src === previewUrl
                   ) {
-                    const trUpdate = view.state.tr.setNodeMarkup(
-                      pos,
-                      undefined,
-                      {
-                        ...docNode.attrs,
-                        src: result.url,
-                        blobSrc: null,
-                        status: 'ready',
-                      }
-                    );
+                    const trUpdate = view.state.tr.setNodeMarkup(pos, undefined, {
+                      ...docNode.attrs,
+                      src: result.url,
+                      status: 'ready',
+                    });
                     view.dispatch(trUpdate);
                   }
                 });
@@ -255,17 +224,13 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
                 view.state.doc.descendants((docNode, pos) => {
                   if (
                     docNode.type.name === 'imageBlock' &&
-                    docNode.attrs.blobSrc === previewUrl
+                    docNode.attrs.src === previewUrl
                   ) {
-                    const trUpdate = view.state.tr.setNodeMarkup(
-                      pos,
-                      undefined,
-                      {
-                        ...docNode.attrs,
-                        status: 'error',
-                        errorMessage: err?.message || '图片上传保存失败',
-                      }
-                    );
+                    const trUpdate = view.state.tr.setNodeMarkup(pos, undefined, {
+                      ...docNode.attrs,
+                      status: 'error',
+                      errorMessage: err?.message || '图片保存失败',
+                    });
                     view.dispatch(trUpdate);
                   }
                 });

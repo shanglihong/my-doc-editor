@@ -4,17 +4,15 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  Download,
   Tag,
 } from 'lucide-react';
 import styles from './ImageBubbleMenu.module.css';
-import type { ImageAlignment, ImageStorageType } from './types';
+import type { ImageAlignment } from './types';
 import { UnifiedBlockToolbar } from '../../components/UnifiedBlockToolbar';
 
 export interface ImageBubbleMenuProps {
   editor: Editor;
   alignment: ImageAlignment;
-  storageType: ImageStorageType;
   caption: string;
   showCaption?: boolean;
   getPos: (() => number | undefined) | boolean | undefined;
@@ -22,20 +20,17 @@ export interface ImageBubbleMenuProps {
   onAlignChange: (align: ImageAlignment) => void;
   onCaptionChange: (caption: string) => void;
   onToggleCaption: () => void;
-  onConvertToLocal: () => void;
   onDelete: () => void;
 }
 
 export const ImageBubbleMenu: React.FC<ImageBubbleMenuProps> = ({
   editor,
   alignment,
-  storageType,
   showCaption,
   getPos,
   nodeSize,
   onAlignChange,
   onToggleCaption,
-  onConvertToLocal,
   onDelete,
 }) => {
   return (
@@ -106,23 +101,9 @@ export const ImageBubbleMenu: React.FC<ImageBubbleMenuProps> = ({
         >
           <Tag size={16} />
         </button>
-
-        {/* 外链转存按钮 */}
-        {storageType === 'external' && (
-          <>
-            <div className={styles.divider} />
-            <button
-              type="button"
-              className={styles.iconBtn}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={onConvertToLocal}
-              title="将外链图片下载保存至本地存储目录"
-            >
-              <Download size={16} />
-            </button>
-          </>
-        )}
       </UnifiedBlockToolbar>
     </div>
   );
 };
+
+export default ImageBubbleMenu;

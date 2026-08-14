@@ -1,36 +1,36 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.35);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
+  animation: fadeIn 0.15s ease-out;
 }
 
 .modal {
   background: #ffffff;
-  width: 480px;
+  width: 400px;
   max-width: 90vw;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
+  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+  padding: 16px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .title {
-  margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #0f172a;
 }
@@ -38,12 +38,13 @@
 .closeBtn {
   border: none;
   background: transparent;
-  color: #64748b;
+  color: #94a3b8;
   cursor: pointer;
   padding: 4px;
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
+  transition: all 0.15s ease;
 }
 
 .closeBtn:hover {
@@ -51,92 +52,101 @@
   color: #0f172a;
 }
 
-.tabs {
+.segmentedControl {
   display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
 }
 
-.tab {
+.segment {
   flex: 1;
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #64748b;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s ease;
-  border-bottom: 2px solid transparent;
 }
 
-.activeTab {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+.segmentActive {
   background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .body {
-  padding: 20px;
+  margin-top: 4px;
 }
 
 .dropzone {
-  border: 2px dashed #cbd5e1;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
   border-radius: 8px;
-  padding: 32px 16px;
+  padding: 24px 16px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  color: #64748b;
 }
 
 .dropzone:hover {
   border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.uploadIcon {
+  color: #94a3b8;
+  transition: color 0.15s ease;
+}
+
+.dropzone:hover .uploadIcon {
   color: #3b82f6;
+}
+
+.dropzoneText {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
 }
 
 .urlForm {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.label {
-  font-size: 13px;
-  font-weight: 500;
-  color: #334155;
+  gap: 12px;
 }
 
 .input {
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .input:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .checkboxGroup {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #475569;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
   cursor: pointer;
 }
 
@@ -144,32 +154,47 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  padding: 12px 20px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  margin-top: 4px;
 }
 
 .cancelBtn {
-  padding: 8px 16px;
-  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
   background: #ffffff;
-  color: #334155;
+  color: #64748b;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelBtn:hover {
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .submitBtn {
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: none;
-  background: #3b82f6;
+  background: #2563eb;
   color: #ffffff;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .submitBtn:hover {
-  background: #2563eb;
+  background: #1d4ed8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }

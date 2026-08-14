@@ -38,14 +38,22 @@ export function insertParagraphBlockAround({
     return false;
   }
 
-  const docSize = editor.state.doc.content.size;
-  const safePos = Math.min(pos, docSize);
-  const node = editor.state.doc.nodeAt(safePos);
+  let actualNodeSize = nodeSize || 1;
 
-  // 优先通过 ProseMirror 语法树解析节点的实际 nodeSize
-  const actualNodeSize = node ? node.nodeSize : nodeSize || 1;
+  if (editor.state && editor.state.doc) {
+    try {
+      const docSize = editor.state.doc.content.size;
+      const safePos = Math.min(pos, docSize);
+      const node = editor.state.doc.nodeAt(safePos);
+      if (node) {
+        actualNodeSize = node.nodeSize;
+      }
+    } catch (_err) {
+      // fallback
+    }
+  }
 
-  const targetPos = direction === 'above' ? safePos : safePos + actualNodeSize;
+  const targetPos = direction === 'above' ? pos : pos + actualNodeSize;
 
   return editor
     .chain()
