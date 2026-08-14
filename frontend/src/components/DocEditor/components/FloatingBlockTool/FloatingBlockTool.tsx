@@ -277,7 +277,7 @@ export const FloatingBlockTool: React.FC<FloatingBlockToolProps> = ({
       ref={menuRef}
       className={styles.floatingBlockTool}
       style={styleObj}
-      onMouseDown={(e) => {
+      onMouseDown={() => {
         window.dispatchEvent(new CustomEvent('HIDE_DRAG_HANDLE'));
       }}
       onMouseEnter={() => {
