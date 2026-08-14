@@ -304,3 +304,54 @@
   box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
   transition: top 0.08s ease-out;
 }
+
+/* Task List (Todo Block) 现代化精美复选框样式 */
+.editorContent :global(.ProseMirror ul[data-type="taskList"]) {
+  list-style: none;
+  padding-left: 0;
+  margin: 6px 0;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] li) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] li > label) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+  margin: 0;
+  cursor: pointer;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"]) {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  border-radius: 4px;
+  border: 1.5px solid #cbd5e1;
+  accent-color: #2563eb;
+  cursor: pointer;
+  display: block;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] li > div) {
+  flex: 1;
+  min-width: 0;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] li > div > p) {
+  margin: 0 !important;
+  line-height: 1.6;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div) {
+  text-decoration: line-through;
+  color: #94a3b8;
+}

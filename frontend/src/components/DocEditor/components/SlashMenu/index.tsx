@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import styles from './SlashMenu.module.css';
 import type { SlashMenuItem } from './SlashMenuPlugin';
 import { BlockIcon } from '../../utils/blockIcons';
@@ -18,6 +18,7 @@ const iconNameToBlockTypeMap: Record<string, { type: string; level?: number }> =
   Heading3: { type: 'heading', level: 3 },
   List: { type: 'bulletList' },
   ListOrdered: { type: 'orderedList' },
+  CheckSquare: { type: 'taskList' },
   Image: { type: 'imageBlock' },
   Table: { type: 'table' },
   Code: { type: 'codeBlock' },
@@ -92,22 +93,25 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
     <div ref={menuRef} className={styles.slashMenu}>
       {items.map((item, index) => {
         const blockTypeInfo = iconNameToBlockTypeMap[item.iconName] || { type: 'paragraph' };
+        const showDivider = index > 0 && item.category !== items[index - 1].category;
         return (
-          <div
-            key={item.title}
-            className={`${styles.slashMenuItem} ${
-              index === selectedIndex ? styles.slashMenuItemSelected : ''
-            }`}
-            onClick={() => selectItem(index)}
-            onMouseEnter={() => setSelectedIndex(index)}
-          >
-            <div className={styles.slashMenuIcon}>
-              <BlockIcon type={blockTypeInfo.type} level={blockTypeInfo.level} size={15} />
+          <React.Fragment key={item.title}>
+            {showDivider && <div className={styles.slashMenuDivider} />}
+            <div
+              className={`${styles.slashMenuItem} ${
+                index === selectedIndex ? styles.slashMenuItemSelected : ''
+              }`}
+              onClick={() => selectItem(index)}
+              onMouseEnter={() => setSelectedIndex(index)}
+            >
+              <div className={styles.slashMenuIcon}>
+                <BlockIcon type={blockTypeInfo.type} level={blockTypeInfo.level} size={15} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 400, fontSize: '13px', color: '#0f172a' }}>{item.title}</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontWeight: 400, fontSize: '13px', color: '#0f172a' }}>{item.title}</div>
-            </div>
-          </div>
+          </React.Fragment>
         );
       })}
     </div>

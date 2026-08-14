@@ -7,21 +7,126 @@ import {
   Underline,
   Strikethrough,
   Code,
-  Type,
   Palette,
   Highlighter,
   AlignLeft,
   AlignCenter,
   AlignRight,
   Link,
+  ChevronDown,
 } from 'lucide-react';
 import styles from './BubbleToolbar.module.css';
-import { FONT_SIZES } from '../../utils/defaultTheme';
+import { BlockIcon } from '../../utils/blockIcons';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
 import { normalizeUrl } from '../../utils/urlUtils';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import { LinkInputPanel } from './LinkInputPanel';
+
+export interface TextBlockOption {
+  key: string;
+  label: string;
+  type: string;
+  level?: number;
+  action: (editor: Editor) => void;
+  isActive: (editor: Editor) => boolean;
+}
+
+const TEXT_BLOCK_OPTIONS: TextBlockOption[] = [
+  {
+    key: 'paragraph',
+    label: '正文',
+    type: 'paragraph',
+    action: (editor) => editor.chain().focus().setParagraph().run(),
+    isActive: (editor) =>
+      editor.isActive('paragraph') &&
+      !editor.isActive('bulletList') &&
+      !editor.isActive('orderedList') &&
+      !editor.isActive('taskList'),
+  },
+  {
+    key: 'heading-1',
+    label: '一级标题',
+    type: 'heading',
+    level: 1,
+    action: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+    isActive: (editor) => editor.isActive('heading', { level: 1 }),
+  },
+  {
+    key: 'heading-2',
+    label: '二级标题',
+    type: 'heading',
+    level: 2,
+    action: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+    isActive: (editor) => editor.isActive('heading', { level: 2 }),
+  },
+  {
+    key: 'heading-3',
+    label: '三级标题',
+    type: 'heading',
+    level: 3,
+    action: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+    isActive: (editor) => editor.isActive('heading', { level: 3 }),
+  },
+  {
+    key: 'bulletList',
+    label: '无序列表',
+    type: 'bulletList',
+    action: (editor) => editor.chain().focus().toggleBulletList().run(),
+    isActive: (editor) => editor.isActive('bulletList'),
+  },
+  {
+    key: 'orderedList',
+    label: '有序列表',
+    type: 'orderedList',
+    action: (editor) => editor.chain().focus().toggleOrderedList().run(),
+    isActive: (editor) => editor.isActive('orderedList'),
+  },
+  {
+    key: 'taskList',
+    label: '待办列表',
+    type: 'taskList',
+    action: (editor) => editor.chain().focus().toggleTaskList().run(),
+    isActive: (editor) => editor.isActive('taskList'),
+  },
+];
+
+export interface TextAlignOption {
+  key: string;
+  label: string;
+  value: 'left' | 'center' | 'right';
+  icon: React.ComponentType<{ size?: number }>;
+  action: (editor: Editor) => void;
+  isActive: (editor: Editor) => boolean;
+}
+
+const TEXT_ALIGN_OPTIONS: TextAlignOption[] = [
+  {
+    key: 'left',
+    label: '靠左对齐',
+    value: 'left',
+    icon: AlignLeft,
+    action: (editor) => editor.chain().focus().setTextAlign('left').run(),
+    isActive: (editor) => editor.isActive({ textAlign: 'left' }) || (!editor.isActive({ textAlign: 'center' }) && !editor.isActive({ textAlign: 'right' })),
+  },
+  {
+    key: 'center',
+    label: '居中对齐',
+    value: 'center',
+    icon: AlignCenter,
+    action: (editor) => editor.chain().focus().setTextAlign('center').run(),
+    isActive: (editor) => editor.isActive({ textAlign: 'center' }),
+  },
+  {
+    key: 'right',
+    label: '靠右对齐',
+    value: 'right',
+    icon: AlignRight,
+    action: (editor) => editor.chain().focus().setTextAlign('right').run(),
+    isActive: (editor) => editor.isActive({ textAlign: 'right' }),
+  },
+];
+
 
 export interface BubbleToolbarProps {
   editor: Editor | null;
@@ -32,7 +137,8 @@ export interface BubbleToolbarProps {
 export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging, isTypeMenuOpen }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
-  const [showFontSizePicker, setShowFontSizePicker] = useState(false);
+  const [showBlockTypePicker, setShowBlockTypePicker] = useState(false);
+  const [showAlignPicker, setShowAlignPicker] = useState(false);
   const [showLinkPanel, setShowLinkPanel] = useState(false);
   const showLinkPanelRef = useRef(showLinkPanel);
   useEffect(() => {
@@ -52,16 +158,29 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     visible: false,
   });
 
+  const getCurrentBlockType = (ed: Editor): TextBlockOption => {
+    const activeOpt = TEXT_BLOCK_OPTIONS.find((opt) => opt.isActive(ed));
+    return activeOpt || TEXT_BLOCK_OPTIONS[0];
+  };
+
+  const getCurrentTextAlign = (ed: Editor): TextAlignOption => {
+    const activeOpt = TEXT_ALIGN_OPTIONS.find((opt) => opt.isActive(ed));
+    return activeOpt || TEXT_ALIGN_OPTIONS[0];
+  };
+
   const handleToggleDropdown = (
-    type: 'fontSize' | 'color' | 'highlight' | 'link',
+    type: 'blockType' | 'textAlign' | 'color' | 'highlight' | 'link',
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     const btnRect = e.currentTarget.getBoundingClientRect();
     let subWidth = 168;
     let subHeight = 250;
-    if (type === 'fontSize') {
-      subWidth = 100;
-      subHeight = 160;
+    if (type === 'blockType') {
+      subWidth = 136;
+      subHeight = 240;
+    } else if (type === 'textAlign') {
+      subWidth = 120;
+      subHeight = 120;
     } else if (type === 'link') {
       subWidth = 320;
       subHeight = 44;
@@ -71,29 +190,40 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       buttonRect: btnRect,
       submenuWidth: subWidth,
       submenuHeight: subHeight,
-      offset: 4,
+      parentPlacement: position.placement,
+      offset: 6,
     });
 
     setPickerStyle(res.style);
 
-    if (type === 'fontSize') {
-      setShowFontSizePicker(!showFontSizePicker);
+    if (type === 'blockType') {
+      setShowBlockTypePicker(!showBlockTypePicker);
+      setShowAlignPicker(false);
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
+      setShowLinkPanel(false);
+    } else if (type === 'textAlign') {
+      setShowAlignPicker(!showAlignPicker);
+      setShowBlockTypePicker(false);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
       setShowLinkPanel(false);
     } else if (type === 'color') {
       setShowColorPicker(!showColorPicker);
-      setShowFontSizePicker(false);
+      setShowBlockTypePicker(false);
+      setShowAlignPicker(false);
       setShowHighlightPicker(false);
       setShowLinkPanel(false);
     } else if (type === 'highlight') {
       setShowHighlightPicker(!showHighlightPicker);
-      setShowFontSizePicker(false);
+      setShowBlockTypePicker(false);
+      setShowAlignPicker(false);
       setShowColorPicker(false);
       setShowLinkPanel(false);
     } else if (type === 'link') {
       setShowLinkPanel(!showLinkPanel);
-      setShowFontSizePicker(false);
+      setShowBlockTypePicker(false);
+      setShowAlignPicker(false);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
     }
@@ -105,7 +235,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     const updatePosition = () => {
       if (isDragging || isTypeMenuOpen) {
         setPosition((prev) => ({ ...prev, visible: false }));
-        setShowFontSizePicker(false);
+        setShowBlockTypePicker(false);
+        setShowAlignPicker(false);
         setShowColorPicker(false);
         setShowHighlightPicker(false);
         setShowLinkPanel(false);
@@ -128,7 +259,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         isInCodeBlock
       ) {
         setPosition((prev) => ({ ...prev, visible: false }));
-        setShowFontSizePicker(false);
+        setShowBlockTypePicker(false);
+        setShowAlignPicker(false);
         setShowColorPicker(false);
         setShowHighlightPicker(false);
         setShowLinkPanel(false);
@@ -177,24 +309,36 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
 
     const handleHideAll = () => {
       setPosition((prev) => ({ ...prev, visible: false }));
-      setShowFontSizePicker(false);
+      setShowBlockTypePicker(false);
+      setShowAlignPicker(false);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
       setShowLinkPanel(false);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowBlockTypePicker(false);
+        setShowAlignPicker(false);
+        setShowColorPicker(false);
+        setShowHighlightPicker(false);
+        setShowLinkPanel(false);
+        return;
+      }
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         const { selection } = editor.state;
         if (!selection.empty && selection instanceof TextSelection) {
           e.preventDefault();
           setShowLinkPanel(true);
-          setShowFontSizePicker(false);
+          setShowBlockTypePicker(false);
+          setShowAlignPicker(false);
           setShowColorPicker(false);
           setShowHighlightPicker(false);
         }
       }
     };
+
 
     window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
     window.addEventListener('keydown', handleKeyDown);
@@ -239,53 +383,88 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      {/* 字号选择 */}
+      {/* 文本块类型选择 */}
       <div style={{ position: 'relative' }}>
         <button
-          className={styles.toolbarBtn}
-          onClick={(e) => handleToggleDropdown('fontSize', e)}
-          title="字号大小"
+          className={`${styles.blockTypeBtn} ${showBlockTypePicker ? styles.toolbarBtnActive : ''}`}
+          onClick={(e) => handleToggleDropdown('blockType', e)}
+          title={`文本块类型: ${getCurrentBlockType(editor).label}`}
         >
-          <Type size={16} />
+          <BlockIcon
+            type={getCurrentBlockType(editor).type}
+            level={getCurrentBlockType(editor).level}
+            size={15}
+          />
+          <ChevronDown size={12} style={{ opacity: 0.7 }} />
         </button>
-        {showFontSizePicker && (
+        {showBlockTypePicker && (
           <div
-            style={{
-              background: '#fff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              padding: '4px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-              width: '100px',
-              ...pickerStyle,
-            }}
+            className={styles.blockTypeDropdown}
+            style={pickerStyle}
           >
-            {FONT_SIZES.map((fs) => (
-              <button
-                key={fs.value}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: '6px 8px',
-                  textAlign: 'left',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  borderRadius: '4px',
-                }}
-                onClick={() => {
-                  (editor.chain().focus() as any).setFontSize(fs.value).run();
-                  setShowFontSizePicker(false);
-                }}
-              >
-                {fs.label}
-              </button>
-            ))}
+            {TEXT_BLOCK_OPTIONS.map((opt) => {
+              const isActive = opt.isActive(editor);
+              return (
+                <button
+                  key={opt.key}
+                  className={`${styles.blockTypeOption} ${isActive ? styles.blockTypeOptionActive : ''}`}
+                  onClick={() => {
+                    opt.action(editor);
+                    setShowBlockTypePicker(false);
+                  }}
+                >
+                  <BlockIcon
+                    type={opt.type}
+                    level={opt.level}
+                    size={15}
+                  />
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
+
+      <div className={styles.toolbarDivider} />
+
+      {/* 对齐方式选择 (第二个位置) */}
+      <div style={{ position: 'relative' }}>
+        <button
+          className={`${styles.alignBtn} ${showAlignPicker ? styles.toolbarBtnActive : ''}`}
+          onClick={(e) => handleToggleDropdown('textAlign', e)}
+          title={`对齐方式: ${getCurrentTextAlign(editor).label}`}
+        >
+          {React.createElement(getCurrentTextAlign(editor).icon, { size: 16 })}
+          <ChevronDown size={12} style={{ opacity: 0.7 }} />
+        </button>
+        {showAlignPicker && (
+          <div
+            className={styles.alignDropdown}
+            style={pickerStyle}
+          >
+            {TEXT_ALIGN_OPTIONS.map((opt) => {
+              const isActive = opt.isActive(editor);
+              const IconComp = opt.icon;
+              return (
+                <button
+                  key={opt.key}
+                  className={`${styles.alignOption} ${isActive ? styles.alignOptionActive : ''}`}
+                  onClick={() => {
+                    opt.action(editor);
+                    setShowAlignPicker(false);
+                  }}
+                >
+                  <IconComp size={15} />
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className={styles.toolbarDivider} />
 
       {/* 加粗 */}
       <button
@@ -331,6 +510,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       >
         <Code size={16} />
       </button>
+
+      <div className={styles.toolbarDivider} />
 
       {/* 超链接 */}
       <div style={{ position: 'relative' }}>
@@ -406,33 +587,6 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
           </div>
         )}
       </div>
-
-      {/* 靠左对齐 */}
-      <button
-        className={`${styles.toolbarBtn} ${editor.isActive({ textAlign: 'left' }) ? styles.toolbarBtnActive : ''}`}
-        onClick={() => editor.chain().focus().setTextAlign('left').run()}
-        title="靠左对齐"
-      >
-        <AlignLeft size={16} />
-      </button>
-
-      {/* 居中对齐 */}
-      <button
-        className={`${styles.toolbarBtn} ${editor.isActive({ textAlign: 'center' }) ? styles.toolbarBtnActive : ''}`}
-        onClick={() => editor.chain().focus().setTextAlign('center').run()}
-        title="居中对齐"
-      >
-        <AlignCenter size={16} />
-      </button>
-
-      {/* 靠右对齐 */}
-      <button
-        className={`${styles.toolbarBtn} ${editor.isActive({ textAlign: 'right' }) ? styles.toolbarBtnActive : ''}`}
-        onClick={() => editor.chain().focus().setTextAlign('right').run()}
-        title="靠右对齐"
-      >
-        <AlignRight size={16} />
-      </button>
     </div>
   );
 };

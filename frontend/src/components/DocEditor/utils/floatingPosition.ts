@@ -6,6 +6,7 @@ export interface FloatingPositionConfig {
   preferredPlacement?: 'top' | 'bottom';
   offset?: number;
   isFixed?: boolean;
+  align?: 'center' | 'left';
 }
 
 export interface FloatingPositionResult {
@@ -26,6 +27,7 @@ export function calculateSmartPosition({
   preferredPlacement = 'top',
   offset = 8,
   isFixed = false,
+  align = 'center',
 }: FloatingPositionConfig): FloatingPositionResult {
   const effectiveContainerRect =
     containerRect || new DOMRect(0, 0, window.innerWidth, window.innerHeight);
@@ -74,11 +76,18 @@ export function calculateSmartPosition({
   const maxTop = Math.max(minTop, maxContainerHeight - menuHeight - 8);
   const top = Math.min(Math.max(minTop, rawTop), maxTop);
 
-  // 水平居中并 clamp 限制在容器水平边界内
-  const targetCenter = isFixed
-    ? targetRect.left + targetRect.width / 2
-    : targetRect.left + targetRect.width / 2 - effectiveContainerRect.left;
-  const idealLeft = targetCenter - menuWidth / 2;
+  // 水平坐标计算（居中对齐或左侧对齐）并 clamp 限制在视口/容器水平边界内
+  let idealLeft: number;
+  if (align === 'left') {
+    idealLeft = isFixed
+      ? targetRect.left
+      : targetRect.left - effectiveContainerRect.left;
+  } else {
+    const targetCenter = isFixed
+      ? targetRect.left + targetRect.width / 2
+      : targetRect.left + targetRect.width / 2 - effectiveContainerRect.left;
+    idealLeft = targetCenter - menuWidth / 2;
+  }
 
   const minLeft = 8;
   const maxContainerWidth = isFixed ? window.innerWidth : effectiveContainerRect.width;
@@ -113,17 +122,20 @@ export function calculateSubMenuPosition({
   buttonRect,
   submenuWidth,
   submenuHeight,
+  parentPlacement = 'bottom',
   offset = 4,
 }: SubMenuPositionConfig): SubMenuPositionResult {
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
 
-  let placement: 'top' | 'bottom' = 'bottom';
+  let placement: 'top' | 'bottom' = parentPlacement === 'top' ? 'top' : 'bottom';
   const spaceBelow = windowHeight - buttonRect.bottom;
   const spaceAbove = buttonRect.top;
 
-  if (spaceBelow < submenuHeight + offset && spaceAbove > spaceBelow) {
+  if (placement === 'bottom' && spaceBelow < submenuHeight + offset && spaceAbove > spaceBelow) {
     placement = 'top';
+  } else if (placement === 'top' && spaceAbove < submenuHeight + offset && spaceBelow > spaceAbove) {
+    placement = 'bottom';
   }
 
   let align: 'left' | 'right' = 'left';

@@ -80,6 +80,15 @@ const MENU_OPTIONS: MenuItemOption[] = [
     },
   },
   {
+    key: 'taskList',
+    label: '待办列表',
+    description: '转换为带复选框的待办任务列表',
+    type: 'taskList',
+    action: (editor, _pos) => {
+      editor.chain().focus().toggleTaskList().run();
+    },
+  },
+  {
     key: 'blockquote',
     label: '引用块',
     description: '转换为引用文段或重点强调',
@@ -90,7 +99,7 @@ const MENU_OPTIONS: MenuItemOption[] = [
   },
   {
     key: 'codeBlock',
-    label: '代码块',
+    label: '代码',
     description: '转换为高亮代码片段区域',
     type: 'codeBlock',
     action: (editor, _pos) => {
@@ -117,7 +126,7 @@ const MENU_OPTIONS: MenuItemOption[] = [
   },
   {
     key: 'drawioBlock',
-    label: 'DrawIO 图表',
+    label: '画图',
     description: '插入流程图与架构图编辑器',
     type: 'drawioBlock',
     action: (editor, _pos) => {

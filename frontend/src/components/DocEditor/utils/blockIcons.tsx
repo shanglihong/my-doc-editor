@@ -33,7 +33,7 @@ export const BLOCK_ICON_CONFIGS: Record<string, BlockIconConfig> = {
     type: 'paragraph',
     label: '正文文本',
     description: '标准普通文本段落',
-    icon: Text,
+    icon: Type,
     color: '#475569',
     bgColor: '#f1f5f9',
   },
@@ -98,7 +98,7 @@ export const BLOCK_ICON_CONFIGS: Record<string, BlockIconConfig> = {
   },
   codeBlock: {
     type: 'codeBlock',
-    label: '代码块',
+    label: '代码',
     description: '高亮代码片段区域',
     icon: Code2,
     color: '#e11d48',
@@ -138,7 +138,7 @@ export const BLOCK_ICON_CONFIGS: Record<string, BlockIconConfig> = {
   },
   drawioBlock: {
     type: 'drawioBlock',
-    label: 'DrawIO 图表',
+    label: '画图',
     description: '流程图与架构设计图',
     icon: Workflow,
     color: '#059669',
@@ -184,6 +184,7 @@ export interface BlockIconProps {
   size?: number;
   showBg?: boolean;
   className?: string;
+  color?: string;
 }
 
 export const BlockIcon: React.FC<BlockIconProps> = ({
@@ -192,9 +193,11 @@ export const BlockIcon: React.FC<BlockIconProps> = ({
   isEmpty = false,
   size = 16,
   className = '',
+  color,
 }) => {
   const config = getBlockIconConfig(type, level, isEmpty);
   const IconComponent = config.icon || Type;
+  const iconColor = color || config.color;
 
   return (
     <div
@@ -203,12 +206,12 @@ export const BlockIcon: React.FC<BlockIconProps> = ({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: config.color,
+        color: iconColor,
         flexShrink: 0,
       }}
       title={config.label}
     >
-      <IconComponent size={size} color={config.color} />
+      <IconComponent size={size} color={iconColor} />
     </div>
   );
 };
