@@ -13,3 +13,10 @@ export interface ImageBlockAttributes {
   file?: File;
   errorMessage?: string | null;
 }
+
+export interface UploadImageResult {
+  url: string;
+  filename?: string;
+  size?: number;
+  mimeType?: string;
+}

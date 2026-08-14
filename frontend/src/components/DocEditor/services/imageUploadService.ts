@@ -1,4 +1,4 @@
-import type { UploadImageResult } from '../extensions/ImageBlock/types';
+import type { UploadImageResult } from '../components/ImageBlock/types';
 
 /**
  * 统一图片上传服务
