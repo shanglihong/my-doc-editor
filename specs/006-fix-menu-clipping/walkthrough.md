@@ -18,7 +18,9 @@
 3. **文本工具栏与气泡子菜单智能避让**:
    - 改造 [BubbleToolbar/index.tsx](../../frontend/src/components/DocEditor/components/BubbleToolbar/index.tsx)：字号与颜色选择子面板自动依据悬浮工具栏位置与视口边界调节上下展开。
    - 改造 [CalloutBubbleMenu.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutBubbleMenu.tsx)：高亮块工具栏在展开“预设主题”、“边框颜色”或“填充颜色”时，改为基于被点击按钮在可视窗口 (Viewport) 中的真实 `getBoundingClientRect()` 进行实时测算。当按钮上方空间小于调色板高度 (250px) 时，调色板自动向下方避让展开（`top: 100%`），彻底消除了顶部遮挡；右边空间不足时自适应向左平移。
-   - 改造 [CalloutIconPicker.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutIconPicker.tsx)：为图标选择弹出层同样加入按钮视口实时避让。
+   - 改造 [CalloutIconPicker.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutIconPicker.tsx) 与 [CalloutView.tsx](../../frontend/src/components/DocEditor/components/Callout/CalloutView.tsx)：
+     - 移除图标选项中固定硬编码的高饱和刺眼色彩，改为自适应的高级主题协调色 (`iconColor`) 与典雅中性调 (#475569)；
+     - 在高亮块切换任何自定义背景或边框颜色时，图标颜色均与上下文自然融入、百搭和谐，彻底告别撞色突兀感。
    - 改造 [TableBubbleMenu/index.tsx](../../frontend/src/components/DocEditor/components/TableBubbleMenu/index.tsx)：表格油漆桶调色板同样接入基于按钮位置的视口防溢出算法。
    - 优化 [UnifiedColorPicker.module.css](../../frontend/src/components/DocEditor/components/ColorPicker/UnifiedColorPicker.module.css) 与 [UnifiedColorPicker.tsx](../../frontend/src/components/DocEditor/components/ColorPicker/UnifiedColorPicker.tsx)：
      - **边框颜色 (borderColor)**：过滤移除浅色系色块，仅保留中色与深色（每个色系 2 档位，16 个正方形色块 4x4 排列）；
