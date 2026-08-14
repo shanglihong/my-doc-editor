@@ -143,7 +143,27 @@ export function getActiveToolbarInfo(
     return { type: null, depth: -1 };
   }
 
-  // 1. 优先从全局 HoverStack 获取悬停目标
+  const { state } = editor;
+  const { selection } = state;
+  const { $anchor } = selection;
+
+  // 1. NodeSelection 检查 (如选中的图片或 DrawIO 架构图)
+  if (selection instanceof NodeSelection) {
+    if (selection.node.type.name === 'imageBlock') {
+      return { type: 'image', depth: $anchor.depth };
+    } else if (selection.node.type.name === 'drawioBlock') {
+      return { type: 'drawio', depth: $anchor.depth };
+    }
+  }
+
+  // 2. 非空文本选区：优先于 Block Hover 栈 (当高亮块内选中文本时弹出 BubbleToolbar)
+  if (selection instanceof TextSelection && !selection.empty && selection.from !== selection.to) {
+    if (!editor.isActive('codeBlock')) {
+      return { type: 'text', depth: $anchor.depth };
+    }
+  }
+
+  // 3. 从全局 HoverStack 获取悬停目标
   const activeHover = hoverStackManager.getActiveTarget();
   if (activeHover) {
     return {
@@ -151,33 +171,6 @@ export function getActiveToolbarInfo(
       depth: activeHover.depth,
       target: activeHover,
     };
-  }
-
-  const { state } = editor;
-  const { selection } = state;
-  const { $anchor } = selection;
-
-  const candidates: { type: ToolbarType; depth: number }[] = [];
-
-  // 2. NodeSelection 检查 (如选中的图片或 DrawIO 架构图)
-  if (selection instanceof NodeSelection) {
-    if (selection.node.type.name === 'imageBlock') {
-      candidates.push({ type: 'image', depth: $anchor.depth });
-    } else if (selection.node.type.name === 'drawioBlock') {
-      candidates.push({ type: 'drawio', depth: $anchor.depth });
-    }
-  }
-
-  // 3. 非空文本选区
-  if (selection instanceof TextSelection && !selection.empty && selection.from !== selection.to) {
-    if (!editor.isActive('codeBlock')) {
-      candidates.push({ type: 'text', depth: $anchor.depth });
-    }
-  }
-
-  if (candidates.length > 0) {
-    candidates.sort((a, b) => b.depth - a.depth);
-    return candidates[0];
   }
 
   // 4. 仅在 HoverStack 为空且无选区时，若 hoveredBlockType 存在作为最后的低优先级兜底
