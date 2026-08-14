@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
 import { TextSelection } from '@tiptap/pm/state';
 import {
@@ -13,12 +13,15 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  Link,
 } from 'lucide-react';
 import styles from '../../DocEditor.module.css';
 import { FONT_SIZES } from '../../utils/defaultTheme';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
+import { normalizeUrl } from '../../utils/urlUtils';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
+import { LinkInputPanel } from './LinkInputPanel';
 
 export interface BubbleToolbarProps {
   editor: Editor | null;
@@ -30,6 +33,12 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
+  const [showLinkPanel, setShowLinkPanel] = useState(false);
+  const showLinkPanelRef = useRef(showLinkPanel);
+  useEffect(() => {
+    showLinkPanelRef.current = showLinkPanel;
+  }, [showLinkPanel]);
+
   const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
   const [position, setPosition] = useState<{
     top: number;
@@ -44,12 +53,19 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
   });
 
   const handleToggleDropdown = (
-    type: 'fontSize' | 'color' | 'highlight',
+    type: 'fontSize' | 'color' | 'highlight' | 'link',
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     const btnRect = e.currentTarget.getBoundingClientRect();
-    const subWidth = type === 'fontSize' ? 100 : 168;
-    const subHeight = type === 'fontSize' ? 160 : 250;
+    let subWidth = 168;
+    let subHeight = 250;
+    if (type === 'fontSize') {
+      subWidth = 100;
+      subHeight = 160;
+    } else if (type === 'link') {
+      subWidth = 320;
+      subHeight = 44;
+    }
 
     const res = calculateSubMenuPosition({
       buttonRect: btnRect,
@@ -64,14 +80,22 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       setShowFontSizePicker(!showFontSizePicker);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
+      setShowLinkPanel(false);
     } else if (type === 'color') {
       setShowColorPicker(!showColorPicker);
       setShowFontSizePicker(false);
       setShowHighlightPicker(false);
+      setShowLinkPanel(false);
     } else if (type === 'highlight') {
       setShowHighlightPicker(!showHighlightPicker);
       setShowFontSizePicker(false);
       setShowColorPicker(false);
+      setShowLinkPanel(false);
+    } else if (type === 'link') {
+      setShowLinkPanel(!showLinkPanel);
+      setShowFontSizePicker(false);
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
     }
   };
 
@@ -84,6 +108,11 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         setShowFontSizePicker(false);
         setShowColorPicker(false);
         setShowHighlightPicker(false);
+        setShowLinkPanel(false);
+        return;
+      }
+
+      if (showLinkPanelRef.current) {
         return;
       }
 
@@ -102,6 +131,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         setShowFontSizePicker(false);
         setShowColorPicker(false);
         setShowHighlightPicker(false);
+        setShowLinkPanel(false);
         return;
       }
 
@@ -150,16 +180,49 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       setShowFontSizePicker(false);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
+      setShowLinkPanel(false);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        const { selection } = editor.state;
+        if (!selection.empty && selection instanceof TextSelection) {
+          e.preventDefault();
+          setShowLinkPanel(true);
+          setShowFontSizePicker(false);
+          setShowColorPicker(false);
+          setShowHighlightPicker(false);
+        }
+      }
     };
 
     window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       editor.off('selectionUpdate', updatePosition);
       editor.off('transaction', updatePosition);
       window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [editor, isDragging]);
+
+  const handleConfirmLink = (urlInput: string) => {
+    if (!editor) return;
+    const normalized = normalizeUrl(urlInput);
+    if (normalized) {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: normalized, target: '_blank' }).run();
+    } else {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    }
+    setShowLinkPanel(false);
+  };
+
+  const handleUnlink = () => {
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    setShowLinkPanel(false);
+  };
 
   if (!editor || !position.visible || isDragging || isTypeMenuOpen) {
     return null;
@@ -268,6 +331,27 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       >
         <Code size={16} />
       </button>
+
+      {/* 超链接 */}
+      <div style={{ position: 'relative' }}>
+        <button
+          className={`${styles.toolbarBtn} ${editor.isActive('link') || showLinkPanel ? styles.toolbarBtnActive : ''}`}
+          onClick={(e) => handleToggleDropdown('link', e)}
+          title="超链接 (Cmd+K)"
+        >
+          <Link size={16} />
+        </button>
+        {showLinkPanel && (
+          <LinkInputPanel
+            initialUrl={editor.getAttributes('link').href || ''}
+            hasLink={editor.isActive('link')}
+            style={pickerStyle}
+            onConfirm={handleConfirmLink}
+            onUnlink={handleUnlink}
+            onClose={() => setShowLinkPanel(false)}
+          />
+        )}
+      </div>
 
       {/* 文字颜色 */}
       <div style={{ position: 'relative' }}>

@@ -13,6 +13,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import { Placeholder } from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
 
 import styles from './DocEditor.module.css';
 import type { DocEditorProps, DocEditorRef, DocumentNode, BlockNode, DrawIOModalState } from './types';
@@ -142,6 +143,11 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
             return "输入 '/' 唤起快捷菜单，或直接输入内容...";
           },
           emptyNodeClass: 'is-empty',
+        }),
+        Link.configure({
+          autolink: false,
+          openOnClick: false,
+          linkOnPaste: true,
         }),
         FontSizeMark,
         CalloutExtension,
