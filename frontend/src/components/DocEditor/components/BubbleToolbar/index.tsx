@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import styles from '../../DocEditor.module.css';
 import { FONT_SIZES } from '../../utils/defaultTheme';
-import { calculateSmartPosition } from '../../utils/floatingPosition';
+import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 
 export interface BubbleToolbarProps {
@@ -29,6 +29,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
+  const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
   const [position, setPosition] = useState<{
     top: number;
     left: number;
@@ -40,6 +41,38 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     placement: 'top',
     visible: false,
   });
+
+  const handleToggleDropdown = (
+    type: 'fontSize' | 'color' | 'highlight',
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    const subWidth = type === 'fontSize' ? 100 : 168;
+    const subHeight = type === 'fontSize' ? 160 : 250;
+
+    const res = calculateSubMenuPosition({
+      buttonRect: btnRect,
+      submenuWidth: subWidth,
+      submenuHeight: subHeight,
+      offset: 4,
+    });
+
+    setPickerStyle(res.style);
+
+    if (type === 'fontSize') {
+      setShowFontSizePicker(!showFontSizePicker);
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
+    } else if (type === 'color') {
+      setShowColorPicker(!showColorPicker);
+      setShowFontSizePicker(false);
+      setShowHighlightPicker(false);
+    } else if (type === 'highlight') {
+      setShowHighlightPicker(!showHighlightPicker);
+      setShowFontSizePicker(false);
+      setShowColorPicker(false);
+    }
+  };
 
   useEffect(() => {
     if (!editor) return;
@@ -114,11 +147,6 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     return null;
   }
 
-  // 子下拉框展开策略：当 Toolbar 本身在选区下方（placement === 'bottom'）时，下拉框向下；在选区上方（placement === 'top'）时，下拉框向上展现
-  const dropdownStyle: React.CSSProperties =
-    position.placement === 'bottom'
-      ? { top: '100%', marginTop: '4px' }
-      : { bottom: '100%', marginBottom: '4px' };
 
   return (
     <div
@@ -134,11 +162,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <div style={{ position: 'relative' }}>
         <button
           className={styles.toolbarBtn}
-          onClick={() => {
-            setShowFontSizePicker(!showFontSizePicker);
-            setShowColorPicker(false);
-            setShowHighlightPicker(false);
-          }}
+          onClick={(e) => handleToggleDropdown('fontSize', e)}
           title="字号大小"
         >
           <Type size={16} />
@@ -146,19 +170,16 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         {showFontSizePicker && (
           <div
             style={{
-              position: 'absolute',
-              ...dropdownStyle,
-              left: 0,
               background: '#fff',
               border: '1px solid #e2e8f0',
               borderRadius: '8px',
               padding: '4px',
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-              zIndex: 1000,
               display: 'flex',
               flexDirection: 'column',
               gap: '2px',
               width: '100px',
+              ...pickerStyle,
             }}
           >
             {FONT_SIZES.map((fs) => (
@@ -234,24 +255,13 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <div style={{ position: 'relative' }}>
         <button
           className={`${styles.toolbarBtn} ${showColorPicker ? styles.toolbarBtnActive : ''}`}
-          onClick={() => {
-            setShowColorPicker(!showColorPicker);
-            setShowFontSizePicker(false);
-            setShowHighlightPicker(false);
-          }}
+          onClick={(e) => handleToggleDropdown('color', e)}
           title="文字前景色"
         >
           <Palette size={16} />
         </button>
         {showColorPicker && (
-          <div
-            style={{
-              position: 'absolute',
-              ...dropdownStyle,
-              left: 0,
-              zIndex: 1000,
-            }}
-          >
+          <div style={pickerStyle}>
             <UnifiedColorPicker
               allowedCategories={['textColor']}
               defaultCategory="textColor"
@@ -272,24 +282,13 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       <div style={{ position: 'relative' }}>
         <button
           className={`${styles.toolbarBtn} ${showHighlightPicker ? styles.toolbarBtnActive : ''}`}
-          onClick={() => {
-            setShowHighlightPicker(!showHighlightPicker);
-            setShowFontSizePicker(false);
-            setShowColorPicker(false);
-          }}
+          onClick={(e) => handleToggleDropdown('highlight', e)}
           title="背景高亮色"
         >
           <Highlighter size={16} />
         </button>
         {showHighlightPicker && (
-          <div
-            style={{
-              position: 'absolute',
-              ...dropdownStyle,
-              left: 0,
-              zIndex: 1000,
-            }}
-          >
+          <div style={pickerStyle}>
             <UnifiedColorPicker
               allowedCategories={['backgroundColor']}
               defaultCategory="backgroundColor"

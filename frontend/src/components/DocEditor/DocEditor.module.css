@@ -566,7 +566,7 @@
   width: 200px;
   max-height: 280px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 99999;
   animation: menuFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

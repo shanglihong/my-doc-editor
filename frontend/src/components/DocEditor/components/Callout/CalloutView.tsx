@@ -22,6 +22,7 @@ export const CalloutView: React.FC<NodeViewProps> = ({ node, updateAttributes, e
   const defaultTheme = CALLOUT_THEMES.find((t) => t.id === node.attrs.themeColor) || CALLOUT_THEMES[0];
   const bgColor = node.attrs.backgroundColor || node.attrs.customBg || defaultTheme.bgColor;
   const borderColor = node.attrs.borderColor || node.attrs.customBorder || defaultTheme.borderColor;
+  const iconColor = defaultTheme.iconColor || '#475569';
 
   const customStyle: React.CSSProperties = {
     backgroundColor: bgColor,
@@ -33,6 +34,7 @@ export const CalloutView: React.FC<NodeViewProps> = ({ node, updateAttributes, e
       {editor.isEditable ? (
         <CalloutIconPicker
           currentIcon={icon || 'Info'}
+          iconColor={iconColor}
           isOpen={pickerOpen}
           onToggle={() => setPickerOpen((v) => !v)}
           onSelectIcon={handleSelectIcon}
@@ -40,7 +42,7 @@ export const CalloutView: React.FC<NodeViewProps> = ({ node, updateAttributes, e
       ) : (
         <div className={styles.calloutIconArea}>
           <div className={styles.calloutIconBtn} style={{ cursor: 'default' }}>
-            <CurrentIcon size={18} color={currentConfig.color} />
+            <CurrentIcon size={18} color={iconColor} />
           </div>
         </div>
       )}

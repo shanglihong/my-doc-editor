@@ -4,7 +4,7 @@ import { TextSelection } from '@tiptap/pm/state';
 import { CellSelection } from '@tiptap/pm/tables';
 import { PaintBucket, Trash2 } from 'lucide-react';
 import styles from './TableBubbleMenu.module.css';
-import { calculateSmartPosition } from '../../utils/floatingPosition';
+import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import {
   RowInsertAboveIcon,
@@ -30,10 +30,12 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
   const [menuState, setMenuState] = useState<{
     visible: boolean;
     top: number;
     left: number;
+    placement?: 'top' | 'bottom';
     rowCount: number;
     colCount: number;
     canMerge: boolean;
@@ -135,6 +137,7 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
         visible: true,
         top: posResult.top,
         left: clampedCenter,
+        placement: posResult.placement,
         rowCount,
         colCount,
         canMerge,
@@ -311,21 +314,26 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
           <button
             className={`${styles.menuBtn} ${showColorPicker ? styles.menuBtnActive : ''}`}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setShowColorPicker(!showColorPicker)}
+            onClick={(e) => {
+              if (!showColorPicker) {
+                const btnRect = e.currentTarget.getBoundingClientRect();
+                const res = calculateSubMenuPosition({
+                  buttonRect: btnRect,
+                  submenuWidth: 168,
+                  submenuHeight: 250,
+                  offset: 6,
+                });
+                setPickerStyle(res.style);
+              }
+              setShowColorPicker(!showColorPicker);
+            }}
             title="单元格背景填充"
           >
             <PaintBucket size={16} />
           </button>
           {showColorPicker && (
             <div
-              style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                marginBottom: '6px',
-                zIndex: 1000,
-              }}
+              style={pickerStyle}
               onMouseDown={(e) => e.preventDefault()}
             >
               <UnifiedColorPicker

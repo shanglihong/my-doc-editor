@@ -3,6 +3,7 @@ import Suggestion from '@tiptap/suggestion';
 import type { SuggestionOptions } from '@tiptap/suggestion';
 import { ReactRenderer } from '@tiptap/react';
 import { SlashMenu } from './index';
+import { calculateSmartPosition } from '../../utils/floatingPosition';
 
 export interface SlashMenuItem {
   title: string;
@@ -135,11 +136,21 @@ export const SlashMenuExtension = Extension.create({
               }
 
               document.body.appendChild(component.element);
-              const rect = props.clientRect();
+              const rect = props.clientRect?.();
               if (rect && component.element) {
+                const menuHeight = component.element.offsetHeight || 300;
+                const menuWidth = component.element.offsetWidth || 280;
+                const pos = calculateSmartPosition({
+                  targetRect: rect,
+                  menuWidth,
+                  menuHeight,
+                  preferredPlacement: 'bottom',
+                  offset: 6,
+                  isFixed: true,
+                });
                 component.element.style.position = 'fixed';
-                component.element.style.left = `${rect.left}px`;
-                component.element.style.top = `${rect.bottom + 6}px`;
+                component.element.style.left = `${pos.left}px`;
+                component.element.style.top = `${pos.top}px`;
                 component.element.style.zIndex = '99999';
               }
             },
@@ -153,9 +164,19 @@ export const SlashMenuExtension = Extension.create({
 
               const rect = props.clientRect();
               if (rect && component?.element) {
+                const menuHeight = component.element.offsetHeight || 300;
+                const menuWidth = component.element.offsetWidth || 280;
+                const pos = calculateSmartPosition({
+                  targetRect: rect,
+                  menuWidth,
+                  menuHeight,
+                  preferredPlacement: 'bottom',
+                  offset: 6,
+                  isFixed: true,
+                });
                 component.element.style.position = 'fixed';
-                component.element.style.left = `${rect.left}px`;
-                component.element.style.top = `${rect.bottom + 6}px`;
+                component.element.style.left = `${pos.left}px`;
+                component.element.style.top = `${pos.top}px`;
                 component.element.style.zIndex = '99999';
               }
             },

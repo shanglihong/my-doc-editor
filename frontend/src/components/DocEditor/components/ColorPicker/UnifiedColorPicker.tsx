@@ -25,7 +25,11 @@ const CATEGORY_ICONS: Record<ColorCategory, React.ReactNode> = {
   borderColor: <Square size={12} />,
 };
 
-const TIERS: ColorTier[] = ['light', 'medium', 'normal'];
+const TIERS_BY_CATEGORY: Record<ColorCategory, ColorTier[]> = {
+  textColor: ['light', 'medium', 'normal'],
+  backgroundColor: ['light', 'medium'],      // 填充去掉深色系 ('normal')
+  borderColor: ['medium', 'normal'],         // 边框去掉浅色系 ('light')
+};
 
 export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
   allowedCategories = ['textColor', 'backgroundColor', 'borderColor'],
@@ -39,6 +43,8 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
 
   const groups: ColorGroup[] = UNIFIED_COLOR_SYSTEM[activeCategory] || UNIFIED_COLOR_SYSTEM.textColor;
   const showHeader = allowedCategories.length > 1 || !!onResetColor;
+  const currentTiers = TIERS_BY_CATEGORY[activeCategory] || ['light', 'medium', 'normal'];
+  const gridColumnsClass = currentTiers.length === 2 ? styles.colorGrid4Cols : styles.colorGrid6Cols;
 
   return (
     <div
@@ -82,9 +88,9 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
         </div>
       )}
 
-      <div className={styles.colorGrid}>
+      <div className={`${styles.colorGrid} ${gridColumnsClass}`}>
         {groups.map((group) =>
-          TIERS.map((tier) => {
+          currentTiers.map((tier) => {
             const option = group.shades[tier];
             const isSelected =
               currentColor &&

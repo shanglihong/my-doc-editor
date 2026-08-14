@@ -1,32 +1,62 @@
-/* 纯无悬浮形变/提示极简调色板 */
+/* 极简现代风高级调色板系统 CSS Module */
 
 .container {
-  width: 156px;
+  width: 152px;
+  max-height: 260px;
+  overflow-y: auto;
   background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.12), 0 4px 8px -2px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 4px 10px -3px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  padding: 8px;
   user-select: none;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  z-index: 1000;
+  box-sizing: border-box;
+  animation: pickerFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pickerFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
 }
 
 .topHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
-  padding-bottom: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #f1f5f9;
 }
 
 .categoryTabs {
   display: flex;
   align-items: center;
-  gap: 2px;
-  background: #f1f5f9;
+  gap: 3px;
+  background: #f8fafc;
   padding: 2px;
-  border-radius: 5px;
+  border-radius: 6px;
+  border: 1px solid #f1f5f9;
 }
 
 .tabBtn {
@@ -41,19 +71,21 @@
   color: #64748b;
   border-radius: 4px;
   cursor: pointer;
-  transition: color 0.1s ease, background 0.1s ease;
+  transition: all 0.15s ease;
 }
 
 .tabBtn:hover {
   color: #0f172a;
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .tabBtnActive {
   background: #ffffff;
   color: #2563eb;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
+/* 刷新/重置按钮：无边框极简图标按钮 */
 .resetBtn {
   display: inline-flex;
   align-items: center;
@@ -61,51 +93,62 @@
   width: 20px;
   height: 20px;
   padding: 0;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: none;
+  background: transparent;
   color: #64748b;
   border-radius: 4px;
   cursor: pointer;
-  transition: color 0.1s ease, background 0.1s ease;
+  transition: all 0.15s ease;
   margin-left: auto;
 }
 
 .resetBtn:hover {
-  background: #fee2e2;
+  background: #fef2f2;
   color: #ef4444;
-  border-color: #fca5a5;
 }
 
+/* 颜色色块网格：支持 4 列或 6 列精致正方形排列 */
 .colorGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 4px;
 }
 
+.colorGrid4Cols {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.colorGrid6Cols {
+  grid-template-columns: repeat(6, 1fr);
+}
+
 .colorSwatch {
-  height: 18px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   outline: none;
   padding: 0;
-  transition: border-color 0.1s ease, opacity 0.1s ease;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.12s ease, box-shadow 0.12s ease;
 }
 
 .colorSwatch:hover {
-  border-color: rgba(0, 0, 0, 0.4);
-  opacity: 0.9;
+  border-color: rgba(0, 0, 0, 0.3);
+  transform: scale(1.12);
+  z-index: 1;
 }
 
 .colorSwatchActive {
   box-shadow: 0 0 0 1.5px #ffffff, 0 0 0 3px #2563eb !important;
+  z-index: 2;
 }
 
 .checkIcon {
   width: 10px;
   height: 10px;
   stroke-width: 3;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
 }

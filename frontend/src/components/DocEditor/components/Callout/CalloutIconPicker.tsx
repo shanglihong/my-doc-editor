@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Lightbulb,
   Info,
@@ -22,38 +22,39 @@ import {
   Camera,
 } from 'lucide-react';
 import styles from '../../DocEditor.module.css';
+import { calculateSubMenuPosition } from '../../utils/floatingPosition';
 
 interface IconConfig {
   name: string;
   icon: React.ComponentType<{ size?: number; color?: string }>;
-  color: string;
 }
 
 const ICON_OPTIONS: IconConfig[] = [
-  { name: 'Lightbulb',     icon: Lightbulb,     color: '#f59e0b' },
-  { name: 'Info',          icon: Info,           color: '#3b82f6' },
-  { name: 'AlertTriangle', icon: AlertTriangle,  color: '#f97316' },
-  { name: 'CheckCircle2',  icon: CheckCircle2,   color: '#22c55e' },
-  { name: 'OctagonAlert',  icon: OctagonAlert,   color: '#ef4444' },
-  { name: 'Star',          icon: Star,           color: '#eab308' },
-  { name: 'Flame',         icon: Flame,          color: '#f97316' },
-  { name: 'Zap',           icon: Zap,            color: '#8b5cf6' },
-  { name: 'Bookmark',      icon: Bookmark,       color: '#64748b' },
-  { name: 'FileText',      icon: FileText,       color: '#0891b2' },
-  { name: 'Pin',           icon: Pin,            color: '#ec4899' },
-  { name: 'Heart',         icon: Heart,          color: '#f43f5e' },
-  { name: 'Rocket',        icon: Rocket,         color: '#6366f1' },
-  { name: 'MessageCircle', icon: MessageCircle,  color: '#14b8a6' },
-  { name: 'Target',        icon: Target,         color: '#ef4444' },
-  { name: 'Lock',          icon: Lock,           color: '#78716c' },
-  { name: 'Coffee',        icon: Coffee,         color: '#a16207' },
-  { name: 'Globe',         icon: Globe,          color: '#0284c7' },
-  { name: 'Music',         icon: Music,          color: '#d946ef' },
-  { name: 'Camera',        icon: Camera,         color: '#475569' },
+  { name: 'Info',          icon: Info },
+  { name: 'Lightbulb',     icon: Lightbulb },
+  { name: 'AlertTriangle', icon: AlertTriangle },
+  { name: 'CheckCircle2',  icon: CheckCircle2 },
+  { name: 'OctagonAlert',  icon: OctagonAlert },
+  { name: 'Star',          icon: Star },
+  { name: 'Flame',         icon: Flame },
+  { name: 'Zap',           icon: Zap },
+  { name: 'Bookmark',      icon: Bookmark },
+  { name: 'FileText',      icon: FileText },
+  { name: 'Pin',           icon: Pin },
+  { name: 'Heart',         icon: Heart },
+  { name: 'Rocket',        icon: Rocket },
+  { name: 'MessageCircle', icon: MessageCircle },
+  { name: 'Target',        icon: Target },
+  { name: 'Lock',          icon: Lock },
+  { name: 'Coffee',        icon: Coffee },
+  { name: 'Globe',         icon: Globe },
+  { name: 'Music',         icon: Music },
+  { name: 'Camera',        icon: Camera },
 ];
 
 interface CalloutIconPickerProps {
   currentIcon: string;
+  iconColor?: string;
   isOpen: boolean;
   onToggle: () => void;
   onSelectIcon: (name: string) => void;
@@ -61,13 +62,16 @@ interface CalloutIconPickerProps {
 
 export const CalloutIconPicker: React.FC<CalloutIconPickerProps> = ({
   currentIcon,
+  iconColor,
   isOpen,
   onToggle,
   onSelectIcon,
 }) => {
   const areaRef = useRef<HTMLDivElement>(null);
-  const currentConfig = ICON_OPTIONS.find((c) => c.name === currentIcon) || ICON_OPTIONS[1];
+  const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
+  const currentConfig = ICON_OPTIONS.find((c) => c.name === currentIcon) || ICON_OPTIONS[0];
   const CurrentIcon = currentConfig.icon;
+  const activeColor = iconColor || '#475569';
 
   // 点击外部关闭
   useEffect(() => {
@@ -86,14 +90,26 @@ export const CalloutIconPicker: React.FC<CalloutIconPickerProps> = ({
       <button
         type="button"
         className={styles.calloutIconBtn}
-        onClick={onToggle}
+        onClick={(e) => {
+          if (!isOpen) {
+            const btnRect = e.currentTarget.getBoundingClientRect();
+            const res = calculateSubMenuPosition({
+              buttonRect: btnRect,
+              submenuWidth: 192,
+              submenuHeight: 180,
+              offset: 6,
+            });
+            setPickerStyle(res.style);
+          }
+          onToggle();
+        }}
         title="切换图标"
       >
-        <CurrentIcon size={18} color={currentConfig.color} />
+        <CurrentIcon size={18} color={activeColor} />
       </button>
 
       {isOpen && (
-        <div className={styles.calloutPickerPopover}>
+        <div className={styles.calloutPickerPopover} style={pickerStyle}>
           <div className={styles.pickerTitle}>选择图标</div>
           <div className={styles.iconGrid}>
             {ICON_OPTIONS.map((c) => {
@@ -109,7 +125,7 @@ export const CalloutIconPicker: React.FC<CalloutIconPickerProps> = ({
                     onSelectIcon(c.name);
                   }}
                 >
-                  <IconComp size={16} color={c.color} />
+                  <IconComp size={16} color={activeColor} />
                 </button>
               );
             })}

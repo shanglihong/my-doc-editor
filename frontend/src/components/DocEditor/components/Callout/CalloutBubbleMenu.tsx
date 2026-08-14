@@ -3,7 +3,7 @@ import type { Editor } from '@tiptap/react';
 import { TextSelection } from '@tiptap/pm/state';
 import { PaintBucket, Square, RotateCcw, Trash2, Settings2 } from 'lucide-react';
 import styles from './CalloutBubbleMenu.module.css';
-import { calculateSmartPosition } from '../../utils/floatingPosition';
+import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import { CALLOUT_THEMES } from '../../utils/defaultTheme';
 
@@ -20,10 +20,12 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [activePicker, setActivePicker] = useState<'bg' | 'border' | 'theme' | null>(null);
+  const [activePickerStyle, setActivePickerStyle] = useState<React.CSSProperties>({});
   const [menuState, setMenuState] = useState<{
     visible: boolean;
     top: number;
     left: number;
+    placement?: 'top' | 'bottom';
     pos: number;
     currentBg?: string;
     currentBorder?: string;
@@ -105,6 +107,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
         visible: true,
         top: posResult.top,
         left: clampedCenter,
+        placement: posResult.placement,
         pos: calloutPos,
         currentBg: calloutNode.attrs.backgroundColor || calloutNode.attrs.customBg || undefined,
         currentBorder: calloutNode.attrs.borderColor || calloutNode.attrs.customBorder || undefined,
@@ -181,6 +184,30 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
     setActivePicker(null);
   };
 
+  const handleTogglePicker = (
+    picker: 'bg' | 'border' | 'theme',
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    if (activePicker === picker) {
+      setActivePicker(null);
+      return;
+    }
+
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    const subWidth = picker === 'theme' ? 136 : 168;
+    const subHeight = picker === 'theme' ? 120 : 250;
+
+    const res = calculateSubMenuPosition({
+      buttonRect: btnRect,
+      submenuWidth: subWidth,
+      submenuHeight: subHeight,
+      offset: 6,
+    });
+
+    setActivePickerStyle(res.style);
+    setActivePicker(picker);
+  };
+
   return (
     <div
       ref={menuRef}
@@ -200,14 +227,14 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
             type="button"
             className={`${styles.menuBtn} ${activePicker === 'theme' ? styles.menuBtnActive : ''}`}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setActivePicker(activePicker === 'theme' ? null : 'theme')}
+            onClick={(e) => handleTogglePicker('theme', e)}
             title="预设主题"
           >
             <Settings2 size={16} />
           </button>
 
           {activePicker === 'theme' && (
-            <div className={styles.popoverContainer} onMouseDown={(e) => e.preventDefault()}>
+            <div className={styles.popoverContainer} style={activePickerStyle} onMouseDown={(e) => e.preventDefault()}>
               <div style={{
                 background: '#ffffff',
                 border: '1px solid rgba(226, 232, 240, 0.9)',
@@ -251,14 +278,14 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
             type="button"
             className={`${styles.menuBtn} ${activePicker === 'border' ? styles.menuBtnActive : ''}`}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setActivePicker(activePicker === 'border' ? null : 'border')}
+            onClick={(e) => handleTogglePicker('border', e)}
             title="边框颜色"
           >
             <Square size={16} color={menuState.currentBorder || 'currentColor'} />
           </button>
 
           {activePicker === 'border' && (
-            <div className={styles.popoverContainer} onMouseDown={(e) => e.preventDefault()}>
+            <div className={styles.popoverContainer} style={activePickerStyle} onMouseDown={(e) => e.preventDefault()}>
               <UnifiedColorPicker
                 allowedCategories={['borderColor']}
                 defaultCategory="borderColor"
@@ -275,14 +302,14 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
             type="button"
             className={`${styles.menuBtn} ${activePicker === 'bg' ? styles.menuBtnActive : ''}`}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setActivePicker(activePicker === 'bg' ? null : 'bg')}
+            onClick={(e) => handleTogglePicker('bg', e)}
             title="填充颜色"
           >
             <PaintBucket size={16} color={menuState.currentBg || 'currentColor'} />
           </button>
 
           {activePicker === 'bg' && (
-            <div className={styles.popoverContainer} onMouseDown={(e) => e.preventDefault()}>
+            <div className={styles.popoverContainer} style={activePickerStyle} onMouseDown={(e) => e.preventDefault()}>
               <UnifiedColorPicker
                 allowedCategories={['backgroundColor']}
                 defaultCategory="backgroundColor"
