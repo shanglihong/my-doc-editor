@@ -75,12 +75,12 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`image-${pos}`, 0);
+        hoverStackManager.unregister(`image-${pos}`, 200);
       }
     }
     hideTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 0);
+    }, 200);
   };
 
   const displaySrc = attrs.src;

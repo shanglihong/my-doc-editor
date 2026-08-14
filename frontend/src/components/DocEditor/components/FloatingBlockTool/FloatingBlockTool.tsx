@@ -110,6 +110,7 @@ export const FloatingBlockTool: React.FC<FloatingBlockToolProps> = ({
 
       // 全局互斥：校验 HoverStack 悬停目标类型
       const activeHover = hoverStackManager.getActiveTarget();
+
       if (activeHover && activeHover.type) {
         if (activeHover.type !== blockType) {
           setMenuState((prev) => ({ ...prev, visible: false }));
@@ -285,6 +286,26 @@ export const FloatingBlockTool: React.FC<FloatingBlockToolProps> = ({
       onMouseOver={() => {
         hoverStackManager.keepActive();
       }}
+      onMouseLeave={(e) => {
+        const relatedTarget = e.relatedTarget as HTMLElement | null;
+        if (
+          relatedTarget &&
+          (relatedTarget.closest('[class*="floatingBlockTool"]') ||
+            relatedTarget.closest('[class*="unifiedToolbar"]') ||
+            relatedTarget.closest('[class*="BubbleMenu"]') ||
+            relatedTarget.closest('[class*="popover"]') ||
+            relatedTarget.closest('[data-type]') ||
+            relatedTarget.closest('table') ||
+            relatedTarget.closest('pre'))
+        ) {
+          hoverStackManager.keepActive();
+          return;
+        }
+        const active = hoverStackManager.getActiveTarget();
+        if (active?.id) {
+          hoverStackManager.unregister(active.id, 250);
+        }
+      }}
     >
       <UnifiedBlockToolbar
         editor={editor}
@@ -294,18 +315,6 @@ export const FloatingBlockTool: React.FC<FloatingBlockToolProps> = ({
         hideBuiltinLeft={hideTypeDropdown}
         onMouseEnter={() => {
           hoverStackManager.keepActive();
-        }}
-        onMouseLeave={(e) => {
-          const relatedTarget = e.relatedTarget as HTMLElement | null;
-          if (
-            relatedTarget &&
-            (relatedTarget.closest(`[data-type="${blockType}"]`) ||
-              relatedTarget.closest(`[data-type="${blockType}-block"]`) ||
-              relatedTarget.closest(`.${styles.floatingBlockTool}`))
-          ) {
-            return;
-          }
-          hoverStackManager.setExclusiveTarget(null, 250);
         }}
       >
         {children && (

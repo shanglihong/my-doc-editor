@@ -403,7 +403,17 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
 
             return false;
           },
-          mouseleave: () => {
+          mouseleave: (_view, event) => {
+            const relatedTarget = (event as MouseEvent).relatedTarget as HTMLElement | null;
+            if (
+              relatedTarget &&
+              (relatedTarget.closest('[class*="floatingBlockTool"]') ||
+                relatedTarget.closest('[class*="unifiedToolbar"]') ||
+                relatedTarget.closest('[class*="BubbleMenu"]') ||
+                relatedTarget.closest('[class*="popover"]'))
+            ) {
+              return false;
+            }
             hoverStackManager.setExclusiveTarget(null, 250);
             return false;
           },

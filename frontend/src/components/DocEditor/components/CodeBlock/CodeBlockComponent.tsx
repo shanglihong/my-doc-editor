@@ -67,12 +67,12 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`codeblock-${pos}`, 0);
+        hoverStackManager.unregister(`codeblock-${pos}`, 200);
       }
     }
     hideTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 0);
+    }, 200);
   };
 
   const handleCopy = async () => {
@@ -106,7 +106,7 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
     isEditable &&
     (isHovered || selected) &&
     (activeToolbar.type === 'codeBlock' || selected);
-
+  console.log("activeToolbar", activeToolbar.type + " " + isHovered)
   return (
     <NodeViewWrapper
       data-type="codeBlock"

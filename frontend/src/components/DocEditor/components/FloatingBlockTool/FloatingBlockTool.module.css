@@ -7,6 +7,19 @@
   user-select: none;
 }
 
+/* 建立上下左右隐形悬浮安全区，无缝连接 Block 实体与工具栏，消除物理缝隙断层 */
+.floatingBlockTool::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  bottom: -16px;
+  left: -12px;
+  right: -12px;
+  z-index: -1;
+  background: transparent;
+  pointer-events: auto;
+}
+
 @keyframes menuFadeIn {
   from {
     opacity: 0;

@@ -31,7 +31,8 @@ export const CalloutView: React.FC<NodeViewProps> = (props) => {
     const relatedTarget = e.relatedTarget as HTMLElement | null;
     if (
       relatedTarget &&
-      (relatedTarget.closest('[class*="unifiedToolbar"]') ||
+      (relatedTarget.closest('[class*="floatingBlockTool"]') ||
+        relatedTarget.closest('[class*="unifiedToolbar"]') ||
         relatedTarget.closest('[class*="BubbleMenu"]') ||
         relatedTarget.closest('[class*="popover"]'))
     ) {
@@ -40,7 +41,7 @@ export const CalloutView: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`callout-${pos}`, 0);
+        hoverStackManager.unregister(`callout-${pos}`, 200);
       }
     }
   };

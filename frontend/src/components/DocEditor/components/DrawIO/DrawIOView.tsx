@@ -48,12 +48,12 @@ export const DrawIOView: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`drawio-${pos}`, 0);
+        hoverStackManager.unregister(`drawio-${pos}`, 200);
       }
     }
     hideTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 0);
+    }, 200);
   };
 
   const handleOpenEditor = (e?: React.SyntheticEvent) => {
