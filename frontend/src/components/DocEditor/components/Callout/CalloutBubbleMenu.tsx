@@ -4,6 +4,7 @@ import { TextSelection } from '@tiptap/pm/state';
 import { PaintBucket, Square, RotateCcw, Trash2, Settings2 } from 'lucide-react';
 import styles from './CalloutBubbleMenu.module.css';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
+import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import { CALLOUT_THEMES } from '../../utils/defaultTheme';
 
@@ -40,11 +41,18 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
     if (!editor) return;
 
     const updateMenu = () => {
+      const activeToolbar = getActiveToolbarInfo(editor);
       const { selection } = editor.state;
       const isTextSelection = selection instanceof TextSelection;
       const isTextSelected = isTextSelection && !selection.empty && selection.from !== selection.to;
 
-      if (isDragging || isTypeMenuOpen || isTextSelected || !editor.isActive('callout')) {
+      if (
+        isDragging ||
+        isTypeMenuOpen ||
+        isTextSelected ||
+        activeToolbar.type !== 'callout' ||
+        !editor.isActive('callout')
+      ) {
         setMenuState((prev) => ({ ...prev, visible: false }));
         setActivePicker(null);
         return;

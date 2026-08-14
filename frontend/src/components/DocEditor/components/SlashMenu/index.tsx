@@ -18,6 +18,7 @@ const iconNameToBlockTypeMap: Record<string, { type: string; level?: number }> =
   Heading3: { type: 'heading', level: 3 },
   List: { type: 'bulletList' },
   ListOrdered: { type: 'orderedList' },
+  Image: { type: 'imageBlock' },
   Table: { type: 'table' },
   Code: { type: 'codeBlock' },
   Quote: { type: 'blockquote' },
@@ -112,6 +113,5 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
     </div>
   );
 });
-
 
 SlashMenu.displayName = 'SlashMenu';

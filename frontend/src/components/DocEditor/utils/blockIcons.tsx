@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Text,
   Heading1,
@@ -14,6 +15,7 @@ import {
   Plus,
   Type,
   Minus,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export interface BlockIconConfig {
@@ -125,6 +127,14 @@ export const BLOCK_ICON_CONFIGS: Record<string, BlockIconConfig> = {
     icon: Table,
     color: '#0891b2',
     bgColor: '#cffafe',
+  },
+  imageBlock: {
+    type: 'imageBlock',
+    label: '图片 Block',
+    description: '支持剪贴板粘贴、拖拽与网络外链',
+    icon: ImageIcon,
+    color: '#ec4899',
+    bgColor: '#fce7f3',
   },
   drawioBlock: {
     type: 'drawioBlock',

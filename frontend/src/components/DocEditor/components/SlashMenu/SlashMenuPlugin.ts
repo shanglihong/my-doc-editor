@@ -54,6 +54,15 @@ export const getSlashMenuItems = (): SlashMenuItem[] => [
     },
   },
   {
+    title: '图片',
+    description: '插入本地图片、剪贴板粘贴或网络图片外链',
+    iconName: 'Image',
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+      window.dispatchEvent(new CustomEvent('OPEN_IMAGE_MODAL'));
+    },
+  },
+  {
     title: '表格',
     description: '插入 3x3 极简卡片风格数据表格',
     iconName: 'Table',

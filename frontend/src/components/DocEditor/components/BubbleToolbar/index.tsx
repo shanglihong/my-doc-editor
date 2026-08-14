@@ -17,6 +17,7 @@ import {
 import styles from '../../DocEditor.module.css';
 import { FONT_SIZES } from '../../utils/defaultTheme';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
+import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 
 export interface BubbleToolbarProps {
@@ -86,10 +87,17 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         return;
       }
 
+      const activeToolbar = getActiveToolbarInfo(editor);
       const { selection } = editor.state;
       const isTextSelection = selection instanceof TextSelection;
       const isInCodeBlock = editor.isActive('codeBlock');
-      if (selection.empty || selection.from === selection.to || !isTextSelection || isInCodeBlock) {
+      if (
+        activeToolbar.type !== 'text' ||
+        selection.empty ||
+        selection.from === selection.to ||
+        !isTextSelection ||
+        isInCodeBlock
+      ) {
         setPosition((prev) => ({ ...prev, visible: false }));
         setShowFontSizePicker(false);
         setShowColorPicker(false);

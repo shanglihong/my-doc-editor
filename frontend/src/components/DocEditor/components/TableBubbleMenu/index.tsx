@@ -5,6 +5,7 @@ import { CellSelection } from '@tiptap/pm/tables';
 import { PaintBucket, Trash2 } from 'lucide-react';
 import styles from './TableBubbleMenu.module.css';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
+import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import {
   RowInsertAboveIcon,
@@ -54,11 +55,18 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
     if (!editor) return;
 
     const updateMenu = () => {
+      const activeToolbar = getActiveToolbarInfo(editor);
       const { selection } = editor.state;
       const isTextSelection = selection instanceof TextSelection;
       const isTextSelected = isTextSelection && !selection.empty && selection.from !== selection.to;
 
-      if (isDragging || isTypeMenuOpen || isTextSelected || !editor.isActive('table')) {
+      if (
+        isDragging ||
+        isTypeMenuOpen ||
+        isTextSelected ||
+        activeToolbar.type !== 'table' ||
+        !editor.isActive('table')
+      ) {
         setMenuState((prev) => ({ ...prev, visible: false }));
         setShowColorPicker(false);
         return;

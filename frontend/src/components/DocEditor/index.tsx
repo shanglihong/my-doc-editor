@@ -18,8 +18,12 @@ import styles from './DocEditor.module.css';
 import type { DocEditorProps, DocEditorRef, DocumentNode, BlockNode, DrawIOModalState } from './types';
 import { FontSizeMark } from './extensions/FontSizeMark';
 import { DragHandlePlugin } from './extensions/DragHandlePlugin';
+import { DoubleTapInsertPlugin } from './extensions/DoubleTapInsertPlugin';
 import { CalloutExtension } from './extensions/CalloutExtension';
 import { DrawIOExtension } from './extensions/DrawIOExtension';
+import { ImageBlockExtension } from './extensions/ImageBlock/ImageBlockExtension';
+import { ImageInsertModal } from './extensions/ImageBlock/ImageInsertModal';
+import { ImageUploadService } from './services/imageUploadService';
 import { DrawIOModal } from './components/DrawIO/DrawIOModal';
 import { SlashMenuExtension } from './components/SlashMenu/SlashMenuPlugin';
 import { BubbleToolbar } from './components/BubbleToolbar';
@@ -90,6 +94,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       initialXml: '',
       nodePos: null,
     });
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     useEffect(() => {
       const handleOpenModal = (e: Event) => {
@@ -101,9 +106,15 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         });
       };
 
+      const handleOpenImageModal = () => {
+        setIsImageModalOpen(true);
+      };
+
       window.addEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
+      window.addEventListener('OPEN_IMAGE_MODAL', handleOpenImageModal);
       return () => {
         window.removeEventListener('OPEN_DRAWIO_MODAL', handleOpenModal);
+        window.removeEventListener('OPEN_IMAGE_MODAL', handleOpenImageModal);
       };
     }, []);
 
@@ -115,6 +126,114 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         .setNodeSelection(drawioModalState.nodePos)
         .updateAttributes('drawioBlock', { xml, svg })
         .run();
+    };
+
+    const handleInsertLocalImageFile = (file: File) => {
+      if (!editor) return;
+      const previewUrl = URL.createObjectURL(file);
+      editor
+        .chain()
+        .focus()
+        .setImageBlock({
+          src: previewUrl,
+          blobSrc: previewUrl,
+          storageType: 'local',
+          status: 'uploading',
+          alignment: 'center',
+        })
+        .run();
+
+      ImageUploadService.uploadImage(file)
+        .then((result) => {
+          editor.state.doc.descendants((docNode, pos) => {
+            if (
+              docNode.type.name === 'imageBlock' &&
+              docNode.attrs.blobSrc === previewUrl
+            ) {
+              const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
+                ...docNode.attrs,
+                src: result.url,
+                blobSrc: null,
+                status: 'ready',
+              });
+              editor.view.dispatch(trUpdate);
+            }
+          });
+        })
+        .catch((err) => {
+          editor.state.doc.descendants((docNode, pos) => {
+            if (
+              docNode.type.name === 'imageBlock' &&
+              docNode.attrs.blobSrc === previewUrl
+            ) {
+              const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
+                ...docNode.attrs,
+                status: 'error',
+                errorMessage: err?.message || '图片保存失败',
+              });
+              editor.view.dispatch(trUpdate);
+            }
+          });
+        });
+    };
+
+    const handleInsertImageUrl = (url: string, storeLocally: boolean) => {
+      if (!editor) return;
+      if (storeLocally) {
+        editor
+          .chain()
+          .focus()
+          .setImageBlock({
+            src: url,
+            storageType: 'local',
+            status: 'uploading',
+            alignment: 'center',
+          })
+          .run();
+
+        ImageUploadService.fetchAndStoreUrl(url)
+          .then((result) => {
+            editor.state.doc.descendants((docNode, pos) => {
+              if (
+                docNode.type.name === 'imageBlock' &&
+                docNode.attrs.src === url
+              ) {
+                const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
+                  ...docNode.attrs,
+                  src: result.url,
+                  status: 'ready',
+                });
+                editor.view.dispatch(trUpdate);
+              }
+            });
+          })
+          .catch(() => {
+            editor.state.doc.descendants((docNode, pos) => {
+              if (
+                docNode.type.name === 'imageBlock' &&
+                docNode.attrs.src === url
+              ) {
+                const trUpdate = editor.state.tr.setNodeMarkup(pos, undefined, {
+                  ...docNode.attrs,
+                  status: 'error',
+                  errorMessage: '转存外链图片失败',
+                });
+                editor.view.dispatch(trUpdate);
+              }
+            });
+          });
+      } else {
+        editor
+          .chain()
+          .focus()
+          .setImageBlock({
+            src: url,
+            storageType: 'external',
+            status: 'ready',
+            alignment: 'center',
+          })
+          .run();
+      }
     };
 
     const editor = useEditor({
@@ -168,12 +287,13 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         FontSizeMark,
         CalloutExtension,
         DrawIOExtension,
+        ImageBlockExtension,
         SlashMenuExtension,
+        DoubleTapInsertPlugin,
         DragHandlePlugin.configure({
           onNodeChange: (data) => {
             setTypeMenuState((typeMenu) => {
               if (typeMenu.isOpen) {
-                // 当菜单打开时，锁定拖拽按钮在当前菜单关联的位置上，不随 MouseMove 飘动或隐藏
                 return typeMenu;
               }
               if (data) {
@@ -331,19 +451,15 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           const mouseY = e.clientY;
           let calculatedLineTop = 0;
 
-          // 算法：归一化 N+1 个绝对线位置插槽
           if (mouseY < blocks[0].getBoundingClientRect().top + blocks[0].getBoundingClientRect().height / 2) {
-            // 插槽 0: 第一个 Block 顶部
             calculatedLineTop = blocks[0].getBoundingClientRect().top - containerRect.top;
           } else if (
             mouseY >=
             blocks[blocks.length - 1].getBoundingClientRect().top +
               blocks[blocks.length - 1].getBoundingClientRect().height / 2
           ) {
-            // 插槽 N: 最后一个 Block 底部
             calculatedLineTop = blocks[blocks.length - 1].getBoundingClientRect().bottom - containerRect.top;
           } else {
-            // 插槽 1 ~ N-1: 相邻 Block 缝隙间，统一归一化吸附在下一个 Block 的顶端 (next.top)
             for (let i = 0; i < blocks.length - 1; i++) {
               const currentRect = blocks[i].getBoundingClientRect();
               const nextRect = blocks[i + 1].getBoundingClientRect();
@@ -363,6 +479,12 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           setDropIndicatorState({ visible: false, top: 0 });
         }}
         onDrop={(e) => {
+          // 如果拖拽的是图片文件，由 ImageBlockExtension ProseMirror 插件优先拦截
+          if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+            const hasImage = Array.from(e.dataTransfer.files).some((f) => f.type.startsWith('image/'));
+            if (hasImage) return;
+          }
+
           e.preventDefault();
           setDropIndicatorState({ visible: false, top: 0 });
           if (!editor) return;
@@ -502,6 +624,12 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           initialXml={drawioModalState.initialXml}
           onSave={handleSaveDrawIO}
           onClose={() => setDrawioModalState((prev) => ({ ...prev, isOpen: false }))}
+        />
+        <ImageInsertModal
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+          onInsertLocalFile={handleInsertLocalImageFile}
+          onInsertUrl={handleInsertImageUrl}
         />
       </div>
     );
