@@ -40,7 +40,7 @@ export const CalloutView: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`callout-${pos}`, 250);
+        hoverStackManager.unregister(`callout-${pos}`, 0);
       }
     }
   };

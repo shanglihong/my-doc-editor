@@ -3,7 +3,6 @@ import type { Editor } from '@tiptap/core';
 import { SquarePlus, ArrowUp, ArrowDown } from 'lucide-react';
 import styles from './NonTextBlockToolbar.module.css';
 import { insertParagraphBlockAround } from '../../utils/blockInsertion';
-import { calculateSubMenuPosition } from '../../utils/floatingPosition';
 
 export interface InsertBlockDropdownProps {
   /** TipTap 编辑器实例 */
@@ -56,7 +55,13 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
     }
   };
 
-  // 监听全局隐藏菜单事件与键盘 keydown 事件
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('INSERT_BLOCK_DROPDOWN_TOGGLE', { detail: { isOpen } })
+    );
+  }, [isOpen]);
+
+  // 监听全局隐藏菜单事件
   useEffect(() => {
     const handleHideAll = () => {
       handleClose();
@@ -68,19 +73,31 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
     };
   }, [isControlled]);
 
-  // 动态计算下拉菜单防遮挡避让坐标
+  // 动态计算下拉菜单对齐（设为 left: -6px，消除偏左现象）
   useEffect(() => {
     if (!isOpen || !buttonRef.current) return;
 
     const btnRect = buttonRef.current.getBoundingClientRect();
-    const { style } = calculateSubMenuPosition({
-      buttonRect: btnRect,
-      submenuWidth: 140,
-      submenuHeight: 80,
-      offset: 4,
-    });
+    const spaceAbove = btnRect.top;
+    const spaceBelow = window.innerHeight - btnRect.bottom;
 
-    setMenuStyle(style);
+    const placement = spaceBelow < 90 && spaceAbove > spaceBelow ? 'top' : 'bottom';
+
+    const calculatedStyle: React.CSSProperties = {
+      position: 'absolute',
+      left: '-6px',
+      zIndex: 1000,
+    };
+
+    if (placement === 'bottom') {
+      calculatedStyle.top = '100%';
+      calculatedStyle.marginTop = '6px';
+    } else {
+      calculatedStyle.bottom = '100%';
+      calculatedStyle.marginBottom = '6px';
+    }
+
+    setMenuStyle(calculatedStyle);
   }, [isOpen]);
 
   // 点击外部自动关闭菜单
@@ -88,9 +105,12 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
     if (!isOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
       ) {
         handleClose();
       }
@@ -120,6 +140,7 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
     <div
       ref={containerRef}
       className={styles.dropdownWrapper}
+      style={{ position: 'relative', zIndex: 100 }}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <button
@@ -139,20 +160,20 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
             className={styles.dropdownItem}
             onClick={(e) => handleInsert('above', e)}
           >
-            <span className={styles.dropdownItemIcon}>
+            <span className={styles.dropdownItemIcon} style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ArrowUp size={14} />
             </span>
-            <span>在上方插入</span>
+            <span style={{ textAlign: 'left', flex: 1 }}>在上方插入</span>
           </button>
           <button
             type="button"
             className={styles.dropdownItem}
             onClick={(e) => handleInsert('below', e)}
           >
-            <span className={styles.dropdownItemIcon}>
+            <span className={styles.dropdownItemIcon} style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ArrowDown size={14} />
             </span>
-            <span>在下方插入</span>
+            <span style={{ textAlign: 'left', flex: 1 }}>在下方插入</span>
           </button>
         </div>
       )}

@@ -50,6 +50,11 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
             mousemove: (view, event) => {
               if (!this.options.onNodeChange) return false;
 
+              if (document.querySelector('[class*="blockTypeMenu"]')) {
+                this.options.onNodeChange(null);
+                return false;
+              }
+
               const editorDom = view.dom;
               const container = editorDom.closest('[class*="editorContainer"]') || editorDom.parentElement;
               if (!container) {

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { Copy, Check } from 'lucide-react';
 import styles from './CodeBlock.module.css';
 import { getActiveToolbarInfo, hoverStackManager } from '../../utils/toolbarPriority';
-import { UnifiedBlockToolbar } from '../UnifiedBlockToolbar';
+import { FloatingBlockTool } from '../FloatingBlockTool';
 
 const LANGUAGES = [
   { label: 'Auto (自动)', value: 'plaintext' },
@@ -25,7 +25,7 @@ const LANGUAGES = [
 ];
 
 export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
-  const { node, deleteNode, editor, getPos, updateAttributes } = props;
+  const { node, deleteNode, editor, getPos, updateAttributes, selected } = props;
   const [copied, setCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,27 +36,6 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
       hideTimeoutRef.current = null;
     }
   };
-
-  const [, setHoverStateListener] = useState(0);
-
-  useEffect(() => {
-    const unsubscribe = hoverStackManager.subscribe(() => {
-      setHoverStateListener((prev) => prev + 1);
-    });
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    const handleHideAll = () => {
-      clearHideTimeout();
-      setIsHovered(false);
-    };
-
-    window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
-    return () => {
-      window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
-    };
-  }, []);
 
   const handleMouseEnter = () => {
     clearHideTimeout();
@@ -79,8 +58,8 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
     const relatedTarget = e.relatedTarget as HTMLElement | null;
     if (
       relatedTarget &&
-      (relatedTarget.closest('[class*="unifiedToolbar"]') ||
-        relatedTarget.closest('[class*="BubbleMenu"]') ||
+      (relatedTarget.closest('[class*="floatingBlockTool"]') ||
+        relatedTarget.closest('[class*="unifiedToolbar"]') ||
         relatedTarget.closest('[class*="popover"]'))
     ) {
       return;
@@ -88,12 +67,12 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`codeblock-${pos}`, 250);
+        hoverStackManager.unregister(`codeblock-${pos}`, 0);
       }
     }
     hideTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 250);
+    }, 0);
   };
 
   const handleCopy = async () => {
@@ -122,40 +101,31 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
 
   const currentLanguage = node.attrs?.language || 'plaintext';
   const isEditable = editor?.isEditable;
-  const activeToolbar = getActiveToolbarInfo(editor, isHovered ? 'codeBlock' : undefined);
-  const showFloatingToolbar = isEditable && activeToolbar.type === 'codeBlock';
+  const activeToolbar = getActiveToolbarInfo(editor);
+  const showFloatingToolbar =
+    isEditable &&
+    (isHovered || selected) &&
+    (activeToolbar.type === 'codeBlock' || selected);
 
   return (
     <NodeViewWrapper
+      data-type="codeBlock"
       className={styles.codeBlockWrapper}
       style={{ position: 'relative', overflow: 'visible' }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* 悬浮工具栏：使用 UnifiedBlockToolbar 左固定插槽 */}
       {showFloatingToolbar && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '-40px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 50,
-          }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <UnifiedBlockToolbar
-            editor={editor}
-            getPos={getPos}
-            nodeSize={node.nodeSize}
-            onDeleteBlock={deleteNode}
-          />
-        </div>
+        <FloatingBlockTool
+          editor={editor}
+          blockType="codeBlock"
+          getPos={getPos}
+          isLocalPositioning={true}
+          onDeleteBlock={deleteNode}
+        />
       )}
 
-      {/* 代码块原有的 Header：保留语言选择与内部复制代码功能 */}
+      {/* 代码块原有的 Header：保持语言选择与复制代码功能 */}
       <div className={styles.codeBlockHeader} contentEditable={false}>
         <div className={styles.codeBlockLeft}>
           <select

@@ -65,7 +65,9 @@
   text-align: left;
 }
 
-.editorContent :global(.ProseMirror-dropcursor) {
+/* 屏蔽 ProseMirror 默认拖拽与块缝隙处的粗黑横杠 (GapCursor / DropCursor) */
+.editorContent :global(.ProseMirror-dropcursor),
+.editorContent :global(.ProseMirror-gapcursor) {
   display: none !important;
 }
 

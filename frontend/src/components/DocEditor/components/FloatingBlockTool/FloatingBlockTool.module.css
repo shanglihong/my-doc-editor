@@ -1,0 +1,81 @@
+/* 独立悬浮 Block Tool 通用组件样式 */
+
+.floatingBlockTool {
+  position: absolute;
+  z-index: 100;
+  animation: menuFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.customActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--border-color, #e2e8f0);
+  margin: 0 2px;
+}
+
+.menuBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s ease-in-out;
+}
+
+.menuBtn:hover:not(:disabled) {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-primary, #0f172a);
+}
+
+.menuBtn:active:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.menuBtn:disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.menuBtnActive {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.dangerBtn:hover:not(:disabled) {
+  background: var(--bg-danger-hover, #fef2f2);
+  color: var(--text-danger, #ef4444);
+}
+
+.popoverContainer {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 6px;
+  z-index: 1000;
+}

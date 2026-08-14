@@ -59,10 +59,13 @@ export const UnifiedBlockToolbar: React.FC<UnifiedBlockToolbarProps> = ({
   return (
     <div
       className={`${styles.unifiedToolbarContainer} ${className || ''}`}
-      style={style}
+      style={{ position: 'relative', zIndex: 100, ...style }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onMouseDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => {
+        window.dispatchEvent(new CustomEvent('HIDE_DRAG_HANDLE'));
+        e.stopPropagation();
+      }}
     >
       {!hideBuiltinLeft && (
         <>

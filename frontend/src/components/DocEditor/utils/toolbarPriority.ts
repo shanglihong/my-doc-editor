@@ -30,14 +30,13 @@ class HoverStackManager {
   private hideTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   public register(target: HoverTarget) {
-    if (this.hideTimers.has(target.id)) {
-      clearTimeout(this.hideTimers.get(target.id)!);
-      this.hideTimers.delete(target.id);
-    }
+    console.log('[HoverStackManager] register:', target);
+    this.keepActive();
     this.stack = this.stack.filter((item) => item.id !== target.id);
     this.stack.push(target);
     // 按 depth 降序排序，嵌套最深的位于栈顶
     this.stack.sort((a, b) => b.depth - a.depth);
+    console.log('[HoverStackManager] current stack after register:', this.stack);
     this.notify();
   }
 
@@ -51,10 +50,12 @@ class HoverStackManager {
     }
   }
 
-  public unregister(id: string, delayMs = 200) {
+  public unregister(id: string, delayMs = 0) {
+    console.log('[HoverStackManager] unregister requested for:', id, 'delayMs:', delayMs);
     const doRemove = () => {
       this.stack = this.stack.filter((item) => item.id !== id);
       this.hideTimers.delete(id);
+      console.log('[HoverStackManager] stack after unregister removed:', id, 'remaining stack:', this.stack);
       this.notify();
     };
 
@@ -71,13 +72,16 @@ class HoverStackManager {
     }
   }
 
-  public setExclusiveTarget(target: HoverTarget | null, delayMs = 200) {
+  public setExclusiveTarget(target: HoverTarget | null, delayMs = 0) {
+    console.log('[HoverStackManager] setExclusiveTarget:', target, 'delayMs:', delayMs);
     this.keepActive();
 
     if (!target) {
       if (delayMs > 0) {
         const timer = setTimeout(() => {
+          this.hideTimers.delete('__exclusive__');
           if (this.stack.length > 0) {
+            console.log('[HoverStackManager] setExclusiveTarget timer triggered: clearing stack');
             this.stack = [];
             this.notify();
           }
@@ -85,6 +89,7 @@ class HoverStackManager {
         this.hideTimers.set('__exclusive__', timer);
       } else {
         if (this.stack.length > 0) {
+          console.log('[HoverStackManager] setExclusiveTarget immediately clearing stack');
           this.stack = [];
           this.notify();
         }
@@ -140,17 +145,12 @@ export function getActiveToolbarInfo(
 
   // 1. 优先从全局 HoverStack 获取悬停目标
   const activeHover = hoverStackManager.getActiveTarget();
-  if (activeHover && activeHover.type) {
+  if (activeHover) {
     return {
       type: activeHover.type,
       depth: activeHover.depth,
       target: activeHover,
     };
-  }
-
-  // 2. 如果传入显式 hoveredBlockType
-  if (hoveredBlockType) {
-    return { type: hoveredBlockType, depth: 999 };
   }
 
   const { state } = editor;
@@ -159,7 +159,7 @@ export function getActiveToolbarInfo(
 
   const candidates: { type: ToolbarType; depth: number }[] = [];
 
-  // 3. NodeSelection 检查 (如选中的图片或 DrawIO 架构图)
+  // 2. NodeSelection 检查 (如选中的图片或 DrawIO 架构图)
   if (selection instanceof NodeSelection) {
     if (selection.node.type.name === 'imageBlock') {
       candidates.push({ type: 'image', depth: $anchor.depth });
@@ -168,19 +168,22 @@ export function getActiveToolbarInfo(
     }
   }
 
-  // 4. 非空文本选区
+  // 3. 非空文本选区
   if (selection instanceof TextSelection && !selection.empty && selection.from !== selection.to) {
     if (!editor.isActive('codeBlock')) {
       candidates.push({ type: 'text', depth: $anchor.depth });
     }
   }
 
-  if (candidates.length === 0) {
-    return { type: null, depth: -1 };
+  if (candidates.length > 0) {
+    candidates.sort((a, b) => b.depth - a.depth);
+    return candidates[0];
   }
 
-  // 按 depth 降序排序，选取 depth 最大的候选作为唯一胜出的活动菜单
-  candidates.sort((a, b) => b.depth - a.depth);
+  // 4. 仅在 HoverStack 为空且无选区时，若 hoveredBlockType 存在作为最后的低优先级兜底
+  if (hoveredBlockType) {
+    return { type: hoveredBlockType, depth: 0 };
+  }
 
-  return candidates[0];
+  return { type: null, depth: -1 };
 }

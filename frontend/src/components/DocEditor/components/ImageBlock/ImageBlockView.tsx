@@ -8,7 +8,7 @@ import { ImageBubbleMenu } from './ImageBubbleMenu';
 import { getActiveToolbarInfo, hoverStackManager } from '../../utils/toolbarPriority';
 
 export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
-  const { node, updateAttributes, deleteNode, selected, editor } = props;
+  const { node, updateAttributes, deleteNode, selected, editor, getPos } = props;
   const attrs = node.attrs as ImageBlockAttributes;
 
   const [isRetrying, setIsRetrying] = useState(false);
@@ -35,7 +35,6 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
   useEffect(() => {
     const handleHideAll = () => {
       clearHideTimeout();
-      setIsHovered(false);
     };
 
     window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
@@ -47,8 +46,8 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
   const handleMouseEnter = () => {
     clearHideTimeout();
     setIsHovered(true);
-    if (typeof props.getPos === 'function') {
-      const pos = props.getPos();
+    if (typeof getPos === 'function') {
+      const pos = getPos();
       if (typeof pos === 'number') {
         hoverStackManager.register({
           id: `image-${pos}`,
@@ -67,20 +66,21 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
     if (
       relatedTarget &&
       (relatedTarget.closest('[class*="unifiedToolbar"]') ||
+        relatedTarget.closest('[class*="floatingBlockTool"]') ||
         relatedTarget.closest('[class*="BubbleMenu"]') ||
         relatedTarget.closest('[class*="popover"]'))
     ) {
       return;
     }
-    if (typeof props.getPos === 'function') {
-      const pos = props.getPos();
+    if (typeof getPos === 'function') {
+      const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`image-${pos}`, 250);
+        hoverStackManager.unregister(`image-${pos}`, 0);
       }
     }
     hideTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 250);
+    }, 0);
   };
 
   const displaySrc = attrs.src;
@@ -133,6 +133,7 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
     const startX = e.clientX;
     const startWidth = imageWrapperRef.current.offsetWidth;
     setIsResizing(true);
+    clearHideTimeout();
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       moveEvent.preventDefault();
@@ -160,12 +161,13 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
         ? styles.alignRight
         : styles.alignCenter;
 
-  const activeToolbar = getActiveToolbarInfo(editor, isHovered ? 'image' : undefined);
-  const showBubbleMenu = editor?.isEditable && activeToolbar.type === 'image';
+  const activeToolbar = getActiveToolbarInfo(editor);
+  const showBubbleMenu = editor?.isEditable && (isHovered || selected) && (activeToolbar.type === 'image' || selected);
   const showHandles = editor?.isEditable && (selected || isHovered || isResizing);
 
   return (
     <NodeViewWrapper
+      data-type="image-block"
       className={`${styles.imageBlockContainer} ${alignmentClass} ${selected ? styles.selected : ''}`}
       style={{ position: 'relative', overflow: 'visible' }}
       onMouseEnter={handleMouseEnter}
@@ -242,10 +244,10 @@ export const ImageBlockView: React.FC<NodeViewProps> = (props) => {
       {showBubbleMenu && (
         <ImageBubbleMenu
           editor={editor}
-          alignment={attrs.alignment}
+          alignment={attrs.alignment || 'center'}
           caption={attrs.caption || ''}
           showCaption={isCaptionVisible}
-          getPos={props.getPos}
+          getPos={getPos}
           nodeSize={node.nodeSize}
           onAlignChange={handleAlignmentChange}
           onCaptionChange={(cap) => updateAttributes({ caption: cap, showCaption: true })}

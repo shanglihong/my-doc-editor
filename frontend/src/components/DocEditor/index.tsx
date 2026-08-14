@@ -620,6 +620,26 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     return (
       <div
         className={`${styles.editorContainer} ${className}`}
+        onClick={(e) => {
+          if (
+            (e.target === e.currentTarget || (e.target as HTMLElement).classList?.contains(styles.editorContent)) &&
+            editor &&
+            !readOnly
+          ) {
+            const docSize = editor.state.doc.content.size;
+            const lastNode = editor.state.doc.lastChild;
+            if (lastNode && lastNode.type.name !== 'paragraph') {
+              editor
+                .chain()
+                .focus()
+                .insertContentAt(docSize, { type: 'paragraph' })
+                .setTextSelection(docSize + 1)
+                .run();
+            } else {
+              editor.chain().focus('end').run();
+            }
+          }
+        }}
         onMouseLeave={() => {
           setDragState((prev) => ({ ...prev, visible: false }));
           hoverStackManager.setExclusiveTarget(null, 250);
@@ -644,7 +664,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           } else if (
             mouseY >=
             blocks[blocks.length - 1].getBoundingClientRect().top +
-              blocks[blocks.length - 1].getBoundingClientRect().height / 2
+            blocks[blocks.length - 1].getBoundingClientRect().height / 2
           ) {
             calculatedLineTop = blocks[blocks.length - 1].getBoundingClientRect().bottom - containerRect.top;
           } else {
@@ -696,7 +716,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           } else if (
             mouseY >=
             blocks[blocks.length - 1].getBoundingClientRect().top +
-              blocks[blocks.length - 1].getBoundingClientRect().height / 2
+            blocks[blocks.length - 1].getBoundingClientRect().height / 2
           ) {
             targetBlockDom = blocks[blocks.length - 1];
             dropAfter = true;

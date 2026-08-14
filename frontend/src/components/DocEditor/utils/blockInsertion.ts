@@ -12,7 +12,7 @@ export interface InsertParagraphBlockParams {
 }
 
 /**
- * 在指定 Block 节点的上方或下方插入一个新的空白段落块，并将焦点定位至新块
+ * 在指定 Block 节点的上方或下方插入一个新的空白段落块，并将光标精准聚焦至新段落内部
  */
 export function insertParagraphBlockAround({
   editor,
@@ -40,7 +40,7 @@ export function insertParagraphBlockAround({
 
   let actualNodeSize = nodeSize || 1;
 
-  if (editor.state && editor.state.doc) {
+  if (editor && editor.state && editor.state.doc) {
     try {
       const docSize = editor.state.doc.content.size;
       const safePos = Math.min(pos, docSize);
@@ -54,10 +54,22 @@ export function insertParagraphBlockAround({
   }
 
   const targetPos = direction === 'above' ? pos : pos + actualNodeSize;
+  const docSize = editor?.state?.doc?.content?.size;
+  const insertPos = typeof docSize === 'number' ? Math.min(targetPos, docSize) : targetPos;
 
-  return editor
+  const res = editor
     .chain()
     .focus()
-    .insertContentAt(targetPos, { type: 'paragraph' })
+    .insertContentAt(insertPos, { type: 'paragraph' })
     .run();
+
+  if (res && editor?.commands?.setTextSelection && typeof docSize === 'number') {
+    try {
+      editor.commands.setTextSelection(Math.min(insertPos + 1, editor.state.doc.content.size));
+    } catch (_e) {
+      // 静默捕获 mock 兼容
+    }
+  }
+
+  return res;
 }

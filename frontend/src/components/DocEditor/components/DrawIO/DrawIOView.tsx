@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
 import { Edit3, Workflow } from 'lucide-react';
 import { getActiveToolbarInfo, hoverStackManager } from '../../utils/toolbarPriority';
-import { UnifiedBlockToolbar } from '../UnifiedBlockToolbar';
+import { FloatingBlockTool } from '../FloatingBlockTool';
 
 export const DrawIOView: React.FC<NodeViewProps> = (props) => {
-  const { node, deleteNode, editor, getPos } = props;
+  const { node, deleteNode, editor, getPos, selected } = props;
   const { xml, svg } = node.attrs;
   const isEditable = editor.isEditable;
   const [isHovered, setIsHovered] = useState(false);
@@ -17,18 +17,6 @@ export const DrawIOView: React.FC<NodeViewProps> = (props) => {
       hideTimeoutRef.current = null;
     }
   };
-
-  useEffect(() => {
-    const handleHideAll = () => {
-      clearHideTimeout();
-      setIsHovered(false);
-    };
-
-    window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
-    return () => {
-      window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
-    };
-  }, []);
 
   const handleMouseEnter = () => {
     clearHideTimeout();
@@ -51,8 +39,8 @@ export const DrawIOView: React.FC<NodeViewProps> = (props) => {
     const relatedTarget = e.relatedTarget as HTMLElement | null;
     if (
       relatedTarget &&
-      (relatedTarget.closest('[class*="unifiedToolbar"]') ||
-        relatedTarget.closest('[class*="BubbleMenu"]') ||
+      (relatedTarget.closest('[class*="floatingBlockTool"]') ||
+        relatedTarget.closest('[class*="unifiedToolbar"]') ||
         relatedTarget.closest('[class*="popover"]'))
     ) {
       return;
@@ -60,12 +48,12 @@ export const DrawIOView: React.FC<NodeViewProps> = (props) => {
     if (typeof getPos === 'function') {
       const pos = getPos();
       if (typeof pos === 'number') {
-        hoverStackManager.unregister(`drawio-${pos}`, 250);
+        hoverStackManager.unregister(`drawio-${pos}`, 0);
       }
     }
     hideTimeoutRef.current = setTimeout(() => {
       setIsHovered(false);
-    }, 250);
+    }, 0);
   };
 
   const handleOpenEditor = (e?: React.SyntheticEvent) => {
@@ -109,11 +97,12 @@ export const DrawIOView: React.FC<NodeViewProps> = (props) => {
     typeof svg === 'string' &&
     (svg.startsWith('data:') || svg.startsWith('http://') || svg.startsWith('https://'));
 
-  const activeToolbar = getActiveToolbarInfo(editor, isHovered ? 'drawio' : undefined);
-  const showFloatingToolbar = isEditable && activeToolbar.type === 'drawio';
+  const activeToolbar = getActiveToolbarInfo(editor);
+  const showFloatingToolbar = isEditable && (isHovered || selected) && (activeToolbar.type === 'drawio' || selected);
 
   return (
     <NodeViewWrapper
+      data-type="drawio"
       className="drawio-node-wrapper"
       style={{
         margin: '24px 0 16px 0',
@@ -126,27 +115,14 @@ export const DrawIOView: React.FC<NodeViewProps> = (props) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* 悬浮工具栏：标准 UnifiedBlockToolbar 无多余自定义编辑按钮 */}
       {showFloatingToolbar && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '-40px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 50,
-          }}
-          onMouseDown={handleStopPropagation}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <UnifiedBlockToolbar
-            editor={editor}
-            getPos={getPos}
-            nodeSize={node.nodeSize}
-            onDeleteBlock={deleteNode}
-          />
-        </div>
+        <FloatingBlockTool
+          editor={editor}
+          blockType="drawio"
+          getPos={getPos}
+          isLocalPositioning={true}
+          onDeleteBlock={deleteNode}
+        />
       )}
 
       {svg ? (

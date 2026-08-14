@@ -381,7 +381,10 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         top: `${position.top}px`,
         left: `${position.left}px`,
       }}
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={(e) => {
+        window.dispatchEvent(new CustomEvent('HIDE_DRAG_HANDLE'));
+        e.preventDefault();
+      }}
     >
       {/* 文本块类型选择 */}
       <div style={{ position: 'relative' }}>
