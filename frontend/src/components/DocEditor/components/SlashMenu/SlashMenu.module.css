@@ -49,7 +49,7 @@
   font-size: 13px;
   font-weight: 400;
   letter-spacing: -0.01em;
-  color: #334155;
+  color: #475569;
   user-select: none;
   transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
@@ -57,8 +57,8 @@
 
 .slashMenuItem:hover,
 .slashMenuItemSelected {
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: #eff6ff;
+  color: #2563eb;
 }
 
 .slashMenuIcon {

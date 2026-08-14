@@ -1,136 +1,117 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
+import { Copy, ClipboardPaste, Trash2 } from 'lucide-react';
 import styles from './BlockTypeMenu.module.css';
 import { BlockIcon } from '../../utils/blockIcons';
 import { calculateSmartPosition } from '../../utils/floatingPosition';
 
+declare global {
+  interface Window {
+    __editorBlockClipboard?: any;
+    __editorClipboardText?: string;
+  }
+}
+
 export interface BlockTypeMenuProps {
   editor: Editor | null;
   pos: number;
+  nodeType?: string;
+  nodeLevel?: number;
+  nodeSize?: number;
   anchorRect: DOMRect | null;
   isOpen: boolean;
   onClose: () => void;
+  onDeleteBlock?: () => void;
 }
 
 export interface MenuItemOption {
   key: string;
   label: string;
-  description: string;
   type: string;
   level?: number;
   action: (editor: Editor, pos: number) => void;
 }
 
+const TEXT_BLOCK_TYPES = new Set([
+  'paragraph',
+  'heading',
+  'bulletList',
+  'orderedList',
+  'taskList',
+  'blockquote',
+]);
+
+const isTextBlock = (type?: string) => {
+  if (!type) return true;
+  return TEXT_BLOCK_TYPES.has(type);
+};
+
 const MENU_OPTIONS: MenuItemOption[] = [
   {
     key: 'paragraph',
-    label: '正文文本',
-    description: '转换为标准普通段落文本',
+    label: '正文',
     type: 'paragraph',
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().setParagraph().run();
     },
   },
   {
     key: 'heading-1',
     label: '一级标题',
-    description: '转换为最高层级大标题',
     type: 'heading',
     level: 1,
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleHeading({ level: 1 }).run();
     },
   },
   {
     key: 'heading-2',
     label: '二级标题',
-    description: '转换为章节中级标题',
     type: 'heading',
     level: 2,
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleHeading({ level: 2 }).run();
     },
   },
   {
     key: 'heading-3',
     label: '三级标题',
-    description: '转换为小节标题',
     type: 'heading',
     level: 3,
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleHeading({ level: 3 }).run();
     },
   },
   {
     key: 'bulletList',
     label: '无序列表',
-    description: '转换为项目符号点状列表',
     type: 'bulletList',
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleBulletList().run();
     },
   },
   {
     key: 'orderedList',
     label: '有序列表',
-    description: '转换为数字编号顺序列表',
     type: 'orderedList',
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleOrderedList().run();
     },
   },
   {
     key: 'taskList',
     label: '待办列表',
-    description: '转换为带复选框的待办任务列表',
     type: 'taskList',
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleTaskList().run();
     },
   },
   {
     key: 'blockquote',
-    label: '引用块',
-    description: '转换为引用文段或重点强调',
+    label: '引用',
     type: 'blockquote',
-    action: (editor, _pos) => {
+    action: (editor) => {
       editor.chain().focus().toggleBlockquote().run();
-    },
-  },
-  {
-    key: 'codeBlock',
-    label: '代码',
-    description: '转换为高亮代码片段区域',
-    type: 'codeBlock',
-    action: (editor, _pos) => {
-      editor.chain().focus().toggleCodeBlock().run();
-    },
-  },
-  {
-    key: 'callout',
-    label: '高亮块',
-    description: '转换为带图标背景提示区域',
-    type: 'callout',
-    action: (editor, _pos) => {
-      editor.chain().focus().toggleCallout().run();
-    },
-  },
-  {
-    key: 'table',
-    label: '数据表格',
-    description: '插入 3x3 结构化表格',
-    type: 'table',
-    action: (editor, _pos) => {
-      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-    },
-  },
-  {
-    key: 'drawioBlock',
-    label: '画图',
-    description: '插入流程图与架构图编辑器',
-    type: 'drawioBlock',
-    action: (editor, _pos) => {
-      (editor.chain().focus() as any).insertDrawIO().run();
     },
   },
 ];
@@ -138,14 +119,42 @@ const MENU_OPTIONS: MenuItemOption[] = [
 export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
   editor,
   pos,
+  nodeType,
+  nodeLevel,
+  nodeSize = 1,
   anchorRect,
   isOpen,
   onClose,
+  onDeleteBlock,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [hasClipboardData, setHasClipboardData] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isOpen) return;
+
+    let isMounted = true;
+    const checkClipboard = async () => {
+      if (window.__editorBlockClipboard) {
+        if (isMounted) setHasClipboardData(true);
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
+          const text = await navigator.clipboard.readText();
+          if (isMounted) {
+            setHasClipboardData(Boolean(text && text.trim().length > 0));
+          }
+        } else {
+          if (isMounted) setHasClipboardData(false);
+        }
+      } catch (_e) {
+        if (isMounted) setHasClipboardData(false);
+      }
+    };
+
+    checkClipboard();
 
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -159,30 +168,12 @@ export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
       }
     };
 
-    const handleWheel = (e: WheelEvent) => {
-      if (menuRef.current && menuRef.current.contains(e.target as Node)) {
-        const listEl = menuRef.current.querySelector('[class*="blockTypeMenuList"]') as HTMLElement;
-        if (listEl) {
-          const { scrollTop, scrollHeight, clientHeight } = listEl;
-          const delta = e.deltaY;
-          const isAtTop = scrollTop === 0 && delta < 0;
-          const isAtBottom = Math.abs(scrollTop + clientHeight - scrollHeight) < 2 && delta > 0;
-          if (isAtTop || isAtBottom) {
-            e.preventDefault();
-          }
-        }
-        return;
-      }
-      e.preventDefault();
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
+      isMounted = false;
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('wheel', handleWheel);
     };
   }, [isOpen, onClose]);
 
@@ -190,23 +181,97 @@ export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
     return null;
   }
 
-  // 获取宿主容器（如 .editorContainer）的 bounding rect，计算相对 top 和 left
+  const isText = isTextBlock(nodeType);
+
   const container = editor.view.dom.closest('[class*="editorContainer"]') as HTMLElement;
   const containerRect = container
     ? container.getBoundingClientRect()
     : new DOMRect(0, 0, window.innerWidth, window.innerHeight);
 
-  const menuWidth = 196;
-  const menuHeight = 280;
+  // 尺寸精确定位
+  const menuWidth = isText ? 148 : 136;
+  const estimatedMenuHeight = isText ? 160 : 100;
 
   const posResult = calculateSmartPosition({
     targetRect: anchorRect,
     containerRect,
     menuWidth,
-    menuHeight,
+    menuHeight: estimatedMenuHeight,
     preferredPlacement: 'bottom',
     offset: 6,
   });
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const targetNode = editor.state.doc.nodeAt(pos);
+      if (targetNode) {
+        const blockJSON = targetNode.toJSON();
+        window.__editorBlockClipboard = blockJSON;
+
+        const jsonString = JSON.stringify(blockJSON);
+        window.__editorClipboardText = jsonString;
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          navigator.clipboard.writeText(jsonString);
+        }
+        setHasClipboardData(true);
+      }
+    } catch (_e) {
+      // 忽略异常
+    }
+    onClose();
+  };
+
+  const handlePaste = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!hasClipboardData) return;
+
+    let contentToInsert: any = window.__editorBlockClipboard;
+
+    if (!contentToInsert) {
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
+          const sysText = await navigator.clipboard.readText();
+          if (sysText) {
+            try {
+              contentToInsert = JSON.parse(sysText);
+            } catch (_e) {
+              contentToInsert = sysText;
+            }
+          }
+        }
+      } catch (_e) {
+        // ignore
+      }
+    }
+
+    if (contentToInsert && editor) {
+      try {
+        const insertPos = pos + nodeSize;
+        editor.chain().focus().insertContentAt(insertPos, contentToInsert).run();
+      } catch (_e) {
+        // 忽略范围异常
+      }
+    }
+    onClose();
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDeleteBlock) {
+      onDeleteBlock();
+    } else {
+      try {
+        editor.chain().focus().deleteRange({ from: pos, to: pos + nodeSize }).run();
+      } catch (_e) {
+        // 忽略范围异常
+      }
+    }
+    onClose();
+  };
 
   return (
     <div
@@ -217,35 +282,76 @@ export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
         top: `${posResult.top}px`,
         left: `${posResult.left}px`,
         width: `${menuWidth}px`,
-        maxHeight: `${menuHeight}px`,
+        height: 'auto',
       }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className={styles.blockTypeMenuHeader}>切换 / 转换 Block 类型</div>
-      <div className={styles.blockTypeMenuList}>
-        {MENU_OPTIONS.map((opt) => {
-          return (
-            <div
-              key={opt.key}
-              className={styles.blockTypeMenuItem}
-              onClick={() => {
-                try {
-                  // 将选区切换至目标 Block pos
-                  editor.chain().focus().setTextSelection(pos).run();
-                } catch (_e) {
-                  // 忽略选区越界
-                }
-                opt.action(editor, pos);
-                onClose();
-              }}
-            >
-              <BlockIcon type={opt.type} level={opt.level} size={15} />
-              <div className={styles.blockTypeMenuText}>
-                <div className={styles.blockTypeMenuTitle}>{opt.label}</div>
-              </div>
-            </div>
-          );
-        })}
+      {isText && (
+        <div className={styles.iconGrid}>
+          {MENU_OPTIONS.map((opt) => {
+            const isActive =
+              opt.type === 'heading'
+                ? nodeType === 'heading' && nodeLevel === opt.level
+                : nodeType === opt.type;
+
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                className={`${styles.iconBtn} ${isActive ? styles.activeBtn : ''}`}
+                title={opt.label}
+                onClick={() => {
+                  try {
+                    editor.chain().focus().setTextSelection(pos).run();
+                  } catch (_e) {
+                    // 忽略选区越界
+                  }
+                  opt.action(editor, pos);
+                  onClose();
+                }}
+              >
+                <BlockIcon
+                  type={opt.type}
+                  level={opt.level}
+                  size={16}
+                  color={isActive ? '#2563eb' : undefined}
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {isText && <div className={styles.horizontalDivider} />}
+
+      <div className={styles.actionGroup}>
+        <button
+          type="button"
+          className={styles.actionItem}
+          onClick={handleCopy}
+        >
+          <Copy size={14} strokeWidth={1.6} />
+          <span className={styles.actionText}>复制</span>
+        </button>
+
+        <button
+          type="button"
+          className={`${styles.actionItem} ${!hasClipboardData ? styles.disabledItem : ''}`}
+          disabled={!hasClipboardData}
+          onClick={handlePaste}
+        >
+          <ClipboardPaste size={14} strokeWidth={1.6} />
+          <span className={styles.actionText}>粘贴</span>
+        </button>
+
+        <button
+          type="button"
+          className={`${styles.actionItem} ${styles.deleteItem}`}
+          onClick={handleDelete}
+        >
+          <Trash2 size={14} strokeWidth={1.6} />
+          <span className={styles.actionText}>删除</span>
+        </button>
       </div>
     </div>
   );

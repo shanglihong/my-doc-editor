@@ -105,10 +105,15 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
               onMouseEnter={() => setSelectedIndex(index)}
             >
               <div className={styles.slashMenuIcon}>
-                <BlockIcon type={blockTypeInfo.type} level={blockTypeInfo.level} size={15} />
+                <BlockIcon
+                  type={blockTypeInfo.type}
+                  level={blockTypeInfo.level}
+                  size={14}
+                  color={index === selectedIndex ? '#2563eb' : undefined}
+                />
               </div>
               <div>
-                <div style={{ fontWeight: 400, fontSize: '13px', color: '#0f172a' }}>{item.title}</div>
+                <div style={{ fontWeight: 400, fontSize: '13px' }}>{item.title}</div>
               </div>
             </div>
           </React.Fragment>

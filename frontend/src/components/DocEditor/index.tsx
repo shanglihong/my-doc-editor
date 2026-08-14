@@ -84,6 +84,9 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       isOpen: boolean;
       pos: number;
       anchorRect: DOMRect | null;
+      nodeType?: string;
+      nodeLevel?: number;
+      nodeSize?: number;
     }>({
       isOpen: false,
       pos: 0,
@@ -188,6 +191,53 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       ],
       content: typeof value === 'string' ? value : undefined,
       editorProps: {
+        handlePaste: (view, event) => {
+          // 1. 优先尝试从全局缓存解析完整 Block 节点
+          if (
+            window.__editorBlockClipboard &&
+            typeof window.__editorBlockClipboard === 'object' &&
+            window.__editorBlockClipboard.type
+          ) {
+            const textInClipboard = event.clipboardData?.getData('text/plain');
+            const jsonStr = JSON.stringify(window.__editorBlockClipboard);
+            if (
+              !textInClipboard ||
+              textInClipboard === jsonStr ||
+              textInClipboard === window.__editorClipboardText
+            ) {
+              try {
+                const node = view.state.schema.nodeFromJSON(window.__editorBlockClipboard);
+                if (node) {
+                  const tr = view.state.tr.replaceSelectionWith(node);
+                  view.dispatch(tr);
+                  return true;
+                }
+              } catch (_e) {
+                // fallback
+              }
+            }
+          }
+
+          // 2. 检查剪贴板文本是否为 Block JSON 数据结构
+          const pastedText = event.clipboardData?.getData('text/plain');
+          if (pastedText && pastedText.trim().startsWith('{') && pastedText.trim().endsWith('}')) {
+            try {
+              const parsed = JSON.parse(pastedText);
+              if (parsed && typeof parsed === 'object' && parsed.type && typeof parsed.type === 'string') {
+                const node = view.state.schema.nodeFromJSON(parsed);
+                if (node) {
+                  const tr = view.state.tr.replaceSelectionWith(node);
+                  view.dispatch(tr);
+                  return true;
+                }
+              }
+            } catch (_e) {
+              // 非 Block JSON，交给默认粘贴
+            }
+          }
+
+          return false;
+        },
         handleDOMEvents: {
           keydown: () => {
             window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
@@ -695,10 +745,14 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
             setDropIndicatorState({ visible: false, top: 0 });
           }}
           onOpenTypeMenu={(pos, anchorRect) => {
+            const targetNode = editor?.state.doc.nodeAt(pos);
             setTypeMenuState({
               isOpen: true,
               pos,
               anchorRect,
+              nodeType: dragState.nodeType,
+              nodeLevel: dragState.nodeLevel,
+              nodeSize: targetNode?.nodeSize || 1,
             });
           }}
         />
@@ -707,6 +761,9 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           pos={typeMenuState.pos}
           anchorRect={typeMenuState.anchorRect}
           isOpen={typeMenuState.isOpen}
+          nodeType={typeMenuState.nodeType}
+          nodeLevel={typeMenuState.nodeLevel}
+          nodeSize={typeMenuState.nodeSize}
           onClose={() => {
             setTypeMenuState((prev) => ({ ...prev, isOpen: false }));
             setDragState((prev) => ({ ...prev, visible: false }));

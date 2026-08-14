@@ -27,12 +27,12 @@ export interface ActiveToolbarInfo {
 class HoverStackManager {
   private stack: HoverTarget[] = [];
   private listeners: Set<() => void> = new Set();
-  private hideTimer: ReturnType<typeof setTimeout> | null = null;
+  private hideTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   public register(target: HoverTarget) {
-    if (this.hideTimer) {
-      clearTimeout(this.hideTimer);
-      this.hideTimer = null;
+    if (this.hideTimers.has(target.id)) {
+      clearTimeout(this.hideTimers.get(target.id)!);
+      this.hideTimers.delete(target.id);
     }
     this.stack = this.stack.filter((item) => item.id !== target.id);
     this.stack.push(target);
@@ -41,42 +41,48 @@ class HoverStackManager {
     this.notify();
   }
 
-  public keepActive() {
-    if (this.hideTimer) {
-      clearTimeout(this.hideTimer);
-      this.hideTimer = null;
+  public keepActive(id?: string) {
+    if (id && this.hideTimers.has(id)) {
+      clearTimeout(this.hideTimers.get(id)!);
+      this.hideTimers.delete(id);
+    } else if (!id) {
+      this.hideTimers.forEach((timer) => clearTimeout(timer));
+      this.hideTimers.clear();
     }
   }
 
   public unregister(id: string, delayMs = 200) {
     const doRemove = () => {
       this.stack = this.stack.filter((item) => item.id !== id);
+      this.hideTimers.delete(id);
       this.notify();
     };
 
+    if (this.hideTimers.has(id)) {
+      clearTimeout(this.hideTimers.get(id)!);
+      this.hideTimers.delete(id);
+    }
+
     if (delayMs > 0) {
-      if (this.hideTimer) clearTimeout(this.hideTimer);
-      this.hideTimer = setTimeout(doRemove, delayMs);
+      const timer = setTimeout(doRemove, delayMs);
+      this.hideTimers.set(id, timer);
     } else {
       doRemove();
     }
   }
 
   public setExclusiveTarget(target: HoverTarget | null, delayMs = 200) {
-    if (this.hideTimer) {
-      clearTimeout(this.hideTimer);
-      this.hideTimer = null;
-    }
+    this.keepActive();
 
     if (!target) {
       if (delayMs > 0) {
-        this.hideTimer = setTimeout(() => {
+        const timer = setTimeout(() => {
           if (this.stack.length > 0) {
             this.stack = [];
             this.notify();
           }
-          this.hideTimer = null;
         }, delayMs);
+        this.hideTimers.set('__exclusive__', timer);
       } else {
         if (this.stack.length > 0) {
           this.stack = [];
@@ -105,10 +111,8 @@ class HoverStackManager {
   }
 
   public clear() {
-    if (this.hideTimer) {
-      clearTimeout(this.hideTimer);
-      this.hideTimer = null;
-    }
+    this.hideTimers.forEach((timer) => clearTimeout(timer));
+    this.hideTimers.clear();
     if (this.stack.length > 0) {
       this.stack = [];
       this.notify();

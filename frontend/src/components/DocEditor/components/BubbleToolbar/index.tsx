@@ -95,7 +95,7 @@ export interface TextAlignOption {
   key: string;
   label: string;
   value: 'left' | 'center' | 'right';
-  icon: React.ComponentType<{ size?: number }>;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; color?: string; className?: string }>;
   action: (editor: Editor) => void;
   isActive: (editor: Editor) => boolean;
 }
@@ -416,7 +416,8 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
                   <BlockIcon
                     type={opt.type}
                     level={opt.level}
-                    size={15}
+                    size={14}
+                    color={isActive ? '#2563eb' : undefined}
                   />
                   <span>{opt.label}</span>
                 </button>
@@ -436,7 +437,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
           title={`对齐方式: ${getCurrentTextAlign(editor).label}`}
         >
           {React.createElement(getCurrentTextAlign(editor).icon, { size: 16 })}
-          <ChevronDown size={12} style={{ opacity: 0.7 }} />
+          <ChevronDown size={12} style={{ opacity: 0.65 }} />
         </button>
         {showAlignPicker && (
           <div
@@ -455,7 +456,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
                     setShowAlignPicker(false);
                   }}
                 >
-                  <IconComp size={15} />
+                  <IconComp size={14} strokeWidth={1.6} color={isActive ? '#2563eb' : undefined} />
                   <span>{opt.label}</span>
                 </button>
               );
@@ -510,8 +511,6 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       >
         <Code size={16} />
       </button>
-
-      <div className={styles.toolbarDivider} />
 
       {/* 超链接 */}
       <div style={{ position: 'relative' }}>

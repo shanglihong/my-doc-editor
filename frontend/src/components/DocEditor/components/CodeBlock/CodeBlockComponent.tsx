@@ -37,6 +37,15 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
     }
   };
 
+  const [, setHoverStateListener] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = hoverStackManager.subscribe(() => {
+      setHoverStateListener((prev) => prev + 1);
+    });
+    return unsubscribe;
+  }, []);
+
   useEffect(() => {
     const handleHideAll = () => {
       clearHideTimeout();
