@@ -27,6 +27,7 @@ import { DragHandleUI } from './components/DragHandle';
 import { BlockTypeMenu } from './components/BlockTypeMenu';
 import { CodeBlockComponent } from './components/CodeBlock/CodeBlockComponent';
 import { TableBubbleMenu } from './components/TableBubbleMenu';
+import { CalloutBubbleMenu } from './components/Callout/CalloutBubbleMenu';
 
 const lowlight = createLowlight(all);
 
@@ -486,6 +487,11 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           isTypeMenuOpen={typeMenuState.isOpen}
         />
         <TableBubbleMenu
+          editor={editor}
+          isDragging={dragState.isDragging}
+          isTypeMenuOpen={typeMenuState.isOpen}
+        />
+        <CalloutBubbleMenu
           editor={editor}
           isDragging={dragState.isDragging}
           isTypeMenuOpen={typeMenuState.isOpen}

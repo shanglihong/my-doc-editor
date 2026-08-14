@@ -5,7 +5,7 @@ import { CellSelection } from '@tiptap/pm/tables';
 import { PaintBucket, Trash2 } from 'lucide-react';
 import styles from './TableBubbleMenu.module.css';
 import { calculateSmartPosition } from '../../utils/floatingPosition';
-import { TABLE_CELL_BG_PALETTE } from '../../utils/defaultTheme';
+import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import {
   RowInsertAboveIcon,
   RowInsertBelowIcon,
@@ -317,21 +317,23 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
             <PaintBucket size={16} />
           </button>
           {showColorPicker && (
-            <div className={styles.colorPickerPopover} onMouseDown={(e) => e.preventDefault()}>
-              <div className={styles.colorGrid}>
-                {TABLE_CELL_BG_PALETTE.map((c) => (
-                  <button
-                    key={c.value}
-                    className={styles.colorDot}
-                    onMouseDown={(e) => e.preventDefault()}
-                    style={{
-                      backgroundColor: c.value === 'transparent' ? '#ffffff' : c.value,
-                    }}
-                    title={c.label}
-                    onClick={() => handleSetCellBg(c.value)}
-                  />
-                ))}
-              </div>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                marginBottom: '6px',
+                zIndex: 1000,
+              }}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <UnifiedColorPicker
+                allowedCategories={['backgroundColor']}
+                defaultCategory="backgroundColor"
+                onSelectColor={(color) => handleSetCellBg(color)}
+                onResetColor={() => handleSetCellBg('transparent')}
+              />
             </div>
           )}
         </div>

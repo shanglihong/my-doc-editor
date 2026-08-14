@@ -407,138 +407,113 @@
 .calloutWrapper {
   position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
   margin: 0.8em 0;
   border-radius: var(--de-radius-md);
   border: 1px solid #e2e8f0;
   background-color: transparent;
-  transition: var(--de-transition);
+  transition: border-color 0.15s ease-in-out;
 }
 
 .calloutWrapper:hover {
   border-color: #cbd5e1;
 }
 
-.calloutHeader {
+.calloutIconArea {
+  position: relative;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  height: 24px;
+  margin-top: 4px;
 }
 
-.calloutIcon {
-  font-size: 1.25rem;
-  user-select: none;
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 2px 4px;
-  transition: background 0.12s ease-in-out;
-  line-height: 1;
-}
-
-.calloutIcon:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.calloutToolbar {
-  position: relative;
-}
-
-.calloutToolbarBtn {
+.calloutIconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease-in-out;
   padding: 0;
-  border-radius: 4px;
-  border: none;
-  background: transparent;
-  color: inherit;
-  opacity: 0.45;
-  cursor: pointer;
-  transition: opacity 0.12s ease-in-out, background 0.12s ease-in-out;
 }
 
-.calloutToolbarBtn:hover {
-  opacity: 0.9;
+.calloutIconBtn:hover {
   background: rgba(0, 0, 0, 0.06);
-}
-
-.calloutPickerPopover {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 4px);
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: var(--de-radius-md);
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.10), 0 2px 4px rgba(15, 23, 42, 0.04);
-  padding: 10px;
-  width: 172px;
-  z-index: 1000;
-}
-
-.pickerSection {
-  margin-bottom: 10px;
-}
-
-.pickerTitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--de-text-muted);
-  margin-bottom: 6px;
-}
-
-.themeGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-
-.themeOption {
-  font-size: 11px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  text-align: center;
-}
-
-.themeOptionActive {
-  box-shadow: 0 0 0 2px var(--de-primary);
-}
-
-.emojiGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 4px;
-}
-
-.emojiOption {
-  font-size: 16px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.emojiOption:hover {
-  background: var(--de-bg-hover);
 }
 
 .calloutContent {
   flex: 1;
   min-width: 0;
+  padding-top: 0;
 }
 
-.calloutContent> :first-child {
-  margin-top: 0;
+.editorContent :global(.ProseMirror .calloutContent > *:first-child) {
+  margin-top: 0 !important;
 }
 
-.calloutContent> :last-child {
-  margin-bottom: 0;
+.editorContent :global(.ProseMirror .calloutContent > *:last-child) {
+  margin-bottom: 0 !important;
+}
+
+/* Callout icon picker popover */
+.calloutPickerPopover {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--de-radius-md);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.10), 0 2px 4px rgba(15, 23, 42, 0.04);
+  padding: 8px;
+  width: 192px;
+  z-index: 200;
+}
+
+.pickerTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.iconOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease, transform 0.1s ease;
+}
+
+.iconOption:hover {
+  background: #f1f5f9;
+  transform: scale(1.1);
+}
+
+.iconOptionActive {
+  border-color: #2563eb;
+  background: #eff6ff;
 }
 
 /* Excalidraw Wrapper */

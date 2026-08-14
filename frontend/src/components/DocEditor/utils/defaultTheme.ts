@@ -93,6 +93,256 @@ export const FONT_SIZES = [
   { label: '32px', value: '32px' },
 ];
 
+export type ColorTier = 'light' | 'medium' | 'normal';
+export type ColorCategory = 'textColor' | 'backgroundColor' | 'borderColor';
+
+export interface ColorOption {
+  label: string;
+  value: string;
+  tier: ColorTier;
+}
+
+export interface ColorGroup {
+  hue: string;
+  hueName: string;
+  shades: {
+    light: ColorOption;
+    medium: ColorOption;
+    normal: ColorOption;
+  };
+}
+
+export interface UnifiedColorSystem {
+  textColor: ColorGroup[];
+  backgroundColor: ColorGroup[];
+  borderColor: ColorGroup[];
+}
+
+export const UNIFIED_COLOR_SYSTEM: UnifiedColorSystem = {
+  textColor: [
+    {
+      hue: 'slate',
+      hueName: '灰色',
+      shades: {
+        light: { label: '浅灰文本', value: '#64748b', tier: 'light' },
+        medium: { label: '中灰文本', value: '#334155', tier: 'medium' },
+        normal: { label: '深灰文本', value: '#0f172a', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'blue',
+      hueName: '蓝色',
+      shades: {
+        light: { label: '浅蓝文本', value: '#60a5fa', tier: 'light' },
+        medium: { label: '中蓝文本', value: '#2563eb', tier: 'medium' },
+        normal: { label: '深蓝文本', value: '#1e3a8a', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'emerald',
+      hueName: '绿色',
+      shades: {
+        light: { label: '浅绿文本', value: '#4ade80', tier: 'light' },
+        medium: { label: '中绿文本', value: '#16a34a', tier: 'medium' },
+        normal: { label: '深绿文本', value: '#14532d', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'amber',
+      hueName: '黄色',
+      shades: {
+        light: { label: '浅黄文本', value: '#facc15', tier: 'light' },
+        medium: { label: '中黄文本', value: '#ca8a04', tier: 'medium' },
+        normal: { label: '深黄文本', value: '#713f12', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'rose',
+      hueName: '红色',
+      shades: {
+        light: { label: '浅红文本', value: '#f87171', tier: 'light' },
+        medium: { label: '中红文本', value: '#dc2626', tier: 'medium' },
+        normal: { label: '深红文本', value: '#7f1d1d', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'purple',
+      hueName: '紫色',
+      shades: {
+        light: { label: '浅紫文本', value: '#c084fc', tier: 'light' },
+        medium: { label: '中紫文本', value: '#9333ea', tier: 'medium' },
+        normal: { label: '深紫文本', value: '#581c87', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'cyan',
+      hueName: '青色',
+      shades: {
+        light: { label: '浅青文本', value: '#22d3ee', tier: 'light' },
+        medium: { label: '中青文本', value: '#0891b2', tier: 'medium' },
+        normal: { label: '深青文本', value: '#164e63', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'orange',
+      hueName: '橙色',
+      shades: {
+        light: { label: '浅橙文本', value: '#fb923c', tier: 'light' },
+        medium: { label: '中橙文本', value: '#ea580c', tier: 'medium' },
+        normal: { label: '深橙文本', value: '#7c2d12', tier: 'normal' },
+      },
+    },
+  ],
+  backgroundColor: [
+    {
+      hue: 'slate',
+      hueName: '灰色',
+      shades: {
+        light: { label: '浅灰背景', value: '#f8fafc', tier: 'light' },
+        medium: { label: '中灰背景', value: '#e2e8f0', tier: 'medium' },
+        normal: { label: '深灰背景', value: '#cbd5e1', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'blue',
+      hueName: '蓝色',
+      shades: {
+        light: { label: '浅蓝背景', value: '#eff6ff', tier: 'light' },
+        medium: { label: '中蓝背景', value: '#dbeafe', tier: 'medium' },
+        normal: { label: '深蓝背景', value: '#93c5fd', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'emerald',
+      hueName: '绿色',
+      shades: {
+        light: { label: '浅绿背景', value: '#f0fdf4', tier: 'light' },
+        medium: { label: '中绿背景', value: '#dcfce7', tier: 'medium' },
+        normal: { label: '深绿背景', value: '#86efac', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'amber',
+      hueName: '黄色',
+      shades: {
+        light: { label: '浅黄背景', value: '#fefce8', tier: 'light' },
+        medium: { label: '中黄背景', value: '#fef08a', tier: 'medium' },
+        normal: { label: '深黄背景', value: '#fde047', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'rose',
+      hueName: '红色',
+      shades: {
+        light: { label: '浅红背景', value: '#fff1f2', tier: 'light' },
+        medium: { label: '中红背景', value: '#fee2e2', tier: 'medium' },
+        normal: { label: '深红背景', value: '#fca5a5', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'purple',
+      hueName: '紫色',
+      shades: {
+        light: { label: '浅紫背景', value: '#faf5ff', tier: 'light' },
+        medium: { label: '中紫背景', value: '#f3e8ff', tier: 'medium' },
+        normal: { label: '深紫背景', value: '#d8b4fe', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'cyan',
+      hueName: '青色',
+      shades: {
+        light: { label: '浅青背景', value: '#ecfeff', tier: 'light' },
+        medium: { label: '中青背景', value: '#cffafe', tier: 'medium' },
+        normal: { label: '深青背景', value: '#a5f3fc', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'orange',
+      hueName: '橙色',
+      shades: {
+        light: { label: '浅橙背景', value: '#fff7ed', tier: 'light' },
+        medium: { label: '中橙背景', value: '#ffedd5', tier: 'medium' },
+        normal: { label: '深橙背景', value: '#fed7aa', tier: 'normal' },
+      },
+    },
+  ],
+  borderColor: [
+    {
+      hue: 'slate',
+      hueName: '灰色',
+      shades: {
+        light: { label: '浅灰边框', value: '#e2e8f0', tier: 'light' },
+        medium: { label: '中灰边框', value: '#cbd5e1', tier: 'medium' },
+        normal: { label: '深灰边框', value: '#94a3b8', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'blue',
+      hueName: '蓝色',
+      shades: {
+        light: { label: '浅蓝边框', value: '#bfdbfe', tier: 'light' },
+        medium: { label: '中蓝边框', value: '#93c5fd', tier: 'medium' },
+        normal: { label: '深蓝边框', value: '#3b82f6', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'emerald',
+      hueName: '绿色',
+      shades: {
+        light: { label: '浅绿边框', value: '#bbf7d0', tier: 'light' },
+        medium: { label: '中绿边框', value: '#86efac', tier: 'medium' },
+        normal: { label: '深绿边框', value: '#22c55e', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'amber',
+      hueName: '黄色',
+      shades: {
+        light: { label: '浅黄边框', value: '#fef08a', tier: 'light' },
+        medium: { label: '中黄边框', value: '#fde047', tier: 'medium' },
+        normal: { label: '深黄边框', value: '#eab308', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'rose',
+      hueName: '红色',
+      shades: {
+        light: { label: '浅红边框', value: '#fecaca', tier: 'light' },
+        medium: { label: '中红边框', value: '#fca5a5', tier: 'medium' },
+        normal: { label: '深红边框', value: '#ef4444', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'purple',
+      hueName: '紫色',
+      shades: {
+        light: { label: '浅紫边框', value: '#e9d5ff', tier: 'light' },
+        medium: { label: '中紫边框', value: '#d8b4fe', tier: 'medium' },
+        normal: { label: '深紫边框', value: '#a855f7', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'cyan',
+      hueName: '青色',
+      shades: {
+        light: { label: '浅青边框', value: '#a5f3fc', tier: 'light' },
+        medium: { label: '中青边框', value: '#67e8f9', tier: 'medium' },
+        normal: { label: '深青边框', value: '#06b6d4', tier: 'normal' },
+      },
+    },
+    {
+      hue: 'orange',
+      hueName: '橙色',
+      shades: {
+        light: { label: '浅橙边框', value: '#fed7aa', tier: 'light' },
+        medium: { label: '中橙边框', value: '#fdba74', tier: 'medium' },
+        normal: { label: '深橙边框', value: '#f97316', tier: 'normal' },
+      },
+    },
+  ],
+};
+
 export const COLOR_PALETTE = [
   { label: '默认文本', value: 'inherit' },
   { label: '石墨黑', value: '#1e293b' },
@@ -131,5 +381,6 @@ export const TABLE_CELL_BG_PALETTE = [
   { label: '中性灰', value: '#e2e8f0' },
   { label: '深灰', value: '#cbd5e1' },
 ];
+
 
 

@@ -41,14 +41,13 @@ export const CalloutToolbar: React.FC<CalloutToolbarProps> = ({
                 <button
                   key={theme.id}
                   type="button"
+                  title={theme.name}
                   className={`${styles.themeOption} ${currentTheme === theme.id ? styles.themeOptionActive : ''}`}
-                  style={{ backgroundColor: theme.bgColor, borderColor: theme.borderColor, color: theme.textColor }}
+                  style={{ backgroundColor: theme.bgColor, borderColor: theme.borderColor }}
                   onClick={() => {
                     onSelectTheme(theme.id);
                   }}
-                >
-                  {theme.name}
-                </button>
+                />
               ))}
             </div>
           </div>

@@ -15,6 +15,8 @@ declare module '@tiptap/core' {
         themeColor?: string;
         customBg?: string;
         customBorder?: string;
+        backgroundColor?: string;
+        borderColor?: string;
       }) => ReturnType;
       toggleCallout: (attributes?: {
         icon?: string;
@@ -22,6 +24,8 @@ declare module '@tiptap/core' {
         themeColor?: string;
         customBg?: string;
         customBorder?: string;
+        backgroundColor?: string;
+        borderColor?: string;
       }) => ReturnType;
     };
   }
@@ -39,10 +43,10 @@ export const CalloutExtension = Node.create<CalloutOptions>({
   addAttributes() {
     return {
       icon: {
-        default: '💡',
+        default: 'Info',
       },
       iconType: {
-        default: 'emoji',
+        default: 'lucide',
       },
       themeColor: {
         default: 'blue',
@@ -51,6 +55,12 @@ export const CalloutExtension = Node.create<CalloutOptions>({
         default: null,
       },
       customBorder: {
+        default: null,
+      },
+      backgroundColor: {
+        default: null,
+      },
+      borderColor: {
         default: null,
       },
     };

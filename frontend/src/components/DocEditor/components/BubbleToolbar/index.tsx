@@ -15,8 +15,9 @@ import {
   AlignRight,
 } from 'lucide-react';
 import styles from '../../DocEditor.module.css';
-import { FONT_SIZES, COLOR_PALETTE, HIGHLIGHT_PALETTE } from '../../utils/defaultTheme';
+import { FONT_SIZES } from '../../utils/defaultTheme';
 import { calculateSmartPosition } from '../../utils/floatingPosition';
+import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 
 export interface BubbleToolbarProps {
   editor: Editor | null;
@@ -232,7 +233,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       {/* 文字颜色 */}
       <div style={{ position: 'relative' }}>
         <button
-          className={styles.toolbarBtn}
+          className={`${styles.toolbarBtn} ${showColorPicker ? styles.toolbarBtnActive : ''}`}
           onClick={() => {
             setShowColorPicker(!showColorPicker);
             setShowFontSizePicker(false);
@@ -248,40 +249,21 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
               position: 'absolute',
               ...dropdownStyle,
               left: 0,
-              background: '#fff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              padding: '6px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               zIndex: 1000,
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '6px',
-              width: '120px',
             }}
           >
-            {COLOR_PALETTE.map((c) => (
-              <button
-                key={c.value}
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  background: c.value === 'inherit' ? '#000' : c.value,
-                  border: '1px solid #cbd5e1',
-                  cursor: 'pointer',
-                }}
-                title={c.label}
-                onClick={() => {
-                  if (c.value === 'inherit') {
-                    editor.chain().focus().unsetColor().run();
-                  } else {
-                    editor.chain().focus().setColor(c.value).run();
-                  }
-                  setShowColorPicker(false);
-                }}
-              />
-            ))}
+            <UnifiedColorPicker
+              allowedCategories={['textColor']}
+              defaultCategory="textColor"
+              onSelectColor={(color) => {
+                editor.chain().focus().setColor(color).run();
+                setShowColorPicker(false);
+              }}
+              onResetColor={() => {
+                editor.chain().focus().unsetColor().run();
+                setShowColorPicker(false);
+              }}
+            />
           </div>
         )}
       </div>
@@ -289,7 +271,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       {/* 背景高亮 */}
       <div style={{ position: 'relative' }}>
         <button
-          className={styles.toolbarBtn}
+          className={`${styles.toolbarBtn} ${showHighlightPicker ? styles.toolbarBtnActive : ''}`}
           onClick={() => {
             setShowHighlightPicker(!showHighlightPicker);
             setShowFontSizePicker(false);
@@ -305,40 +287,21 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
               position: 'absolute',
               ...dropdownStyle,
               left: 0,
-              background: '#fff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              padding: '6px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               zIndex: 1000,
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '6px',
-              width: '120px',
             }}
           >
-            {HIGHLIGHT_PALETTE.map((h) => (
-              <button
-                key={h.value}
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '4px',
-                  background: h.value === 'transparent' ? '#fff' : h.value,
-                  border: '1px solid #cbd5e1',
-                  cursor: 'pointer',
-                }}
-                title={h.label}
-                onClick={() => {
-                  if (h.value === 'transparent') {
-                    editor.chain().focus().unsetHighlight().run();
-                  } else {
-                    editor.chain().focus().setHighlight({ color: h.value }).run();
-                  }
-                  setShowHighlightPicker(false);
-                }}
-              />
-            ))}
+            <UnifiedColorPicker
+              allowedCategories={['backgroundColor']}
+              defaultCategory="backgroundColor"
+              onSelectColor={(color) => {
+                editor.chain().focus().setHighlight({ color }).run();
+                setShowHighlightPicker(false);
+              }}
+              onResetColor={() => {
+                editor.chain().focus().unsetHighlight().run();
+                setShowHighlightPicker(false);
+              }}
+            />
           </div>
         )}
       </div>
