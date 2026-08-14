@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, UploadCloud, Link as LinkIcon } from 'lucide-react';
+import { X, UploadCloud } from 'lucide-react';
 import styles from './ImageInsertModal.module.css';
 import { validateImageFile } from './utils';
 

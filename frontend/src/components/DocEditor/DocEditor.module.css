@@ -174,9 +174,9 @@
 
 /* CodeBlock Custom Minimalist Styling */
 .codeBlockWrapper {
-  margin: 12px 0;
+  margin: 24px 0 12px 0;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);

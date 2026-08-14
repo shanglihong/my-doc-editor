@@ -49,6 +49,9 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
       caption: {
         default: '',
       },
+      showCaption: {
+        default: false,
+      },
       width: {
         default: 'auto',
       },
@@ -204,7 +207,7 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
               return true;
             }
 
-            const dropPos = view.positionAtCoords({
+            const dropPos = view.posAtCoords({
               left: event.clientX,
               top: event.clientY,
             })?.pos;

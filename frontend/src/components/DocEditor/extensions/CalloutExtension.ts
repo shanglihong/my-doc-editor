@@ -40,6 +40,8 @@ export const CalloutExtension = Node.create<CalloutOptions>({
 
   defining: true,
 
+  isolating: true,
+
   addAttributes() {
     return {
       icon: {

@@ -1,20 +1,152 @@
 import type { Editor } from '@tiptap/core';
 import { TextSelection, NodeSelection } from '@tiptap/pm/state';
 
-export type ToolbarType = 'text' | 'table' | 'callout' | 'image' | null;
+export type ToolbarType = 'text' | 'table' | 'callout' | 'image' | 'codeBlock' | 'drawio' | 'default' | null;
+
+export interface HoverTarget {
+  id: string;
+  type: ToolbarType;
+  depth: number;
+  nodePos?: number;
+  getPos?: (() => number | undefined) | boolean;
+  nodeSize?: number;
+  deleteNode?: () => void;
+  domElement?: HTMLElement;
+}
 
 export interface ActiveToolbarInfo {
   type: ToolbarType;
   depth: number;
+  target?: HoverTarget | null;
 }
 
 /**
- * 计算当前选区在语法树层次结构中的“最深活节点菜单类型”。
- * 优先展示最深的内嵌 Block 菜单，隐藏浅层父级 Block 菜单。
+ * 全局 Hover 状态管理器：维护全局 Block 悬停栈，确保深层嵌套 Block 优先且全局独占展示工具栏。
+ * 支持鼠标在 Block 与工具栏缝隙穿梭时的平滑防抖缓冲（Buffer Delay）。
  */
-export function getActiveToolbarInfo(editor: Editor | null): ActiveToolbarInfo {
+class HoverStackManager {
+  private stack: HoverTarget[] = [];
+  private listeners: Set<() => void> = new Set();
+  private hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+  public register(target: HoverTarget) {
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+    this.stack = this.stack.filter((item) => item.id !== target.id);
+    this.stack.push(target);
+    // 按 depth 降序排序，嵌套最深的位于栈顶
+    this.stack.sort((a, b) => b.depth - a.depth);
+    this.notify();
+  }
+
+  public keepActive() {
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+  }
+
+  public unregister(id: string, delayMs = 200) {
+    const doRemove = () => {
+      this.stack = this.stack.filter((item) => item.id !== id);
+      this.notify();
+    };
+
+    if (delayMs > 0) {
+      if (this.hideTimer) clearTimeout(this.hideTimer);
+      this.hideTimer = setTimeout(doRemove, delayMs);
+    } else {
+      doRemove();
+    }
+  }
+
+  public setExclusiveTarget(target: HoverTarget | null, delayMs = 200) {
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+
+    if (!target) {
+      if (delayMs > 0) {
+        this.hideTimer = setTimeout(() => {
+          if (this.stack.length > 0) {
+            this.stack = [];
+            this.notify();
+          }
+          this.hideTimer = null;
+        }, delayMs);
+      } else {
+        if (this.stack.length > 0) {
+          this.stack = [];
+          this.notify();
+        }
+      }
+      return;
+    }
+
+    const currentActive = this.getActiveTarget();
+    if (currentActive?.id === target.id) return;
+
+    this.stack = [target];
+    this.notify();
+  }
+
+  public getActiveTarget(): HoverTarget | null {
+    return this.stack.length > 0 ? this.stack[0] : null;
+  }
+
+  public subscribe(listener: () => void) {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  public clear() {
+    if (this.hideTimer) {
+      clearTimeout(this.hideTimer);
+      this.hideTimer = null;
+    }
+    if (this.stack.length > 0) {
+      this.stack = [];
+      this.notify();
+    }
+  }
+
+  private notify() {
+    this.listeners.forEach((fn) => fn());
+  }
+}
+
+export const hoverStackManager = new HoverStackManager();
+
+/**
+ * 统一调度算子：计算当前选区或鼠标悬浮在语法树层次结构中的“唯一活动工具栏”。
+ * 严格遵循专注原则与悬停驱动：全局同一时间最多只允许展示一个活动工具栏。
+ */
+export function getActiveToolbarInfo(
+  editor: Editor | null,
+  hoveredBlockType?: ToolbarType
+): ActiveToolbarInfo {
   if (!editor || !editor.state) {
     return { type: null, depth: -1 };
+  }
+
+  // 1. 优先从全局 HoverStack 获取悬停目标
+  const activeHover = hoverStackManager.getActiveTarget();
+  if (activeHover && activeHover.type) {
+    return {
+      type: activeHover.type,
+      depth: activeHover.depth,
+      target: activeHover,
+    };
+  }
+
+  // 2. 如果传入显式 hoveredBlockType
+  if (hoveredBlockType) {
+    return { type: hoveredBlockType, depth: 999 };
   }
 
   const { state } = editor;
@@ -23,25 +155,19 @@ export function getActiveToolbarInfo(editor: Editor | null): ActiveToolbarInfo {
 
   const candidates: { type: ToolbarType; depth: number }[] = [];
 
-  // 1. 如果选区是图片 Block (NodeSelection)
-  if (selection instanceof NodeSelection && selection.node.type.name === 'imageBlock') {
-    candidates.push({ type: 'image', depth: $anchor.depth });
-  }
-
-  // 2. 如果选区是非空文本选区且不在代码块中
-  if (selection instanceof TextSelection && !selection.empty && selection.from !== selection.to) {
-    if (!editor.isActive('codeBlock')) {
-      candidates.push({ type: 'text', depth: $anchor.depth });
+  // 3. NodeSelection 检查 (如选中的图片或 DrawIO 架构图)
+  if (selection instanceof NodeSelection) {
+    if (selection.node.type.name === 'imageBlock') {
+      candidates.push({ type: 'image', depth: $anchor.depth });
+    } else if (selection.node.type.name === 'drawioBlock') {
+      candidates.push({ type: 'drawio', depth: $anchor.depth });
     }
   }
 
-  // 3. 遍历祖先节点链 ($anchor.depth -> 1)
-  for (let d = $anchor.depth; d > 0; d--) {
-    const node = $anchor.node(d);
-    if (node.type.name === 'table') {
-      candidates.push({ type: 'table', depth: d });
-    } else if (node.type.name === 'callout') {
-      candidates.push({ type: 'callout', depth: d });
+  // 4. 非空文本选区
+  if (selection instanceof TextSelection && !selection.empty && selection.from !== selection.to) {
+    if (!editor.isActive('codeBlock')) {
+      candidates.push({ type: 'text', depth: $anchor.depth });
     }
   }
 

@@ -7,6 +7,7 @@ export interface ImageBlockAttributes {
   blobSrc?: string | null;
   alt?: string;
   caption?: string;
+  showCaption?: boolean;
   width?: number | string;
   height?: number | string;
   alignment: ImageAlignment;

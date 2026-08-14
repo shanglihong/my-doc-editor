@@ -32,6 +32,7 @@ import { BlockTypeMenu } from './components/BlockTypeMenu';
 import { CodeBlockComponent } from './components/CodeBlock/CodeBlockComponent';
 import { TableBubbleMenu } from './components/TableBubbleMenu';
 import { CalloutBubbleMenu } from './components/Callout/CalloutBubbleMenu';
+import { hoverStackManager } from './utils/toolbarPriority';
 
 const lowlight = createLowlight(all);
 
@@ -317,6 +318,10 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       content: typeof value === 'string' ? value : undefined,
       editorProps: {
         handleDOMEvents: {
+          keydown: () => {
+            window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
+            return false;
+          },
           copy: (view, event) => {
             const { state } = view;
             const { selection } = state;
@@ -328,6 +333,147 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
                 return true;
               }
             }
+            return false;
+          },
+          mouseover: (view, event) => {
+            const target = event.target as HTMLElement | null;
+            if (!target) return false;
+
+            // 1. 如果鼠标位于工具栏/弹出面板自身内部，保持悬浮活动状态（清除隐藏定时器）
+            if (
+              target.closest('[class*="unifiedToolbar"]') ||
+              target.closest('[class*="BubbleMenu"]') ||
+              target.closest('[class*="popover"]') ||
+              target.closest('[class*="dropdown"]')
+            ) {
+              hoverStackManager.keepActive();
+              return false;
+            }
+
+            const docSize = view.state.doc.content.size;
+
+            // 按 CSS DOM 嵌套深度：优先匹配内层具体 Block 元素 (Image, Code, DrawIO, Table)
+            const imageEl = target.closest('[class*="imageBlockContainer"]');
+            const codeEl = target.closest('pre') || target.closest('[class*="codeBlockWrapper"]');
+            const drawioEl = target.closest('[class*="drawio-node-wrapper"]');
+            const tableEl = target.closest('table');
+            const calloutEl = target.closest('[data-type="callout"]') || target.closest('[class*="calloutWrapper"]');
+
+            // 2. 检查内层 ImageBlock (depth: 2)
+            if (imageEl) {
+              try {
+                const domPos = view.posAtDOM(imageEl, 0);
+                if (typeof domPos === 'number') {
+                  hoverStackManager.setExclusiveTarget({
+                    id: `image-${domPos}`,
+                    type: 'image',
+                    depth: 2,
+                    nodePos: domPos,
+                    domElement: imageEl as HTMLElement,
+                  });
+                  return false;
+                }
+              } catch (_err) {
+                // ignore
+              }
+            }
+
+            // 3. 检查内层 CodeBlock (depth: 2)
+            if (codeEl) {
+              try {
+                const domPos = view.posAtDOM(codeEl, 0);
+                if (typeof domPos === 'number') {
+                  hoverStackManager.setExclusiveTarget({
+                    id: `codeblock-${domPos}`,
+                    type: 'codeBlock',
+                    depth: 2,
+                    nodePos: domPos,
+                    domElement: codeEl as HTMLElement,
+                  });
+                  return false;
+                }
+              } catch (_err) {
+                // ignore
+              }
+            }
+
+            // 4. 检查内层 DrawIO (depth: 2)
+            if (drawioEl) {
+              try {
+                const domPos = view.posAtDOM(drawioEl, 0);
+                if (typeof domPos === 'number') {
+                  hoverStackManager.setExclusiveTarget({
+                    id: `drawio-${domPos}`,
+                    type: 'drawio',
+                    depth: 2,
+                    nodePos: domPos,
+                    domElement: drawioEl as HTMLElement,
+                  });
+                  return false;
+                }
+              } catch (_err) {
+                // ignore
+              }
+            }
+
+            // 5. 检查 Table Block (depth: 2)
+            if (tableEl) {
+              try {
+                const domPos = view.posAtDOM(tableEl, 0);
+                if (typeof domPos === 'number') {
+                  const resolved = view.state.doc.resolve(Math.min(domPos, docSize));
+                  let tablePos = domPos;
+                  let depth = resolved.depth;
+                  for (let d = resolved.depth; d > 0; d--) {
+                    if (resolved.node(d).type.name === 'table') {
+                      tablePos = resolved.before(d);
+                      depth = d;
+                      break;
+                    }
+                  }
+                  hoverStackManager.setExclusiveTarget({
+                    id: `table-${tablePos}`,
+                    type: 'table',
+                    depth: Math.max(2, depth),
+                    nodePos: tablePos,
+                    domElement: tableEl,
+                  });
+                  return false;
+                }
+              } catch (_err) {
+                // ignore
+              }
+            }
+
+            // 6. 检查外层包裹容器 Callout Block (depth: 1)
+            if (calloutEl) {
+              try {
+                const domPos = view.posAtDOM(calloutEl, 0);
+                if (typeof domPos === 'number') {
+                  hoverStackManager.setExclusiveTarget({
+                    id: `callout-${domPos}`,
+                    type: 'callout',
+                    depth: 1,
+                    nodePos: domPos,
+                    domElement: calloutEl as HTMLElement,
+                  });
+                  return false;
+                }
+              } catch (_err) {
+                // ignore
+              }
+            }
+
+            // 7. 如果鼠标划过普通的文本、段落等无特化工具栏节点或缝隙，使用 250ms 防抖延时平滑淡出
+            const topBlock = target.closest('.ProseMirror > *');
+            if (topBlock && !tableEl && !calloutEl && !codeEl && !imageEl && !drawioEl) {
+              hoverStackManager.setExclusiveTarget(null, 250);
+            }
+
+            return false;
+          },
+          mouseleave: () => {
+            hoverStackManager.setExclusiveTarget(null, 250);
             return false;
           },
         },
@@ -416,6 +562,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       };
 
       const handleGlobalKeyDown = () => {
+        window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
         setDragState((prev) => ({ ...prev, visible: false }));
       };
 
@@ -435,6 +582,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         className={`${styles.editorContainer} ${className}`}
         onMouseLeave={() => {
           setDragState((prev) => ({ ...prev, visible: false }));
+          hoverStackManager.setExclusiveTarget(null, 250);
         }}
         onDragOver={(e) => {
           e.preventDefault();

@@ -145,9 +145,19 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
     editor.on('selectionUpdate', updatePosition);
     editor.on('transaction', updatePosition);
 
+    const handleHideAll = () => {
+      setPosition((prev) => ({ ...prev, visible: false }));
+      setShowFontSizePicker(false);
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
+    };
+
+    window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+
     return () => {
       editor.off('selectionUpdate', updatePosition);
       editor.off('transaction', updatePosition);
+      window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
     };
   }, [editor, isDragging]);
 

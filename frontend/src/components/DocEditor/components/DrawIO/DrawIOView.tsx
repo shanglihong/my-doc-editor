@@ -1,15 +1,72 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react';
-import { Edit3, Trash2, Workflow } from 'lucide-react';
+import { Edit3, Workflow } from 'lucide-react';
+import { getActiveToolbarInfo, hoverStackManager } from '../../utils/toolbarPriority';
+import { UnifiedBlockToolbar } from '../UnifiedBlockToolbar';
 
-export const DrawIOView: React.FC<NodeViewProps> = ({
-  node,
-  deleteNode,
-  editor,
-  getPos,
-}) => {
+export const DrawIOView: React.FC<NodeViewProps> = (props) => {
+  const { node, deleteNode, editor, getPos } = props;
   const { xml, svg } = node.attrs;
   const isEditable = editor.isEditable;
+  const [isHovered, setIsHovered] = useState(false);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearHideTimeout = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    const handleHideAll = () => {
+      clearHideTimeout();
+      setIsHovered(false);
+    };
+
+    window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+    return () => {
+      window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+    };
+  }, []);
+
+  const handleMouseEnter = () => {
+    clearHideTimeout();
+    setIsHovered(true);
+    if (typeof getPos === 'function') {
+      const pos = getPos();
+      if (typeof pos === 'number') {
+        hoverStackManager.register({
+          id: `drawio-${pos}`,
+          type: 'drawio',
+          depth: 2,
+          nodePos: pos,
+        });
+      }
+    }
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    clearHideTimeout();
+    const relatedTarget = e.relatedTarget as HTMLElement | null;
+    if (
+      relatedTarget &&
+      (relatedTarget.closest('[class*="unifiedToolbar"]') ||
+        relatedTarget.closest('[class*="BubbleMenu"]') ||
+        relatedTarget.closest('[class*="popover"]'))
+    ) {
+      return;
+    }
+    if (typeof getPos === 'function') {
+      const pos = getPos();
+      if (typeof pos === 'number') {
+        hoverStackManager.unregister(`drawio-${pos}`, 250);
+      }
+    }
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 250);
+  };
 
   const handleOpenEditor = (e?: React.SyntheticEvent) => {
     if (e) {
@@ -48,19 +105,50 @@ export const DrawIOView: React.FC<NodeViewProps> = ({
     e.stopPropagation();
   };
 
-  const isDataUrl = typeof svg === 'string' && (svg.startsWith('data:') || svg.startsWith('http://') || svg.startsWith('https://'));
+  const isDataUrl =
+    typeof svg === 'string' &&
+    (svg.startsWith('data:') || svg.startsWith('http://') || svg.startsWith('https://'));
+
+  const activeToolbar = getActiveToolbarInfo(editor, isHovered ? 'drawio' : undefined);
+  const showFloatingToolbar = isEditable && activeToolbar.type === 'drawio';
 
   return (
     <NodeViewWrapper
       className="drawio-node-wrapper"
       style={{
-        margin: '16px 0',
+        margin: '24px 0 16px 0',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         position: 'relative',
+        overflow: 'visible',
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
+      {/* 悬浮工具栏：标准 UnifiedBlockToolbar 无多余自定义编辑按钮 */}
+      {showFloatingToolbar && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '-40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 50,
+          }}
+          onMouseDown={handleStopPropagation}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <UnifiedBlockToolbar
+            editor={editor}
+            getPos={getPos}
+            nodeSize={node.nodeSize}
+            onDeleteBlock={deleteNode}
+          />
+        </div>
+      )}
+
       {svg ? (
         <div
           style={{
@@ -92,65 +180,6 @@ export const DrawIOView: React.FC<NodeViewProps> = ({
               style={{ maxWidth: '100%', height: 'auto', display: 'flex', justifyContent: 'center' }}
             />
           )}
-
-          {isEditable && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '12px',
-                right: '12px',
-                display: 'flex',
-                gap: '8px',
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                backdropFilter: 'blur(4px)',
-              }}
-              onMouseDown={handleStopPropagation}
-            >
-              <button
-                type="button"
-                onMouseDown={handleStopPropagation}
-                onClick={handleOpenEditor}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer',
-                  color: '#3b82f6',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                }}
-              >
-                <Edit3 size={14} /> 编辑
-              </button>
-              <button
-                type="button"
-                onMouseDown={handleStopPropagation}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  deleteNode();
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer',
-                  color: '#ef4444',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                }}
-              >
-                <Trash2 size={14} /> 删除
-              </button>
-            </div>
-          )}
         </div>
       ) : (
         <div
@@ -168,11 +197,12 @@ export const DrawIOView: React.FC<NodeViewProps> = ({
             color: '#6b7280',
             cursor: isEditable ? 'pointer' : 'default',
           }}
+          onDoubleClick={handleOpenEditor}
           onClick={handleOpenEditor}
           onMouseDown={handleStopPropagation}
         >
           <Workflow size={32} style={{ color: '#3b82f6' }} />
-          <div style={{ fontSize: '14px', fontWeight: 500 }}>draw.io 架构流程图块</div>
+          <div style={{ fontSize: '14px', fontWeight: 500 }}>draw.io 架构流程图块 (双击即可编辑)</div>
           {isEditable && (
             <button
               type="button"

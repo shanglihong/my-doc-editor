@@ -1,0 +1,155 @@
+/* 非文本 Block 工具栏统一 CSS 样式库 */
+
+.toolbarContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 2px 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.divider {
+  width: 1px;
+  height: 16px;
+  background-color: #e5e7eb;
+  margin: 0 2px;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.iconBtn:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.iconBtnActive {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.deleteBtn {
+  color: #ef4444;
+}
+
+.deleteBtn:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.textBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.textBtn:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.selectInput {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.selectInput:hover {
+  border-color: #d1d5db;
+}
+
+.selectInput:focus {
+  border-color: #3b82f6;
+}
+
+/* 下拉菜单与防遮挡容器 */
+.dropdownWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dropdownMenu {
+  position: absolute;
+  z-index: 1000;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.dropdownItem:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.dropdownItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.dropdownItem:hover .dropdownItemIcon {
+  color: #111827;
+}
