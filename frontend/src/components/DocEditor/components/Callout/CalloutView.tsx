@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { CalloutIconPicker, ICON_OPTIONS } from './CalloutIconPicker';
-import styles from '../../DocEditor.module.css';
+import styles from './Callout.module.css';
 import { CALLOUT_THEMES } from '../../utils/defaultTheme';
 import { hoverStackManager } from '../../utils/toolbarPriority';
 

@@ -1,10 +1,10 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import { ImageBlockView } from './ImageBlockView';
-import type { ImageBlockAttributes } from './types';
-import { validateImageFile } from './utils';
-import { ImageUploadService } from '../../services/imageUploadService';
+import { ImageBlockView } from '../components/ImageBlock/ImageBlockView';
+import type { ImageBlockAttributes } from '../components/ImageBlock/types';
+import { validateImageFile } from '../components/ImageBlock/utils';
+import { ImageUploadService } from '../services/imageUploadService';
 
 export interface ImageBlockOptions {
   HTMLAttributes: Record<string, any>;

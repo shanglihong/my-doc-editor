@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import styles from './ImageBubbleMenu.module.css';
 import type { ImageAlignment } from './types';
-import { UnifiedBlockToolbar } from '../../components/UnifiedBlockToolbar';
+import { UnifiedBlockToolbar } from '../UnifiedBlockToolbar';
 
 export interface ImageBubbleMenuProps {
   editor: Editor;

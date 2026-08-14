@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import { Copy, Check } from 'lucide-react';
-import styles from '../../DocEditor.module.css';
+import styles from './CodeBlock.module.css';
 import { getActiveToolbarInfo, hoverStackManager } from '../../utils/toolbarPriority';
 import { UnifiedBlockToolbar } from '../UnifiedBlockToolbar';
 

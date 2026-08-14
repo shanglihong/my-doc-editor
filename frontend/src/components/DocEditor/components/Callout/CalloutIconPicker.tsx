@@ -21,7 +21,7 @@ import {
   Music,
   Camera,
 } from 'lucide-react';
-import styles from '../../DocEditor.module.css';
+import styles from './Callout.module.css';
 import { calculateSubMenuPosition } from '../../utils/floatingPosition';
 
 interface IconConfig {

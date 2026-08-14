@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { Editor } from '@tiptap/react';
-import styles from '../../DocEditor.module.css';
+import styles from './BlockTypeMenu.module.css';
 import { BlockIcon } from '../../utils/blockIcons';
 import { calculateSmartPosition } from '../../utils/floatingPosition';
 

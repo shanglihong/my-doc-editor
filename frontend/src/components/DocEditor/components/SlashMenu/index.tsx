@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import styles from '../../DocEditor.module.css';
+import styles from './SlashMenu.module.css';
 import type { SlashMenuItem } from './SlashMenuPlugin';
 import { BlockIcon } from '../../utils/blockIcons';
 

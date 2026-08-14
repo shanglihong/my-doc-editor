@@ -1,6 +1,6 @@
 import React from 'react';
 import { GripVertical } from 'lucide-react';
-import styles from '../../DocEditor.module.css';
+import styles from './DragHandle.module.css';
 import { BlockIcon } from '../../utils/blockIcons';
 
 export interface DragHandleProps {

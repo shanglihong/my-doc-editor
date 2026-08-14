@@ -1,0 +1,38 @@
+/* Combined Drag Handle Button (Icon + Drag Grip) */
+.combinedDragHandleBtn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 5px;
+  border-radius: 6px;
+  cursor: grab;
+  z-index: 50;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), top 0.22s cubic-bezier(0.16, 1, 0.3, 1), background 0.16s ease-in-out, border-color 0.16s ease-in-out, box-shadow 0.16s ease-in-out;
+  user-select: none;
+  will-change: top, opacity, transform;
+}
+
+.combinedDragHandleBtn:hover {
+  background: #f8fafc;
+  color: #334155;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.combinedDragHandleBtn:active {
+  cursor: grabbing;
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.dragHandleIconWrap,
+.dragHandleGripWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

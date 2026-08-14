@@ -15,7 +15,7 @@ import {
   AlignRight,
   Link,
 } from 'lucide-react';
-import styles from '../../DocEditor.module.css';
+import styles from './BubbleToolbar.module.css';
 import { FONT_SIZES } from '../../utils/defaultTheme';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { getActiveToolbarInfo } from '../../utils/toolbarPriority';

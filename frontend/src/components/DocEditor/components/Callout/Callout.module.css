@@ -1,0 +1,104 @@
+/* Callout Container Block */
+.calloutWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  margin: 0.8em 0;
+  border-radius: var(--de-radius-md);
+  border: 1px solid #e2e8f0;
+  background-color: transparent;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.calloutWrapper:hover {
+  border-color: #cbd5e1;
+}
+
+.calloutIconArea {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  margin-top: 4px;
+}
+
+.calloutIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease-in-out;
+  padding: 0;
+}
+
+.calloutIconBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.calloutContent {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0;
+}
+
+/* Callout icon picker popover */
+.calloutPickerPopover {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--de-radius-md);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.10), 0 2px 4px rgba(15, 23, 42, 0.04);
+  padding: 8px;
+  width: 192px;
+  z-index: 200;
+}
+
+.pickerTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.iconOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease, transform 0.1s ease;
+}
+
+.iconOption:hover {
+  background: #f1f5f9;
+  transform: scale(1.1);
+}
+
+.iconOptionActive {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
