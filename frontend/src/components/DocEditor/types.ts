@@ -89,10 +89,16 @@ export interface DocEditorProps {
   /** 内容发生变更时的回调 */
   onChange?: (doc: DocumentNode, markdown: string) => void;
 
+  /** 标题单独发生变更时的回调 */
+  onTitleChange?: (title: string) => void;
+
   /** 是否只读模式 */
   readOnly?: boolean;
 
-  /** 自定义占位符文本 */
+  /** 标题占位符文本 */
+  titlePlaceholder?: string;
+
+  /** 自定义正文占位符文本 */
   placeholder?: string;
 
   /** 编辑器主题样式 */
@@ -106,6 +112,12 @@ export interface DocEditorProps {
 }
 
 export interface DocEditorRef {
+  /** 获取当前文档标题文本 */
+  getTitle: () => string;
+
+  /** 设置当前文档标题文本 */
+  setTitle: (title: string) => void;
+
   /** 获取当前文档的结构化 JSON AST 对象 */
   getJSON: () => DocumentNode;
 
@@ -115,7 +127,7 @@ export interface DocEditorRef {
   /** 设置文档内容 (传入 JSON AST 或 Markdown) */
   setContent: (content: DocumentNode | string) => void;
 
-  /** 清空当前编辑器 */
+  /** 清空当前编辑器正文 (保留标题) */
   clear: () => void;
 
   /** 使编辑器获得焦点 */

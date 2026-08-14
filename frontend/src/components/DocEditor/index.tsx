@@ -19,6 +19,8 @@ import TaskItem from '@tiptap/extension-task-item';
 
 import styles from './DocEditor.module.css';
 import type { DocEditorProps, DocEditorRef, DocumentNode, BlockNode, DrawIOModalState } from './types';
+import { DocumentTitleExtension } from './extensions/DocumentTitleExtension';
+import { TitleExtension } from './extensions/TitleExtension';
 import { FontSizeMark } from './extensions/FontSizeMark';
 import { DragHandlePlugin } from './extensions/DragHandlePlugin';
 import { DoubleTapInsertPlugin } from './extensions/DoubleTapInsertPlugin';
@@ -55,8 +57,10 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     {
       value,
       onChange,
+      onTitleChange,
       readOnly = false,
-      placeholder: _placeholder = '输入 "/" 唤起快捷菜单，或直接输入文本...',
+      titlePlaceholder = '请输入文档标题',
+      placeholder: _placeholder = '输入 "/" 唤起快捷菜单，或直接输入内容...',
       className = '',
     },
     ref
@@ -105,7 +109,10 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     const editor = useEditor({
       editable: !readOnly,
       extensions: [
+        DocumentTitleExtension,
+        TitleExtension,
         StarterKit.configure({
+          document: false,
           heading: {
             levels: [1, 2, 3],
           },
@@ -136,17 +143,20 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         Highlight.configure({ multicolor: true }),
         Underline,
         TextAlign.configure({
-          types: ['heading', 'paragraph'],
+          types: ['heading', 'paragraph', 'title'],
         }),
         Placeholder.configure({
           placeholder: ({ node }: { node: any }) => {
+            if (node.type.name === 'title') {
+              return titlePlaceholder;
+            }
             if (node.type.name === 'codeBlock') {
               return '';
             }
             if (node.type.name === 'heading') {
               return `标题 ${node.attrs?.level || 1}`;
             }
-            return "输入 '/' 唤起快捷菜单，或直接输入内容...";
+            return _placeholder;
           },
           emptyNodeClass: 'is-empty',
         }),
@@ -400,6 +410,11 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
         },
       },
       onUpdate: ({ editor }) => {
+        if (onTitleChange) {
+          const firstNode = editor.state.doc.firstChild;
+          const titleText = firstNode && firstNode.type.name === 'title' ? firstNode.textContent : '';
+          onTitleChange(titleText);
+        }
         if (!onChange) return;
         const json = editor.getJSON();
         const markdown = editor.storage.markdown?.getMarkdown() || editor.getText();
@@ -507,6 +522,20 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     useImperativeHandle(
       ref,
       () => ({
+        getTitle: (): string => {
+          if (!editor) return '';
+          const firstNode = editor.state.doc.firstChild;
+          return firstNode && firstNode.type.name === 'title' ? firstNode.textContent : '';
+        },
+        setTitle: (titleText: string) => {
+          if (!editor) return;
+          const firstNode = editor.state.doc.firstChild;
+          if (firstNode && firstNode.type.name === 'title') {
+            const titleStart = 1;
+            const titleEnd = firstNode.nodeSize - 1;
+            editor.chain().focus().insertContentAt({ from: titleStart, to: titleEnd }, titleText).run();
+          }
+        },
         getJSON: (): DocumentNode => {
           if (!editor) {
             return { type: 'doc', version: '1.0', content: [] };

@@ -177,7 +177,7 @@ export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen || !editor || !anchorRect) {
+  if (!isOpen || !editor || !anchorRect || nodeType === 'title') {
     return null;
   }
 

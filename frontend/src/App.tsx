@@ -8,12 +8,7 @@ export function App() {
 
   return (
     <div style={{ padding: '32px 16px', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-      <header style={{ maxWidth: 900, margin: '0 auto 24px auto' }}>
-        <h1 style={{ fontSize: '24px', color: '#0f172a', margin: '0 0 8px 0' }}>
-          个人知识库文档编辑器预览
-        </h1>
-        <p style={{ color: '#64748b', margin: 0 }}>阶段 2 核心渲染基础设施建立完成</p>
-      </header>
+
 
       <DocEditor
         ref={editorRef}

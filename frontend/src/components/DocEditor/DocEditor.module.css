@@ -90,6 +90,27 @@
   font-weight: 400;
 }
 
+.editorContent :global(.ProseMirror h1.doc-title-node) {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--de-border-color);
+  color: var(--de-text-main);
+  letter-spacing: -0.025em;
+}
+
+.editorContent :global(.ProseMirror h1.doc-title-node.is-empty::before) {
+  color: #cbd5e1;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-weight: 700;
+}
+
 .editorContent :global(.ProseMirror p) {
   margin-top: 4px;
   margin-bottom: 4px;

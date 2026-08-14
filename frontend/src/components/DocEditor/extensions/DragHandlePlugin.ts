@@ -107,7 +107,7 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                 const blockStartPos = resolvedPos.before(1);
                 const node = view.state.doc.nodeAt(blockStartPos);
 
-                if (!node) {
+                if (!node || node.type.name === 'title') {
                   this.options.onNodeChange(null);
                   return false;
                 }
