@@ -257,8 +257,8 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
                 const isSelected =
                   bgColorVal &&
                   ((bgColorVal.toLowerCase() === bgVal.toLowerCase()) ||
-                    (lightPreset && lightPreset.bgValueSecondary?.toLowerCase() === currentColor?.toLowerCase()) ||
-                    (darkPreset && darkPreset.bgValueSecondary?.toLowerCase() === currentColor?.toLowerCase()));
+                    (lightPreset && lightPreset.bgValueSecondary?.toLowerCase() === bgColorVal.toLowerCase()) ||
+                    (darkPreset && darkPreset.bgValueSecondary?.toLowerCase() === bgColorVal.toLowerCase()));
 
                 return (
                   <button

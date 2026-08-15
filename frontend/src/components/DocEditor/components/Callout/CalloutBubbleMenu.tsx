@@ -181,7 +181,6 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
           <div className={styles.popoverContainer} style={pickerStyle} onMouseDown={(e) => e.preventDefault()}>
             <UnifiedColorPicker
               allowedCategories={['borderColor', 'backgroundColor']}
-              defaultCategory="borderColor"
               currentBorderColor={currentBorder}
               currentBgColor={currentBg}
               bgSingleRowOnly={true}

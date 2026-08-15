@@ -381,7 +381,7 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       window.removeEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editor, isDragging]);
+  }, [editor, isDragging, isTypeMenuOpen]);
 
   const handleConfirmLink = (urlInput: string) => {
     if (!editor) return;

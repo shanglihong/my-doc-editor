@@ -155,7 +155,7 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                   nodeLevel: node.attrs?.level,
                   isEmpty: isContentEmpty,
                 });
-              } catch (_err) {
+              } catch {
                 this.options.onNodeChange(null);
               }
 

@@ -62,7 +62,7 @@ export const DoubleTapInsertPlugin = Extension.create({
                     depth--;
                   }
                 }
-              } catch (_e) {
+              } catch {
                 insertPos = null;
               }
 
@@ -130,7 +130,7 @@ export const DoubleTapInsertPlugin = Extension.create({
                           depth--;
                         }
                       }
-                    } catch (_e) {
+                    } catch {
                       insertPos = null;
                     }
                   }

@@ -66,11 +66,11 @@ describe('DocEditor 内置 H1 标题扩展规范测试', () => {
     expect(shortcuts).toHaveProperty('Backspace');
 
     // 验证退格在标题起始位置时返回 true (阻止默认删除)
-    const backspaceResult = (shortcuts?.Backspace as any)();
+    const backspaceResult = shortcuts && (shortcuts.Backspace as any)();
     expect(backspaceResult).toBe(true);
 
     // 验证回车在标题节点中执行处理逻辑并返回 true
-    const enterResult = (shortcuts?.Enter as any)();
+    const enterResult = shortcuts && (shortcuts.Enter as any)();
     expect(enterResult).toBe(true);
   });
 });
