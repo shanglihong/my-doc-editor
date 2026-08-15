@@ -16,6 +16,63 @@
   --de-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --de-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
   --de-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 8 大 Preset 统一主题 Token (Single Source of Truth in Theme) */
+  --preset-slate-text-light: #64748b;
+  --preset-slate-text-dark: #94a3b8;
+  --preset-slate-bg-light: #f1f5f9;
+  --preset-slate-bg-dark: #2d2d30;
+  --preset-slate-border-light: #cbd5e1;
+  --preset-slate-border-dark: #475569;
+
+  --preset-rose-text-light: #dc2626;
+  --preset-rose-text-dark: #f87171;
+  --preset-rose-bg-light: #fee2e2;
+  --preset-rose-bg-dark: #552222;
+  --preset-rose-border-light: #fca5a5;
+  --preset-rose-border-dark: #991b1b;
+
+  --preset-amber-text-light: #ea580c;
+  --preset-amber-text-dark: #fbbf24;
+  --preset-amber-bg-light: #ffedd5;
+  --preset-amber-bg-dark: #5d3a1a;
+  --preset-amber-border-light: #fdba74;
+  --preset-amber-border-dark: #854d0e;
+
+  --preset-yellow-text-light: #ca8a04;
+  --preset-yellow-text-dark: #facc15;
+  --preset-yellow-bg-light: #fef08a;
+  --preset-yellow-bg-dark: #4c4b1a;
+  --preset-yellow-border-light: #fde047;
+  --preset-yellow-border-dark: #713f12;
+
+  --preset-emerald-text-light: #16a34a;
+  --preset-emerald-text-dark: #4ade80;
+  --preset-emerald-bg-light: #dcfce7;
+  --preset-emerald-bg-dark: #1f4522;
+  --preset-emerald-border-light: #86efac;
+  --preset-emerald-border-dark: #166534;
+
+  --preset-blue-text-light: #2563eb;
+  --preset-blue-text-dark: #60a5fa;
+  --preset-blue-bg-light: #dbeafe;
+  --preset-blue-bg-dark: #223965;
+  --preset-blue-border-light: #93c5fd;
+  --preset-blue-border-dark: #1e40af;
+
+  --preset-purple-text-light: #9333ea;
+  --preset-purple-text-dark: #c084fc;
+  --preset-purple-bg-light: #f3e8ff;
+  --preset-purple-bg-dark: #422560;
+  --preset-purple-border-light: #d8b4fe;
+  --preset-purple-border-dark: #6b21a8;
+
+  --preset-cyan-text-light: #0891b2;
+  --preset-cyan-text-dark: #38bdf8;
+  --preset-cyan-bg-light: #cffafe;
+  --preset-cyan-bg-dark: #164e63;
+  --preset-cyan-border-light: #67e8f9;
+  --preset-cyan-border-dark: #0891b2;
 }
 
 html[data-theme="dark"],
@@ -253,48 +310,48 @@ html[data-theme="dark"],
 
 /* 文本背景高亮 (Mark) 与文字前景色 (textColor) 日夜间 8 大 Preset 色相 1:1 动态响应与转换 */
 
-/* 1. 文字前景色 8 大色相夜间精准倒置 */
+/* 1. 文字前景色 8 大色相夜间精准倒置 (由 Preset 主题 Token 统一驱动) */
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #dc2626"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(220, 38, 38)"]) {
-  color: #f87171 !important;
+  color: var(--preset-rose-text-dark) !important;
 }
 
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #ea580c"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(234, 88, 12)"]) {
-  color: #fbbf24 !important;
+  color: var(--preset-amber-text-dark) !important;
 }
 
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #ca8a04"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(202, 138, 4)"]) {
-  color: #facc15 !important;
+  color: var(--preset-yellow-text-dark) !important;
 }
 
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #16a34a"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(22, 163, 74)"]) {
-  color: #4ade80 !important;
+  color: var(--preset-emerald-text-dark) !important;
 }
 
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #2563eb"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(37, 99, 235)"]) {
-  color: #60a5fa !important;
+  color: var(--preset-blue-text-dark) !important;
 }
 
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #9333ea"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(147, 51, 234)"]) {
-  color: #c084fc !important;
+  color: var(--preset-purple-text-dark) !important;
 }
 
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #64748b"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(100, 116, 139)"]) {
-  color: #94a3b8 !important;
+  color: var(--preset-slate-text-dark) !important;
 }
 
-/* 2. 背景高亮 mark 日间色值在夜间模式下的 1:1 色相重映射 */
+/* 2. 背景高亮 mark 日间色值在夜间模式下的 1:1 色相重映射 (由 Preset 主题 Token 统一驱动) */
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fee2e2"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(254, 226, 226)"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fca5a5"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(252, 165, 165)"]) {
-  background-color: #552222 !important;
+  background-color: var(--preset-rose-bg-dark) !important;
   color: #ffffff !important;
 }
 
@@ -302,7 +359,7 @@ html[data-theme="dark"],
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(255, 237, 213)"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fdba74"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(253, 186, 116)"]) {
-  background-color: #5d3a1a !important;
+  background-color: var(--preset-amber-bg-dark) !important;
   color: #ffffff !important;
 }
 
@@ -310,7 +367,7 @@ html[data-theme="dark"],
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(254, 240, 138)"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fde047"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(253, 224, 71)"]) {
-  background-color: #4c4b1a !important;
+  background-color: var(--preset-yellow-bg-dark) !important;
   color: #ffffff !important;
 }
 
@@ -318,7 +375,7 @@ html[data-theme="dark"],
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(220, 252, 231)"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#86efac"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(134, 239, 172)"]) {
-  background-color: #1f4522 !important;
+  background-color: var(--preset-emerald-bg-dark) !important;
   color: #ffffff !important;
 }
 
@@ -326,7 +383,7 @@ html[data-theme="dark"],
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(219, 234, 254)"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#93c5fd"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(147, 197, 253)"]) {
-  background-color: #223965 !important;
+  background-color: var(--preset-blue-bg-dark) !important;
   color: #ffffff !important;
 }
 
@@ -334,16 +391,263 @@ html[data-theme="dark"],
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(243, 232, 255)"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#d8b4fe"]),
 :global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(216, 180, 254)"]) {
-  background-color: #422560 !important;
+  background-color: var(--preset-purple-bg-dark) !important;
   color: #ffffff !important;
 }
 
-:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#f1f5f9"]),
-:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(241, 245, 249)"]),
-:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#cbd5e1"]),
-:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(203, 213, 225)"]) {
-  background-color: #2d2d30 !important;
-  color: #ffffff !important;
+/* 3. 容器块级组件 (Table 单元格 / Callout 高亮块) 日夜间模式 8 大 Preset 双向沉稳转色与对比度自适应 */
+
+/* 3.1 夜间模式 (Dark Theme)：浅底色块统一转为深暗沉稳色，文字配高对比白字 */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="background-color"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="background-color"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color]) {
+  color: #f8fafc !important;
+}
+
+/* 红色系 (Rose) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#fee2e2"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#fee2e2"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#fca5a5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#fca5a5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#fee2e2"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#fee2e2"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(254, 226, 226)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(254, 226, 226)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#fee2e2"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#fff1f2"]) {
+  background-color: var(--preset-rose-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#fca5a5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#fecaca"]) {
+  border-color: var(--preset-rose-border-dark) !important;
+}
+
+/* 橙色系 (Amber) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#ffedd5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#ffedd5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#fdba74"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#fdba74"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#ffedd5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#ffedd5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(255, 237, 213)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(255, 237, 213)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#ffedd5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#fff7ed"]) {
+  background-color: var(--preset-amber-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#fdba74"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#fed7aa"]) {
+  border-color: var(--preset-amber-border-dark) !important;
+}
+
+/* 黄色系 (Yellow) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#fef08a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#fef08a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#fde047"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#fde047"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#fef08a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#fef08a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(254, 240, 138)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(254, 240, 138)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#fef08a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#fefce8"]) {
+  background-color: var(--preset-yellow-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#fde047"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#fef08a"]) {
+  border-color: var(--preset-yellow-border-dark) !important;
+}
+
+/* 绿色系 (Emerald) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#dcfce7"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#dcfce7"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#86efac"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#86efac"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#dcfce7"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#dcfce7"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(220, 252, 231)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(220, 252, 231)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#dcfce7"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#f0fdf4"]) {
+  background-color: var(--preset-emerald-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#86efac"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#bbf7d0"]) {
+  border-color: var(--preset-emerald-border-dark) !important;
+}
+
+/* 蓝色系 (Blue) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#dbeafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#dbeafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#93c5fd"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#93c5fd"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#dbeafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#dbeafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(219, 234, 254)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(219, 234, 254)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#dbeafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#eff6ff"]) {
+  background-color: var(--preset-blue-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#93c5fd"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#bfdbfe"]) {
+  border-color: var(--preset-blue-border-dark) !important;
+}
+
+/* 紫色系 (Purple) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#f3e8ff"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#f3e8ff"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#d8b4fe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#d8b4fe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#f3e8ff"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#f3e8ff"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(243, 232, 255)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(243, 232, 255)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#f3e8ff"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#faf5ff"]) {
+  background-color: var(--preset-purple-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#d8b4fe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#e9d5ff"]) {
+  border-color: var(--preset-purple-border-dark) !important;
+}
+
+/* 青色系 (Cyan) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#cffafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#cffafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#a5f3fc"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#a5f3fc"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#cffafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#cffafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="rgb(207, 250, 254)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="rgb(207, 250, 254)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#cffafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#ecfeff"]) {
+  background-color: var(--preset-cyan-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#67e8f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#a5f3fc"]) {
+  border-color: var(--preset-cyan-border-dark) !important;
+}
+
+/* 灰色系 (Slate) */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#f1f5f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#f1f5f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#e2e8f0"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#e2e8f0"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[data-background-color="#cbd5e1"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[data-background-color="#cbd5e1"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror td[style*="#f1f5f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror th[style*="#f1f5f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#f1f5f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-background-color="#f8fafc"]) {
+  background-color: var(--preset-slate-bg-dark) !important;
+  color: #f8fafc !important;
+}
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#cbd5e1"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [class*="calloutWrapper"][data-border-color="#e2e8f0"]) {
+  border-color: var(--preset-slate-border-dark) !important;
+}
+
+/* 3.2 日间模式 (Light Theme)：夜间深底反向恢复浅色舒适底与深色正文 */
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#552222"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#552222"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#7f1d1d"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#7f1d1d"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#552222"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#552222"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#7f1d1d"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#7f1d1d"]) {
+  background-color: var(--preset-rose-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#5d3a1a"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#5d3a1a"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#713f12"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#713f12"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#5d3a1a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#5d3a1a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#713f12"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#713f12"]) {
+  background-color: var(--preset-amber-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#4c4b1a"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#4c4b1a"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#65641a"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#65641a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#4c4b1a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#4c4b1a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#65641a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#65641a"]) {
+  background-color: var(--preset-yellow-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#1f4522"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#1f4522"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#14532d"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#14532d"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#1f4522"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#1f4522"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#14532d"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#14532d"]) {
+  background-color: var(--preset-emerald-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#223965"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#223965"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#1e3a8a"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#1e3a8a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#223965"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#223965"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#1e3a8a"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#1e3a8a"]) {
+  background-color: var(--preset-blue-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#422560"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#422560"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#581c87"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#581c87"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#422560"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#422560"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#581c87"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#581c87"]) {
+  background-color: var(--preset-purple-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#164e63"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#164e63"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#164e63"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#164e63"]) {
+  background-color: var(--preset-cyan-bg-light) !important;
+  color: #0f172a !important;
+}
+
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#2d2d30"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#2d2d30"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror td[data-background-color="#3f3f46"]),
+:global(html[data-theme="light"]) .editorContent :global(.ProseMirror th[data-background-color="#3f3f46"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#2d2d30"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#2d2d30"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror td[data-background-color="#3f3f46"]),
+:global(:root:not([data-theme="dark"])) .editorContent :global(.ProseMirror th[data-background-color="#3f3f46"]) {
+  background-color: var(--preset-slate-bg-light) !important;
+  color: #0f172a !important;
 }
 
 /* 高级划选选区 (Text Selection) - 柔和天蓝浅背景 */

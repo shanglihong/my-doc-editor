@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import type { Editor } from '@tiptap/react';
-import { PaintBucket, Square, RotateCcw, Settings2 } from 'lucide-react';
+import { ChevronDown, Palette } from 'lucide-react';
 import styles from './CalloutBubbleMenu.module.css';
 import { calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import { FloatingBlockTool } from '../FloatingBlockTool';
-import { CALLOUT_THEMES } from '../../utils/defaultTheme';
 
 export interface CalloutBubbleMenuProps {
   editor: Editor | null;
@@ -18,8 +17,8 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
   isDragging,
   isTypeMenuOpen,
 }) => {
-  const [activePicker, setActivePicker] = useState<'bg' | 'border' | 'theme' | null>(null);
-  const [activePickerStyle, setActivePickerStyle] = useState<React.CSSProperties>({});
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
   const [currentBg, setCurrentBg] = useState<string | undefined>();
   const [currentBorder, setCurrentBorder] = useState<string | undefined>();
   const [activePos, setActivePos] = useState<number>(-1);
@@ -27,13 +26,13 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
   // 监听全局隐藏事件或选区/位置变动时自动重置收缩颜色选择菜单
   React.useEffect(() => {
     const handleResetPicker = () => {
-      setActivePicker(null);
+      setShowColorPicker(false);
     };
 
     const handleCloseOthers = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail?.source !== 'CalloutBubbleMenu') {
-        setActivePicker(null);
+        setShowColorPicker(false);
       }
     };
 
@@ -46,7 +45,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
   }, []);
 
   React.useEffect(() => {
-    setActivePicker(null);
+    setShowColorPicker(false);
   }, [activePos]);
 
   // 从当前 TipTap Selection 获取颜色属性
@@ -82,10 +81,12 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
     tr.setNodeMarkup(activePos, null, {
       ...node.attrs,
       [category]: color,
-      ...(category === 'backgroundColor' ? { customBg: color } : { customBorder: color }),
+      ...(category === 'backgroundColor'
+        ? { customBg: color }
+        : { customBorder: color, iconColor: color }),
     });
     view.dispatch(tr);
-    setActivePicker(null);
+    setShowColorPicker(false);
     updateCurrentAttrs();
   };
 
@@ -104,30 +105,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
       customBorder: null,
     });
     view.dispatch(tr);
-    setActivePicker(null);
-    updateCurrentAttrs();
-  };
-
-  const handleSelectTheme = (themeId: string) => {
-    if (!editor || activePos < 0) return;
-    const theme = CALLOUT_THEMES.find((t) => t.id === themeId);
-    if (!theme) return;
-
-    const { state, view } = editor;
-    const node = state.doc.nodeAt(activePos);
-    if (!node) return;
-
-    const tr = state.tr;
-    tr.setNodeMarkup(activePos, null, {
-      ...node.attrs,
-      themeColor: theme.id,
-      backgroundColor: theme.bgColor,
-      borderColor: theme.borderColor,
-      customBg: theme.bgColor,
-      customBorder: theme.borderColor,
-    });
-    view.dispatch(tr);
-    setActivePicker(null);
+    setShowColorPicker(false);
     updateCurrentAttrs();
   };
 
@@ -141,13 +119,10 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
     editor.view.dispatch(tr);
   };
 
-  const handleTogglePicker = (
-    picker: 'bg' | 'border' | 'theme',
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleToggleColorPicker = (e: React.MouseEvent<HTMLButtonElement>) => {
     updateCurrentAttrs();
-    if (activePicker === picker) {
-      setActivePicker(null);
+    if (showColorPicker) {
+      setShowColorPicker(false);
       return;
     }
 
@@ -156,8 +131,8 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
     );
 
     const btnRect = e.currentTarget.getBoundingClientRect();
-    const subWidth = picker === 'theme' ? 136 : 168;
-    const subHeight = picker === 'theme' ? 120 : 250;
+    const subWidth = 228;
+    const subHeight = 260;
 
     const res = calculateSubMenuPosition({
       buttonRect: btnRect,
@@ -166,8 +141,8 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
       offset: 6,
     });
 
-    setActivePickerStyle(res.style);
-    setActivePicker(picker);
+    setPickerStyle(res.style);
+    setShowColorPicker(true);
   };
 
   return (
@@ -178,116 +153,48 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
       isTypeMenuOpen={isTypeMenuOpen}
       onDeleteBlock={handleDeleteCallout}
     >
-      {/* 预设主题面板 */}
-      <div className={styles.menuGroup}>
-        <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className={`${styles.menuBtn} ${activePicker === 'theme' ? styles.menuBtnActive : ''}`}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={(e) => handleTogglePicker('theme', e)}
-            title="预设主题"
-          >
-            <Settings2 size={16} />
-          </button>
-
-          {activePicker === 'theme' && (
-            <div className={styles.popoverContainer} style={activePickerStyle} onMouseDown={(e) => e.preventDefault()}>
-              <div style={{
-                background: '#ffffff',
-                border: '1px solid rgba(226, 232, 240, 0.9)',
-                borderRadius: '8px',
-                padding: '6px',
-                boxShadow: '0 10px 24px -4px rgba(15, 23, 42, 0.12)',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '4px',
-                width: '124px'
-              }}>
-                {CALLOUT_THEMES.map((theme) => (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    title={theme.name}
-                    style={{
-                      height: '22px',
-                      borderRadius: '4px',
-                      border: `1px solid ${theme.borderColor}`,
-                      backgroundColor: theme.bgColor,
-                      cursor: 'pointer',
-                      padding: 0,
-                      outline: 'none',
-                    }}
-                    onClick={() => handleSelectTheme(theme.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.divider} />
-
-      {/* 边框颜色与背景颜色设置项 */}
-      <div className={styles.menuGroup}>
-        <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className={`${styles.menuBtn} ${activePicker === 'border' ? styles.menuBtnActive : ''}`}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={(e) => handleTogglePicker('border', e)}
-            title="边框颜色"
-          >
-            <Square size={16} color={currentBorder || 'currentColor'} />
-          </button>
-
-          {activePicker === 'border' && (
-            <div className={styles.popoverContainer} style={activePickerStyle} onMouseDown={(e) => e.preventDefault()}>
-              <UnifiedColorPicker
-                allowedCategories={['borderColor']}
-                defaultCategory="borderColor"
-                currentColor={currentBorder}
-                onSelectColor={(color) => handleSetColor(color, 'borderColor')}
-                onResetColor={handleResetColors}
-              />
-            </div>
-          )}
-        </div>
-
-        <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className={`${styles.menuBtn} ${activePicker === 'bg' ? styles.menuBtnActive : ''}`}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={(e) => handleTogglePicker('bg', e)}
-            title="填充颜色"
-          >
-            <PaintBucket size={16} color={currentBg || 'currentColor'} />
-          </button>
-
-          {activePicker === 'bg' && (
-            <div className={styles.popoverContainer} style={activePickerStyle} onMouseDown={(e) => e.preventDefault()}>
-              <UnifiedColorPicker
-                allowedCategories={['backgroundColor']}
-                defaultCategory="backgroundColor"
-                currentColor={currentBg}
-                onSelectColor={(color) => handleSetColor(color, 'backgroundColor')}
-                onResetColor={handleResetColors}
-              />
-            </div>
-          )}
-        </div>
-
+      {/* 参考 BubbleTool 调色板代替原有的 4 个图标按钮 */}
+      <div style={{ position: 'relative' }}>
         <button
           type="button"
-          className={styles.menuBtn}
+          className={`${styles.colorCombineBtn} ${showColorPicker ? styles.menuBtnActive : ''}`}
           onMouseDown={(e) => e.preventDefault()}
-          onClick={handleResetColors}
-          title="恢复默认颜色"
+          onClick={(e) => handleToggleColorPicker(e)}
+          title="高亮块填充与边框颜色"
         >
-          <RotateCcw size={16} />
+          <div
+            className={styles.colorIndicatorBlock}
+            style={{
+              backgroundColor: currentBg || 'transparent',
+            }}
+          >
+            <Palette
+              size={15}
+              color={currentBorder || 'currentColor'}
+            />
+          </div>
+          <ChevronDown size={12} style={{ opacity: 0.65 }} />
         </button>
+
+        {showColorPicker && (
+          <div className={styles.popoverContainer} style={pickerStyle} onMouseDown={(e) => e.preventDefault()}>
+            <UnifiedColorPicker
+              allowedCategories={['borderColor', 'backgroundColor']}
+              defaultCategory="borderColor"
+              currentBorderColor={currentBorder}
+              currentBgColor={currentBg}
+              bgSingleRowOnly={true}
+              onSelectColor={(color, category) => {
+                if (category === 'borderColor') {
+                  handleSetColor(color, 'borderColor');
+                } else if (category === 'backgroundColor') {
+                  handleSetColor(color, 'backgroundColor');
+                }
+              }}
+              onResetColor={handleResetColors}
+            />
+          </div>
+        )}
       </div>
     </FloatingBlockTool>
   );

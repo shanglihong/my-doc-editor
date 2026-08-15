@@ -74,10 +74,12 @@ export const FloatingBlockTool: React.FC<FloatingBlockToolProps> = ({
     };
   }, []);
 
-  // 当 FloatingBlockTool 隐藏时，主动广播复位所有调色板及子菜单弹窗
+  // 当 FloatingBlockTool 隐藏时，主动广播闭合所有下拉/调色板子菜单（避免误杀死划选文本工具栏 BubbleToolbar）
   useEffect(() => {
     if (!menuState.visible) {
-      window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
+      window.dispatchEvent(
+        new CustomEvent('CLOSE_OTHER_SUBMENUS', { detail: { source: 'FloatingBlockToolHide' } })
+      );
     }
   }, [menuState.visible]);
 

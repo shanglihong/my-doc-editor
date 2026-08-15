@@ -14,7 +14,7 @@ export const CustomTableCell = TableCell.extend({
             return {};
           }
           return {
-            style: `background-color: ${attributes.backgroundColor} !important`,
+            style: `background-color: ${attributes.backgroundColor}`,
             'data-background-color': attributes.backgroundColor,
           };
         },
@@ -36,7 +36,7 @@ export const CustomTableHeader = TableHeader.extend({
             return {};
           }
           return {
-            style: `background-color: ${attributes.backgroundColor} !important`,
+            style: `background-color: ${attributes.backgroundColor}`,
             'data-background-color': attributes.backgroundColor,
           };
         },

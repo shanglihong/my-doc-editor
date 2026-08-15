@@ -7,8 +7,6 @@ import {
   Underline,
   Strikethrough,
   Code,
-  Palette,
-  Highlighter,
   AlignLeft,
   AlignCenter,
   AlignRight,
@@ -16,6 +14,24 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import styles from './BubbleToolbar.module.css';
+
+// 标准 16px 矢量 A 图标 (字形高度 y=4..20 与 Bold/Italic/Underline 绝对同大)
+const TextFormatAIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color = 'currentColor' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ display: 'block' }}
+  >
+    <path d="M5.5 20L12 4L18.5 20" />
+    <path d="M8 14H16" />
+  </svg>
+);
 import { BlockIcon } from '../../utils/blockIcons';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
@@ -552,54 +568,48 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
         )}
       </div>
 
-      {/* 文字颜色 */}
+      {/* 整合文字前景色与背景填充色 */}
       <div style={{ position: 'relative' }}>
         <button
-          className={`${styles.toolbarBtn} ${showColorPicker ? styles.toolbarBtnActive : ''}`}
+          className={`${styles.colorCombineBtn} ${showColorPicker ? styles.toolbarBtnActive : ''}`}
           onClick={(e) => handleToggleDropdown('color', e)}
-          title="文字前景色"
+          title="文本颜色与背景填充"
         >
-          <Palette size={16} />
+          <div
+            className={styles.colorIndicatorBlock}
+            style={{
+              backgroundColor: editor.getAttributes('highlight').color || 'transparent',
+            }}
+          >
+            <TextFormatAIcon
+              size={16}
+              color={editor.getAttributes('textStyle').color || 'currentColor'}
+            />
+          </div>
+          <ChevronDown size={12} style={{ opacity: 0.65 }} />
         </button>
         {showColorPicker && (
           <div style={pickerStyle}>
             <UnifiedColorPicker
-              allowedCategories={['textColor']}
+              allowedCategories={['textColor', 'backgroundColor']}
               defaultCategory="textColor"
-              onSelectColor={(color) => {
-                editor.chain().focus().setColor(color).run();
+              currentTextColor={editor.getAttributes('textStyle').color}
+              currentBgColor={editor.getAttributes('highlight').color}
+              onSelectColor={(color, category) => {
+                if (category === 'textColor') {
+                  editor.chain().focus().setColor(color).run();
+                } else if (category === 'backgroundColor') {
+                  if (color === 'transparent') {
+                    editor.chain().focus().unsetHighlight().run();
+                  } else {
+                    editor.chain().focus().setHighlight({ color }).run();
+                  }
+                }
                 setShowColorPicker(false);
               }}
               onResetColor={() => {
-                editor.chain().focus().unsetColor().run();
+                editor.chain().focus().unsetColor().unsetHighlight().run();
                 setShowColorPicker(false);
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* 背景高亮 */}
-      <div style={{ position: 'relative' }}>
-        <button
-          className={`${styles.toolbarBtn} ${showHighlightPicker ? styles.toolbarBtnActive : ''}`}
-          onClick={(e) => handleToggleDropdown('highlight', e)}
-          title="背景高亮色"
-        >
-          <Highlighter size={16} />
-        </button>
-        {showHighlightPicker && (
-          <div style={pickerStyle}>
-            <UnifiedColorPicker
-              allowedCategories={['backgroundColor']}
-              defaultCategory="backgroundColor"
-              onSelectColor={(color) => {
-                editor.chain().focus().setHighlight({ color }).run();
-                setShowHighlightPicker(false);
-              }}
-              onResetColor={() => {
-                editor.chain().focus().unsetHighlight().run();
-                setShowHighlightPicker(false);
               }}
             />
           </div>

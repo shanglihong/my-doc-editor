@@ -126,6 +126,29 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
     setShowColorPicker(false);
   };
 
+  const getSelectedCellBg = (): string | undefined => {
+    if (!isCellFocused || !editor) return undefined;
+    const { selection } = editor.state;
+    if (selection instanceof CellSelection) {
+      let firstBg: string | undefined = undefined;
+      selection.forEachCell((node) => {
+        if (firstBg === undefined && node.attrs.backgroundColor) {
+          firstBg = node.attrs.backgroundColor;
+        }
+      });
+      return firstBg;
+    }
+    let depth = selection.$anchor.depth;
+    while (depth > 0) {
+      const node = selection.$anchor.node(depth);
+      if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+        return node.attrs.backgroundColor || undefined;
+      }
+      depth--;
+    }
+    return undefined;
+  };
+
   const handleDeleteTable = () => {
     editor.chain().focus().deleteTable().run();
   };
@@ -296,6 +319,7 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
               <UnifiedColorPicker
                 allowedCategories={['backgroundColor']}
                 defaultCategory="backgroundColor"
+                currentColor={getSelectedCellBg()}
                 onSelectColor={(color) => handleSetCellBg(color)}
                 onResetColor={() => handleSetCellBg('transparent')}
               />

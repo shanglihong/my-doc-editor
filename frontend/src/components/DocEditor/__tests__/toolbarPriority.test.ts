@@ -102,6 +102,12 @@ describe('hoverStackManager & getActiveToolbarInfo', () => {
     const info = getActiveToolbarInfo(mockEditor);
     expect(info.type).toBe('text');
 
+    // 选中仅 1 个字符 (from: 12, to: 13) 时，依然必须返回 text 工具栏 (BubbleToolbar)
+    mockTextSelection.from = 12;
+    mockTextSelection.to = 13;
+    const infoSingleChar = getActiveToolbarInfo(mockEditor);
+    expect(infoSingleChar.type).toBe('text');
+
     // 当选区变为空时，应当平滑恢复显示 callout 块级工具栏
     mockTextSelection.empty = true;
     mockTextSelection.from = 12;

@@ -88,6 +88,40 @@
   z-index: 1000;
 }
 
+.colorCombineBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 28px;
+  padding: 0 4px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.12s ease-in-out;
+  box-sizing: border-box;
+}
+
+.colorCombineBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.colorIndicatorBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
 /* 深色夜间模式自适应 */
 :global(html[data-theme="dark"]) .calloutBubbleMenu,
 :global(:root[data-theme="dark"]) .calloutBubbleMenu {
@@ -100,11 +134,13 @@
   background-color: #334155;
 }
 
-:global(html[data-theme="dark"]) .menuBtn {
+:global(html[data-theme="dark"]) .menuBtn,
+:global(html[data-theme="dark"]) .colorCombineBtn {
   color: #94a3b8;
 }
 
-:global(html[data-theme="dark"]) .menuBtn:hover:not(:disabled) {
+:global(html[data-theme="dark"]) .menuBtn:hover:not(:disabled),
+:global(html[data-theme="dark"]) .colorCombineBtn:hover:not(:disabled) {
   background: #334155;
   color: #f8fafc;
 }

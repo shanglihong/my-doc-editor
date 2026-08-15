@@ -53,13 +53,13 @@ export const CalloutView: React.FC<NodeViewProps> = (props) => {
   };
 
   // 只读模式：展示图标
-  const currentConfig = ICON_OPTIONS.find((c) => c.name === icon) || ICON_OPTIONS[1];
+  const currentConfig = ICON_OPTIONS.find((c) => c.name === icon) || ICON_OPTIONS[0];
   const CurrentIcon = currentConfig.icon;
+  const iconColor = currentConfig.defaultColor || '#3b82f6';
 
   const defaultTheme = CALLOUT_THEMES.find((t) => t.id === node.attrs.themeColor) || CALLOUT_THEMES[0];
   const bgColor = node.attrs.backgroundColor || node.attrs.customBg || defaultTheme.bgColor;
   const borderColor = node.attrs.borderColor || node.attrs.customBorder || defaultTheme.borderColor;
-  const iconColor = defaultTheme.iconColor || '#475569';
 
   const customStyle: React.CSSProperties = {
     backgroundColor: bgColor,
@@ -70,6 +70,8 @@ export const CalloutView: React.FC<NodeViewProps> = (props) => {
     <NodeViewWrapper
       className={styles.calloutWrapper}
       style={customStyle}
+      data-background-color={bgColor}
+      data-border-color={borderColor}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

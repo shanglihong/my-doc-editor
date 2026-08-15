@@ -27,29 +27,30 @@ import { calculateSubMenuPosition } from '../../utils/floatingPosition';
 interface IconConfig {
   name: string;
   icon: React.ComponentType<{ size?: number; color?: string }>;
+  defaultColor: string;
 }
 
 const ICON_OPTIONS: IconConfig[] = [
-  { name: 'Info',          icon: Info },
-  { name: 'Lightbulb',     icon: Lightbulb },
-  { name: 'AlertTriangle', icon: AlertTriangle },
-  { name: 'CheckCircle2',  icon: CheckCircle2 },
-  { name: 'OctagonAlert',  icon: OctagonAlert },
-  { name: 'Star',          icon: Star },
-  { name: 'Flame',         icon: Flame },
-  { name: 'Zap',           icon: Zap },
-  { name: 'Bookmark',      icon: Bookmark },
-  { name: 'FileText',      icon: FileText },
-  { name: 'Pin',           icon: Pin },
-  { name: 'Heart',         icon: Heart },
-  { name: 'Rocket',        icon: Rocket },
-  { name: 'MessageCircle', icon: MessageCircle },
-  { name: 'Target',        icon: Target },
-  { name: 'Lock',          icon: Lock },
-  { name: 'Coffee',        icon: Coffee },
-  { name: 'Globe',         icon: Globe },
-  { name: 'Music',         icon: Music },
-  { name: 'Camera',        icon: Camera },
+  { name: 'Info',          icon: Info,          defaultColor: '#3b82f6' },
+  { name: 'Lightbulb',     icon: Lightbulb,     defaultColor: '#f59e0b' },
+  { name: 'AlertTriangle', icon: AlertTriangle, defaultColor: '#eab308' },
+  { name: 'CheckCircle2',  icon: CheckCircle2,  defaultColor: '#22c55e' },
+  { name: 'OctagonAlert',  icon: OctagonAlert,  defaultColor: '#ef4444' },
+  { name: 'Star',          icon: Star,          defaultColor: '#eab308' },
+  { name: 'Flame',         icon: Flame,         defaultColor: '#f97316' },
+  { name: 'Zap',           icon: Zap,           defaultColor: '#eab308' },
+  { name: 'Bookmark',      icon: Bookmark,      defaultColor: '#64748b' },
+  { name: 'FileText',      icon: FileText,      defaultColor: '#06b6d4' },
+  { name: 'Pin',           icon: Pin,           defaultColor: '#f43f5e' },
+  { name: 'Heart',         icon: Heart,         defaultColor: '#ef4444' },
+  { name: 'Rocket',        icon: Rocket,        defaultColor: '#a855f7' },
+  { name: 'MessageCircle', icon: MessageCircle, defaultColor: '#10b981' },
+  { name: 'Target',        icon: Target,        defaultColor: '#ef4444' },
+  { name: 'Lock',          icon: Lock,          defaultColor: '#64748b' },
+  { name: 'Coffee',        icon: Coffee,        defaultColor: '#854d0e' },
+  { name: 'Globe',         icon: Globe,         defaultColor: '#3b82f6' },
+  { name: 'Music',         icon: Music,         defaultColor: '#ec4899' },
+  { name: 'Camera',        icon: Camera,        defaultColor: '#64748b' },
 ];
 
 interface CalloutIconPickerProps {
@@ -62,7 +63,6 @@ interface CalloutIconPickerProps {
 
 export const CalloutIconPicker: React.FC<CalloutIconPickerProps> = ({
   currentIcon,
-  iconColor,
   isOpen,
   onToggle,
   onSelectIcon,
@@ -71,7 +71,7 @@ export const CalloutIconPicker: React.FC<CalloutIconPickerProps> = ({
   const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
   const currentConfig = ICON_OPTIONS.find((c) => c.name === currentIcon) || ICON_OPTIONS[0];
   const CurrentIcon = currentConfig.icon;
-  const activeColor = iconColor || '#475569';
+  const activeColor = currentConfig.defaultColor;
 
   // 点击外部关闭
   useEffect(() => {
@@ -125,7 +125,7 @@ export const CalloutIconPicker: React.FC<CalloutIconPickerProps> = ({
                     onSelectIcon(c.name);
                   }}
                 >
-                  <IconComp size={16} color={activeColor} />
+                  <IconComp size={16} color={c.defaultColor} />
                 </button>
               );
             })}

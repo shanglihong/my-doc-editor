@@ -185,6 +185,39 @@
   flex-shrink: 0;
 }
 
+.colorCombineBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 30px;
+  padding: 0 4px;
+  border-radius: var(--de-radius-sm, 6px);
+  border: none;
+  background: transparent;
+  color: var(--de-text-main, #0f172a);
+  cursor: pointer;
+  transition: var(--de-transition, all 0.2s cubic-bezier(0.16, 1, 0.3, 1));
+  box-sizing: border-box;
+}
+
+.colorCombineBtn:hover {
+  background: var(--de-bg-hover, #f1f5f9);
+}
+
+.colorIndicatorBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
 /* 深色夜间模式自适应 */
 :global(html[data-theme="dark"]) .bubbleToolbar,
 :global(:root[data-theme="dark"]) .bubbleToolbar,
@@ -213,5 +246,6 @@
   background: #1e3a8a;
   color: #60a5fa;
 }
+
 
 

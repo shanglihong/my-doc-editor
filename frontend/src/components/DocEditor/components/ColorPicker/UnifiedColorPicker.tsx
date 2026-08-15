@@ -7,6 +7,10 @@ export interface UnifiedColorPickerProps {
   allowedCategories?: ColorCategory[];
   defaultCategory?: ColorCategory;
   currentColor?: string;
+  currentTextColor?: string;
+  currentBgColor?: string;
+  currentBorderColor?: string;
+  bgSingleRowOnly?: boolean;
   onSelectColor: (color: string, category: ColorCategory) => void;
   onResetColor?: () => void;
   className?: string;
@@ -16,6 +20,10 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
   allowedCategories = ['textColor', 'backgroundColor', 'borderColor'],
   defaultCategory = allowedCategories[0] || 'textColor',
   currentColor,
+  currentTextColor,
+  currentBgColor,
+  currentBorderColor,
+  bgSingleRowOnly = false,
   onSelectColor,
   onResetColor,
   className = '',
@@ -50,6 +58,11 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
   const presets = isDarkMode ? DARK_THEME_COLOR_PRESETS : LIGHT_THEME_COLOR_PRESETS;
   const hasTextColor = allowedCategories.includes('textColor');
   const hasBgColor = allowedCategories.includes('backgroundColor');
+  const hasBorderColor = allowedCategories.includes('borderColor');
+
+  const textColorVal = currentTextColor !== undefined ? currentTextColor : currentColor;
+  const bgColorVal = currentBgColor !== undefined ? currentBgColor : currentColor;
+  const borderColorVal = currentBorderColor !== undefined ? currentBorderColor : currentColor;
 
   return (
     <div
@@ -57,6 +70,73 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
       style={{ width: '228px', padding: '10px' }}
       onMouseDown={(e) => e.preventDefault()}
     >
+      {/* 边框颜色分类 (使用纯浅色块展示) */}
+      {hasBorderColor && (
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ fontSize: '11px', color: isDarkMode ? '#94a3b8' : '#64748b', marginBottom: '6px', fontWeight: 500 }}>
+            边框颜色
+          </div>
+          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px' }}>
+            {presets.map((preset, idx) => {
+              const borderVal = preset.borderValue || preset.bgValueSecondary || preset.textValue;
+              const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+              const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+
+              const isDefaultSelected = idx === 0 && (!borderColorVal || borderColorVal === 'transparent' || borderColorVal === 'none' || borderColorVal === 'default');
+
+              const isSelected =
+                isDefaultSelected ||
+                (borderColorVal &&
+                  idx !== 0 &&
+                  ((borderColorVal.toLowerCase() === borderVal.toLowerCase()) ||
+                    (lightPreset && (lightPreset.borderValue?.toLowerCase() === borderColorVal.toLowerCase() || lightPreset.bgValueSecondary?.toLowerCase() === borderColorVal.toLowerCase())) ||
+                    (darkPreset && (darkPreset.borderValue?.toLowerCase() === borderColorVal.toLowerCase() || darkPreset.bgValueSecondary?.toLowerCase() === borderColorVal.toLowerCase()))));
+
+              if (idx === 0) {
+                return (
+                  <button
+                    key="border-none"
+                    type="button"
+                    className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                    style={{
+                      backgroundColor: isDarkMode ? '#27272a' : '#ffffff',
+                      position: 'relative',
+                    }}
+                    title="无边框"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => onSelectColor('transparent', 'borderColor')}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '1px',
+                        backgroundColor: '#94a3b8',
+                        transform: 'rotate(-45deg)',
+                      }}
+                    />
+                  </button>
+                );
+              }
+
+              return (
+                <button
+                  key={`border-${preset.hue}`}
+                  type="button"
+                  className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                  style={{
+                    backgroundColor: borderVal,
+                  }}
+                  title={`边框: ${preset.name}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => onSelectColor(borderVal, 'borderColor')}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 字体颜色分类 */}
       {hasTextColor && (
         <div style={{ marginBottom: '10px' }}>
@@ -66,14 +146,15 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
           <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px' }}>
             {presets.map((preset, idx) => {
               // 当无传入色值或传入为默认值时，高亮选中第一个默认色块
-              const isDefaultSelected = idx === 0 && (!currentColor || currentColor === 'inherit' || currentColor === 'default');
+              const isDefaultSelected = idx === 0 && (!textColorVal || textColorVal === 'inherit' || textColorVal === 'default');
 
               const isSelected =
                 isDefaultSelected ||
-                (currentColor &&
-                  (currentColor.toLowerCase() === preset.textValue.toLowerCase() ||
-                    LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue)?.textValue.toLowerCase() === currentColor.toLowerCase() ||
-                    DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue)?.textValue.toLowerCase() === currentColor.toLowerCase()));
+                (textColorVal &&
+                  idx !== 0 &&
+                  (textColorVal.toLowerCase() === preset.textValue.toLowerCase() ||
+                    LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue)?.textValue.toLowerCase() === textColorVal.toLowerCase() ||
+                    DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue)?.textValue.toLowerCase() === textColorVal.toLowerCase()));
 
               return (
                 <button
@@ -107,21 +188,21 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
             背景颜色
           </div>
           {/* 第一排 8 个（含斜线无背景） */}
-          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px', marginBottom: '3px' }}>
+          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px', marginBottom: bgSingleRowOnly ? '0' : '3px' }}>
             {presets.map((preset, idx) => {
               const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
               const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
 
               // 当无背景色或传入为 transparent 时，高亮选中第一个斜线无背景块
-              const isDefaultSelected = idx === 0 && (!currentColor || currentColor === 'transparent' || currentColor === 'none');
+              const isDefaultSelected = idx === 0 && (!bgColorVal || bgColorVal === 'transparent' || bgColorVal === 'none');
 
               const isSelected =
                 isDefaultSelected ||
-                (currentColor &&
-                  ((currentColor.toLowerCase() === preset.bgValue.toLowerCase()) ||
-                    (preset.bgValue === 'transparent' && currentColor === 'transparent') ||
-                    (lightPreset && lightPreset.bgValue.toLowerCase() === currentColor.toLowerCase()) ||
-                    (darkPreset && darkPreset.bgValue.toLowerCase() === currentColor.toLowerCase())));
+                (bgColorVal &&
+                  idx !== 0 &&
+                  ((bgColorVal.toLowerCase() === preset.bgValue.toLowerCase()) ||
+                    (lightPreset && lightPreset.bgValue.toLowerCase() === bgColorVal.toLowerCase()) ||
+                    (darkPreset && darkPreset.bgValue.toLowerCase() === bgColorVal.toLowerCase())));
 
               if (idx === 0) {
                 return (
@@ -166,34 +247,36 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
             })}
           </div>
 
-          {/* 第二排 8 个（深暗系或饱满背景块） */}
-          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px' }}>
-            {presets.map((preset) => {
-              const bgVal = preset.bgValueSecondary || preset.bgValue;
-              const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
-              const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+          {/* 第二排 8 个（仅当 !bgSingleRowOnly 时渲染） */}
+          {!bgSingleRowOnly && (
+            <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px' }}>
+              {presets.map((preset) => {
+                const bgVal = preset.bgValueSecondary || preset.bgValue;
+                const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+                const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
 
-              const isSelected =
-                currentColor &&
-                ((currentColor.toLowerCase() === bgVal.toLowerCase()) ||
-                  (lightPreset && lightPreset.bgValueSecondary?.toLowerCase() === currentColor.toLowerCase()) ||
-                  (darkPreset && darkPreset.bgValueSecondary?.toLowerCase() === currentColor.toLowerCase()));
+                const isSelected =
+                  bgColorVal &&
+                  ((bgColorVal.toLowerCase() === bgVal.toLowerCase()) ||
+                    (lightPreset && lightPreset.bgValueSecondary?.toLowerCase() === currentColor?.toLowerCase()) ||
+                    (darkPreset && darkPreset.bgValueSecondary?.toLowerCase() === currentColor?.toLowerCase()));
 
-              return (
-                <button
-                  key={`bg-2-${preset.hue}`}
-                  type="button"
-                  className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
-                  style={{
-                    backgroundColor: bgVal,
-                  }}
-                  title={`背景: ${preset.name}`}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => onSelectColor(bgVal, 'backgroundColor')}
-                />
-              );
-            })}
-          </div>
+                return (
+                  <button
+                    key={`bg-2-${preset.hue}`}
+                    type="button"
+                    className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                    style={{
+                      backgroundColor: bgVal,
+                    }}
+                    title={`背景: ${preset.name}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => onSelectColor(bgVal, 'backgroundColor')}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

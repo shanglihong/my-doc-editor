@@ -126,11 +126,11 @@
   background: #eff6ff;
 }
 
-/* 深色 (夜间) 模式适配 */
+/* 深色 (夜间) 模式默认后备 */
 :global(html[data-theme="dark"]) .calloutWrapper,
 :global(:root[data-theme="dark"]) .calloutWrapper {
-  background-color: rgba(30, 41, 59, 0.7) !important;
-  border-color: #334155 !important;
+  background-color: #1e293b;
+  border-color: #334155;
   color: #f8fafc;
 }
 
