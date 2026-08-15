@@ -71,7 +71,7 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                 return false;
               }
 
-              const sampleX = Math.max(editorRect.left + 20, containerRect.left + 40);
+              const sampleX = editorRect.left + 20;
               const sampleY = event.clientY;
 
               const targetEl = document.elementFromPoint(sampleX, sampleY);
@@ -144,11 +144,13 @@ export const DragHandlePlugin = Extension.create<DragHandleOptions>({
                   }
                 }
 
+                const relativeLeft = Math.max(8, rect.left - containerRect.left - 52);
+
                 this.options.onNodeChange({
                   node,
                   pos: blockStartPos,
                   top: relativeTop,
-                  left: 10,
+                  left: relativeLeft,
                   nodeType: node.type.name,
                   nodeLevel: node.attrs?.level,
                   isEmpty: isContentEmpty,

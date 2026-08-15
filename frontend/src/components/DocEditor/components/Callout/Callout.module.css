@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: center;
   height: 24px;
-  margin-top: 4px;
+  margin-top: 1.5px;
 }
 
 .calloutIconBtn {
@@ -49,6 +49,29 @@
   flex: 1;
   min-width: 0;
   padding-top: 0;
+}
+
+/* 重置 Callout 内部首个与末尾块元素的上下外边距，使 Icon 与首行文本中线 100% 垂直平齐 */
+.calloutContent :global(.ProseMirror-nodeView-content > *:first-child),
+.calloutContent > *:first-child,
+.calloutContent p:first-child,
+.calloutContent h1:first-child,
+.calloutContent h2:first-child,
+.calloutContent h3:first-child,
+.calloutContent ul:first-child,
+.calloutContent ol:first-child {
+  margin-top: 0 !important;
+}
+
+.calloutContent :global(.ProseMirror-nodeView-content > *:last-child),
+.calloutContent > *:last-child,
+.calloutContent p:last-child,
+.calloutContent h1:last-child,
+.calloutContent h2:last-child,
+.calloutContent h3:last-child,
+.calloutContent ul:last-child,
+.calloutContent ol:last-child {
+  margin-bottom: 0 !important;
 }
 
 /* Callout icon picker popover */

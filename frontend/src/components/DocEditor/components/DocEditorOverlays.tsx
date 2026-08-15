@@ -6,6 +6,7 @@ import { BubbleToolbar } from './BubbleToolbar';
 import { TableBubbleMenu } from './TableBubbleMenu';
 import { CalloutBubbleMenu } from './Callout/CalloutBubbleMenu';
 import { DrawIOModal } from './DrawIO/DrawIOModal';
+import { TableOfContents } from './TableOfContents';
 import type { DrawIOModalState } from '../types';
 
 export interface DocEditorOverlaysProps {
@@ -144,6 +145,7 @@ export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
         onSave={handleSaveDrawIO}
         onClose={() => setDrawioModalState((prev) => ({ ...prev, isOpen: false }))}
       />
+      <TableOfContents editor={editor} />
     </>
   );
 };

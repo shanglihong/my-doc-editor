@@ -182,3 +182,19 @@
     border-right-color: var(--border);
   }
 }
+
+.appContainer {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  background-color: #f8fafc;
+}
+
+@media (max-width: 768px) {
+  .appContainer {
+    padding: 0;
+  }
+}
+

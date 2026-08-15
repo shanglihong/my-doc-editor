@@ -21,15 +21,15 @@
 .editorContainer {
   position: relative;
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 56px;
+  max-width: 100%;
+  margin: 0;
+  padding: 40px 0;
   background-color: var(--de-bg-body);
   color: var(--de-text-main);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.7;
-  border-radius: var(--de-radius-lg);
+  border-radius: 0;
   box-sizing: border-box;
   text-align: left;
 }
@@ -57,6 +57,17 @@
   outline: none;
   min-height: 500px;
   text-align: left;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 56px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .editorContent {
+    padding: 0 20px;
+  }
 }
 
 .editorContent :global(.ProseMirror) {
@@ -113,18 +124,21 @@
   font-weight: 700;
 }
 
+/* 正文段落 - 优雅行高与舒适段间距 (区分软换行与 Enter 硬换行) */
 .editorContent :global(.ProseMirror p) {
-  margin-top: 4px;
-  margin-bottom: 4px;
-  line-height: 1.6;
+  margin-top: 0.65em;
+  margin-bottom: 0.65em;
+  line-height: 1.7;
   word-break: break-word;
+  color: var(--de-text-main);
 }
 
+/* 标题系统 - 遵循亲密性原则 (Proximity Principle)：大上边距隔离前文，小下边距紧贴属下内容 */
 .editorContent :global(.ProseMirror h1) {
   font-size: 1.75rem;
   font-weight: 700;
-  margin-top: 16px;
-  margin-bottom: 6px;
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
   line-height: 1.3;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -133,8 +147,8 @@
 .editorContent :global(.ProseMirror h2) {
   font-size: 1.35rem;
   font-weight: 650;
-  margin-top: 14px;
-  margin-bottom: 4px;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
   line-height: 1.35;
   color: #1e293b;
   letter-spacing: -0.01em;
@@ -143,18 +157,75 @@
 .editorContent :global(.ProseMirror h3) {
   font-size: 1.125rem;
   font-weight: 600;
-  margin-top: 10px;
-  margin-bottom: 4px;
+  margin-top: 1.25em;
+  margin-bottom: 0.4em;
   line-height: 1.4;
   color: #334155;
 }
 
+/* 连续标题协同：后一个标题上边距自动折半，防止过空 */
+.editorContent :global(.ProseMirror h1 + h2),
+.editorContent :global(.ProseMirror h2 + h3),
+.editorContent :global(.ProseMirror h1 + h3) {
+  margin-top: 0.6em;
+}
+
+/* 多级有序与无序列表支持 - 自动转换标号类型与无缝层级缩进 */
 .editorContent :global(.ProseMirror ul),
 .editorContent :global(.ProseMirror ol) {
   padding-left: 24px;
   margin-left: 0;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* 无序列表多级标号转换：实心圆点 -> 空心圆圈 -> 实心方块 */
+.editorContent :global(.ProseMirror ul) {
+  list-style-type: disc;
+}
+
+.editorContent :global(.ProseMirror ul ul) {
+  list-style-type: circle;
+}
+
+.editorContent :global(.ProseMirror ul ul ul) {
+  list-style-type: square;
+}
+
+/* 有序列表多级标号转换：阿拉伯数字 (1. 2.) -> 小写字母 (a. b.) -> 小写罗马数字 (i. ii.) */
+.editorContent :global(.ProseMirror ol) {
+  list-style-type: decimal;
+}
+
+.editorContent :global(.ProseMirror ol ol) {
+  list-style-type: lower-alpha;
+}
+
+.editorContent :global(.ProseMirror ol ol ol) {
+  list-style-type: lower-roman;
+}
+
+.editorContent :global(.ProseMirror li) {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  line-height: 1.65;
+}
+
+.editorContent :global(.ProseMirror li > p) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 嵌套列表无缝层级缩进 */
+.editorContent :global(.ProseMirror li > ul),
+.editorContent :global(.ProseMirror li > ol),
+.editorContent :global(.ProseMirror ul ul),
+.editorContent :global(.ProseMirror ol ol),
+.editorContent :global(.ProseMirror ul ol),
+.editorContent :global(.ProseMirror ol ul) {
+  padding-left: 24px;
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
 }
 
 .editorContent :global(.ProseMirror ol > li::marker) {
@@ -168,11 +239,34 @@
   font-weight: 400;
 }
 
+/* 高级划选选区 (Text Selection) - 柔和天蓝浅背景 */
+.editorContent :global(.ProseMirror ::selection) {
+  background-color: #dbeafe;
+  color: #0f172a;
+}
+
+/* 引用块 (Blockquote) - 极简中性低侵入设计，弱化视觉强度，不抢夺正文焦点 */
 .editorContent :global(.ProseMirror blockquote) {
   border-left: 3px solid #cbd5e1;
+  background-color: transparent;
   margin: 0.8em 0;
-  padding-left: 14px;
+  padding: 4px 0 4px 14px;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 1.7;
   color: #64748b;
+  font-style: normal;
+}
+
+.editorContent :global(.ProseMirror blockquote p) {
+  margin: 0 !important;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
   font-style: normal;
 }
 
@@ -189,54 +283,105 @@
 .editorContent :global(.ProseMirror code) {
   background: #f1f5f9;
   color: #0f172a;
-  padding: 2px 6px;
+  border: 1px solid #e2e8f0;
+  padding: 2px 5px;
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 0.88em;
   font-family: 'Fira Code', JetBrains Mono, Consolas, Monaco, monospace;
 }
 
-/* Syntax Highlighting Colors (Minimalist Light Theme) */
+/* Syntax Highlighting Colors (GitHub Light / Modern High-Contrast Theme) */
+
+/* 关键字 (Keywords) */
 .editorContent :global(.hljs-keyword),
 .editorContent :global(.hljs-selector-tag),
 .editorContent :global(.hljs-subst) {
   color: #cf222e;
+  font-weight: 600;
+}
+
+/* 字符串 (Strings) & 符号 */
+.editorContent :global(.hljs-string),
+.editorContent :global(.hljs-regexp),
+.editorContent :global(.hljs-symbol),
+.editorContent :global(.hljs-char),
+.editorContent :global(.hljs-template-tag),
+.editorContent :global(.hljs-template-variable),
+.editorContent :global(.hljs-addition) {
+  color: #0a7a30;
+}
+
+/* 内置对象 & 标准函数 (Built-ins) */
+.editorContent :global(.hljs-built_in),
+.editorContent :global(.hljs-bullet) {
+  color: #0550ae;
   font-weight: 500;
 }
 
-.editorContent :global(.hljs-string),
-.editorContent :global(.hljs-title),
-.editorContent :global(.hljs-section),
-.editorContent :global(.hljs-attribute),
-.editorContent :global(.hljs-template-tag),
-.editorContent :global(.hljs-template-variable),
-.editorContent :global(.hljs-type),
-.editorContent :global(.hljs-addition) {
-  color: #0a3069;
+/* 函数与方法 (Functions & Methods) */
+.editorContent :global(.hljs-title.function_),
+.editorContent :global(.hljs-function),
+.editorContent :global(.hljs-title) {
+  color: #8250df;
+  font-weight: 600;
 }
 
+/* 类名 & 类型 (Classes & Types) */
+.editorContent :global(.hljs-type),
+.editorContent :global(.hljs-class),
+.editorContent :global(.hljs-title.class_) {
+  color: #953800;
+  font-weight: 600;
+}
+
+/* 属性 & JSON Key (Attributes & Keys) */
+.editorContent :global(.hljs-attr),
+.editorContent :global(.hljs-attribute),
+.editorContent :global(.hljs-property) {
+  color: #0550ae;
+}
+
+/* HTML/XML 标签与名称 (HTML Tags & Names) */
+.editorContent :global(.hljs-tag),
+.editorContent :global(.hljs-name),
+.editorContent :global(.hljs-section) {
+  color: #116329;
+}
+
+/* 数字、字面量与常量 (Numbers & Literals) */
+.editorContent :global(.hljs-number),
+.editorContent :global(.hljs-literal),
+.editorContent :global(.hljs-boolean) {
+  color: #0550ae;
+  font-weight: 500;
+}
+
+/* 注释与元数据 (Comments & Meta) */
 .editorContent :global(.hljs-comment),
 .editorContent :global(.hljs-quote),
 .editorContent :global(.hljs-deletion),
-.editorContent :global(.hljs-meta) {
+.editorContent :global(.hljs-meta),
+.editorContent :global(.hljs-doctag) {
   color: #6e7781;
   font-style: italic;
 }
 
-.editorContent :global(.hljs-number),
-.editorContent :global(.hljs-literal),
-.editorContent :global(.hljs-regexp),
-.editorContent :global(.hljs-link) {
-  color: #0550ae;
-}
-
-.editorContent :global(.hljs-function),
-.editorContent :global(.hljs-title.function_) {
-  color: #8250df;
-}
-
+/* 变量与参数 (Variables & Params) */
 .editorContent :global(.hljs-variable),
 .editorContent :global(.hljs-params) {
   color: #24292f;
+}
+
+/* 运算符与标点 (Operators & Punctuation) */
+.editorContent :global(.hljs-operator),
+.editorContent :global(.hljs-punctuation) {
+  color: #57606a;
+}
+
+/* 链接 (Links) */
+.editorContent :global(.hljs-link) {
+  color: #0969da;
+  text-decoration: underline;
 }
 
 .editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
@@ -317,8 +462,10 @@
 
 .dropIndicator {
   position: absolute;
-  left: 56px;
-  right: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: calc(900px - 112px);
   height: 3px;
   background-color: var(--de-primary);
   pointer-events: none;

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import styles from './CodeBlock.module.css';
 import { getActiveToolbarInfo, hoverStackManager } from '../../utils/toolbarPriority';
 import { FloatingBlockTool } from '../FloatingBlockTool';
@@ -28,6 +28,7 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
   const { node, deleteNode, editor, getPos, updateAttributes, selected } = props;
   const [copied, setCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearHideTimeout = () => {
@@ -106,7 +107,10 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
     isEditable &&
     (isHovered || selected) &&
     (activeToolbar.type === 'codeBlock' || selected);
-  console.log("activeToolbar", activeToolbar.type + " " + isHovered)
+
+  const linesCount = (node.textContent || '').split('\n').length;
+  const lineNumbers = Array.from({ length: Math.max(1, linesCount) }, (_, i) => i + 1);
+
   return (
     <NodeViewWrapper
       data-type="codeBlock"
@@ -125,9 +129,23 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
         />
       )}
 
-      {/* 代码块原有的 Header：保持语言选择与复制代码功能 */}
-      <div className={styles.codeBlockHeader} contentEditable={false}>
+      {/* 代码块 Header：左侧收缩折叠按钮，右侧语言选择与复制代码 */}
+      <div
+        className={`${styles.codeBlockHeader} ${isCollapsed ? styles.codeBlockHeaderCollapsed : ''}`}
+        contentEditable={false}
+      >
         <div className={styles.codeBlockLeft}>
+          <button
+            type="button"
+            className={styles.codeBlockIconBtn}
+            onClick={() => setIsCollapsed((prev) => !prev)}
+            title={isCollapsed ? '展开代码' : '收起代码'}
+          >
+            {isCollapsed ? <ChevronRight size={15} /> : <ChevronDown size={15} />}
+          </button>
+        </div>
+
+        <div className={styles.codeBlockActions}>
           <select
             className={styles.codeBlockSelect}
             value={currentLanguage}
@@ -139,8 +157,6 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
               </option>
             ))}
           </select>
-        </div>
-        <div className={styles.codeBlockActions}>
           <button
             type="button"
             className={styles.codeBlockIconBtn}
@@ -151,9 +167,21 @@ export const CodeBlockComponent: React.FC<NodeViewProps> = (props) => {
           </button>
         </div>
       </div>
-      <pre className={styles.codeBlockContainer}>
-        <NodeViewContent className={`language-${currentLanguage}`} />
-      </pre>
+
+      {!isCollapsed && (
+        <div className={styles.codeBlockBody}>
+          <div className={styles.codeLineNumbers} contentEditable={false}>
+            {lineNumbers.map((num) => (
+              <span key={num} className={styles.codeLineNumber}>
+                {num}
+              </span>
+            ))}
+          </div>
+          <pre className={styles.codeBlockContainer}>
+            <NodeViewContent className={`language-${currentLanguage}`} />
+          </pre>
+        </div>
+      )}
     </NodeViewWrapper>
   );
 };

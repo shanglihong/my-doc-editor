@@ -1,13 +1,14 @@
 import { useRef, useState } from 'react';
 import { DocEditor } from './components/DocEditor';
 import type { DocEditorRef } from './components/DocEditor';
+import './App.css';
 
 export function App() {
   const editorRef = useRef<DocEditorRef>(null);
   const [markdown, setMarkdown] = useState('');
 
   return (
-    <div style={{ padding: '32px 16px', minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+    <div className="appContainer">
 
 
       <DocEditor
