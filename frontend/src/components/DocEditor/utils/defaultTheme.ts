@@ -12,7 +12,7 @@ export const CALLOUT_THEMES: CalloutTheme[] = [
   {
     id: 'blue',
     name: '信息蓝',
-    bgColor: '#f0f6ff',
+    bgColor: '#dbeafe',
     borderColor: '#93c5fd',
     textColor: '#1e3a5f',
     iconColor: '#3b82f6',

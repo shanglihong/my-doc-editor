@@ -46,8 +46,14 @@
 .editorContent :global(.ProseMirror th) {
   font-weight: 600;
   text-align: left;
-  background-color: var(--de-bg-hover, #f8fafc);
   color: var(--de-text-main, #334155);
+}
+
+.editorContent :global(.ProseMirror th[data-background-color="transparent"]),
+.editorContent :global(.ProseMirror td[data-background-color="transparent"]),
+.editorContent :global(.ProseMirror th[style*="transparent"]),
+.editorContent :global(.ProseMirror td[style*="transparent"]) {
+  background-color: transparent !important;
 }
 
 .editorContent :global(.ProseMirror td > *),

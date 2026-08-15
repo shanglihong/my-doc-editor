@@ -60,10 +60,10 @@ export const CalloutExtension = Node.create<CalloutOptions>({
         default: null,
       },
       backgroundColor: {
-        default: null,
+        default: '#dbeafe',
       },
       borderColor: {
-        default: null,
+        default: '#93c5fd',
       },
     };
   },

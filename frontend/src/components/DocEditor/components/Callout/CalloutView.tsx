@@ -58,8 +58,8 @@ export const CalloutView: React.FC<NodeViewProps> = (props) => {
   const iconColor = currentConfig.defaultColor || '#3b82f6';
 
   const defaultTheme = CALLOUT_THEMES.find((t) => t.id === node.attrs.themeColor) || CALLOUT_THEMES[0];
-  const bgColor = node.attrs.backgroundColor || node.attrs.customBg || defaultTheme.bgColor;
-  const borderColor = node.attrs.borderColor || node.attrs.customBorder || defaultTheme.borderColor;
+  const bgColor = node.attrs.backgroundColor || node.attrs.customBg || defaultTheme.bgColor || '#dbeafe';
+  const borderColor = node.attrs.borderColor || node.attrs.customBorder || defaultTheme.borderColor || '#93c5fd';
 
   const customStyle: React.CSSProperties = {
     backgroundColor: bgColor,

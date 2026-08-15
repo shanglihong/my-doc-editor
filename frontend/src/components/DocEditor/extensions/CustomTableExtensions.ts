@@ -10,7 +10,7 @@ export const CustomTableCell = TableCell.extend({
         parseHTML: (element) =>
           element.style.backgroundColor || element.getAttribute('data-background-color') || null,
         renderHTML: (attributes) => {
-          if (!attributes.backgroundColor) {
+          if (attributes.backgroundColor === null || attributes.backgroundColor === undefined) {
             return {};
           }
           return {
@@ -28,11 +28,11 @@ export const CustomTableHeader = TableHeader.extend({
     return {
       ...this.parent?.(),
       backgroundColor: {
-        default: null,
+        default: '#f1f5f9',
         parseHTML: (element) =>
           element.style.backgroundColor || element.getAttribute('data-background-color') || null,
         renderHTML: (attributes) => {
-          if (!attributes.backgroundColor) {
+          if (attributes.backgroundColor === null || attributes.backgroundColor === undefined) {
             return {};
           }
           return {

@@ -22,6 +22,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
   const [currentBg, setCurrentBg] = useState<string | undefined>();
   const [currentBorder, setCurrentBorder] = useState<string | undefined>();
   const [activePos, setActivePos] = useState<number>(-1);
+  const prevPosRef = React.useRef(activePos);
 
   // 监听全局隐藏事件或选区/位置变动时自动重置收缩颜色选择菜单
   React.useEffect(() => {
@@ -44,9 +45,18 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
     };
   }, []);
 
+  // 仅在真实跨 Block 改变节点位置时收起 ColorPicker，避免首次初始化 activePos 时引发误关闪退
   React.useEffect(() => {
-    setShowColorPicker(false);
+    if (prevPosRef.current !== -1 && prevPosRef.current !== activePos) {
+      setShowColorPicker(false);
+    }
+    prevPosRef.current = activePos;
   }, [activePos]);
+
+  // 当选区改变时自动同步最新的节点属性
+  React.useEffect(() => {
+    updateCurrentAttrs();
+  }, [editor?.state.selection]);
 
   // 从当前 TipTap Selection 获取颜色属性
   const updateCurrentAttrs = () => {
@@ -65,8 +75,8 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
       depth--;
     }
     if (calloutNode) {
-      setCurrentBg(calloutNode.attrs.backgroundColor || calloutNode.attrs.customBg || undefined);
-      setCurrentBorder(calloutNode.attrs.borderColor || calloutNode.attrs.customBorder || undefined);
+      setCurrentBg(calloutNode.attrs.backgroundColor || calloutNode.attrs.customBg || '#dbeafe');
+      setCurrentBorder(calloutNode.attrs.borderColor || calloutNode.attrs.customBorder || '#93c5fd');
       setActivePos(pos);
     }
   };
@@ -83,7 +93,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
       [category]: color,
       ...(category === 'backgroundColor'
         ? { customBg: color }
-        : { customBorder: color, iconColor: color }),
+        : { customBorder: color }),
     });
     view.dispatch(tr);
     setShowColorPicker(false);
@@ -120,6 +130,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
   };
 
   const handleToggleColorPicker = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     updateCurrentAttrs();
     if (showColorPicker) {
       setShowColorPicker(false);
@@ -162,17 +173,7 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
           onClick={(e) => handleToggleColorPicker(e)}
           title="高亮块填充与边框颜色"
         >
-          <div
-            className={styles.colorIndicatorBlock}
-            style={{
-              backgroundColor: currentBg || 'transparent',
-            }}
-          >
-            <Palette
-              size={15}
-              color={currentBorder || 'currentColor'}
-            />
-          </div>
+          <Palette size={15} />
           <ChevronDown size={12} style={{ opacity: 0.65 }} />
         </button>
 
