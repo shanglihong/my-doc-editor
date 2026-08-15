@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, Unlink, ExternalLink, X } from 'lucide-react';
+import styles from './BubbleToolbar.module.css';
 
 export interface LinkInputPanelProps {
   initialUrl?: string;
@@ -51,18 +52,8 @@ export const LinkInputPanel: React.FC<LinkInputPanelProps> = ({
 
   return (
     <div
-      style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '6px 8px',
-        boxShadow: '0 4px 16px rgba(15, 23, 42, 0.12)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        zIndex: 100,
-        ...style,
-      }}
+      className={styles.linkInputPanel}
+      style={style}
       onMouseDown={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
       onKeyUp={(e) => e.stopPropagation()}
@@ -76,32 +67,14 @@ export const LinkInputPanel: React.FC<LinkInputPanelProps> = ({
         onKeyDown={handleKeyDown}
         onKeyUp={(e) => e.stopPropagation()}
         onPaste={(e) => e.stopPropagation()}
-        style={{
-          border: '1px solid #cbd5e1',
-          borderRadius: '4px',
-          padding: '4px 8px',
-          fontSize: '13px',
-          outline: 'none',
-          width: '200px',
-          color: '#0f172a',
-        }}
+        className={styles.linkInput}
       />
 
       <button
         type="button"
         title="应用链接 (Enter)"
         onClick={() => onConfirm(url)}
-        style={{
-          background: '#2563eb',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '4px',
-          padding: '4px 6px',
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        className={`${styles.linkBtn} ${styles.linkBtnConfirm}`}
       >
         <Check size={14} />
       </button>
@@ -111,17 +84,7 @@ export const LinkInputPanel: React.FC<LinkInputPanelProps> = ({
           type="button"
           title="在新标签页预览"
           onClick={handleOpenExternal}
-          style={{
-            background: 'transparent',
-            color: '#64748b',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className={`${styles.linkBtn} ${styles.linkBtnAction}`}
         >
           <ExternalLink size={14} />
         </button>
@@ -132,17 +95,7 @@ export const LinkInputPanel: React.FC<LinkInputPanelProps> = ({
           type="button"
           title="清除链接"
           onClick={onUnlink}
-          style={{
-            background: 'transparent',
-            color: '#ef4444',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className={`${styles.linkBtn} ${styles.linkBtnUnlink}`}
         >
           <Unlink size={14} />
         </button>
@@ -152,17 +105,7 @@ export const LinkInputPanel: React.FC<LinkInputPanelProps> = ({
         type="button"
         title="关闭 (Esc)"
         onClick={onClose}
-        style={{
-          background: 'transparent',
-          color: '#94a3b8',
-          border: 'none',
-          borderRadius: '4px',
-          padding: '4px',
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        className={`${styles.linkBtn} ${styles.linkBtnClose}`}
       >
         <X size={14} />
       </button>

@@ -36,6 +36,7 @@ import { BlockIcon } from '../../utils/blockIcons';
 import { calculateSmartPosition, calculateSubMenuPosition } from '../../utils/floatingPosition';
 import { getActiveToolbarInfo } from '../../utils/toolbarPriority';
 import { normalizeUrl } from '../../utils/urlUtils';
+import { LIGHT_THEME_COLOR_PRESETS, DARK_THEME_COLOR_PRESETS } from '../../utils/defaultTheme';
 import { UnifiedColorPicker } from '../ColorPicker/UnifiedColorPicker';
 import { LinkInputPanel } from './LinkInputPanel';
 
@@ -160,6 +161,79 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
   useEffect(() => {
     showLinkPanelRef.current = showLinkPanel;
   }, [showLinkPanel]);
+
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.getAttribute('data-theme') === 'dark';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.getAttribute('data-theme') === 'dark');
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const getDisplayTextColor = (rawColor?: string) => {
+    if (!rawColor || rawColor === 'currentColor' || rawColor === 'inherit' || rawColor === 'default') {
+      return 'var(--de-text-main, currentColor)';
+    }
+    const colorLower = rawColor.toLowerCase();
+    if (isDarkMode) {
+      const matchedLight = LIGHT_THEME_COLOR_PRESETS.find(
+        (p) => p.textValue.toLowerCase() === colorLower
+      );
+      if (matchedLight) {
+        const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === matchedLight.hue);
+        if (darkPreset) return darkPreset.textValue;
+      }
+    } else {
+      const matchedDark = DARK_THEME_COLOR_PRESETS.find(
+        (p) => p.textValue.toLowerCase() === colorLower
+      );
+      if (matchedDark) {
+        const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === matchedDark.hue);
+        if (lightPreset) return lightPreset.textValue;
+      }
+    }
+    return rawColor;
+  };
+
+  const getDisplayBgColor = (rawBg?: string) => {
+    if (!rawBg || rawBg === 'transparent' || rawBg === 'none') {
+      return 'transparent';
+    }
+    const bgLower = rawBg.toLowerCase();
+    if (isDarkMode) {
+      const matchedLight = LIGHT_THEME_COLOR_PRESETS.find(
+        (p) =>
+          p.bgValue.toLowerCase() === bgLower ||
+          (p.bgValueSecondary && p.bgValueSecondary.toLowerCase() === bgLower)
+      );
+      if (matchedLight) {
+        const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === matchedLight.hue);
+        if (darkPreset) return darkPreset.bgValue;
+      }
+    } else {
+      const matchedDark = DARK_THEME_COLOR_PRESETS.find(
+        (p) =>
+          p.bgValue.toLowerCase() === bgLower ||
+          (p.bgValueSecondary && p.bgValueSecondary.toLowerCase() === bgLower)
+      );
+      if (matchedDark) {
+        const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === matchedDark.hue);
+        if (lightPreset) return lightPreset.bgValue;
+      }
+    }
+    return rawBg;
+  };
 
   const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
   const [position, setPosition] = useState<{
@@ -578,12 +652,12 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
           <div
             className={styles.colorIndicatorBlock}
             style={{
-              backgroundColor: editor.getAttributes('highlight').color || 'transparent',
+              backgroundColor: getDisplayBgColor(editor.getAttributes('highlight').color),
             }}
           >
             <TextFormatAIcon
               size={16}
-              color={editor.getAttributes('textStyle').color || 'currentColor'}
+              color={getDisplayTextColor(editor.getAttributes('textStyle').color)}
             />
           </div>
           <ChevronDown size={12} style={{ opacity: 0.65 }} />
