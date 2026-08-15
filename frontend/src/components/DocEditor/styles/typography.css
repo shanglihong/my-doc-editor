@@ -1,0 +1,199 @@
+/* 2. 基础排版规范 (Typography System) */
+
+/* Tiptap Core & ProseMirror overrides */
+.editorContent :global(.ProseMirror) {
+  outline: none;
+  min-height: 500px;
+  text-align: left;
+}
+
+/* 屏蔽 ProseMirror 默认拖拽与块缝隙处的粗黑横杠 (GapCursor / DropCursor) */
+.editorContent :global(.ProseMirror-dropcursor),
+.editorContent :global(.ProseMirror-gapcursor) {
+  display: none !important;
+}
+
+.editorContent :global(.ProseMirror > *:first-child) {
+  margin-top: 0 !important;
+}
+
+.editorContent :global(.ProseMirror > *:last-child) {
+  margin-bottom: 0 !important;
+}
+
+/* Tiptap Empty Block Placeholder Styling */
+.editorContent :global(.ProseMirror p.is-empty::before),
+.editorContent :global(.ProseMirror h1.is-empty::before),
+.editorContent :global(.ProseMirror h2.is-empty::before),
+.editorContent :global(.ProseMirror h3.is-empty::before) {
+  color: #94a3b8;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-weight: 400;
+}
+
+.editorContent :global(.ProseMirror h1.doc-title-node) {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--de-border-color);
+  color: var(--de-text-main);
+  letter-spacing: -0.025em;
+}
+
+.editorContent :global(.ProseMirror h1.doc-title-node.is-empty::before) {
+  color: #cbd5e1;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-weight: 700;
+}
+
+/* 正文段落 - 优雅行高与舒适段间距 */
+.editorContent :global(.ProseMirror p) {
+  margin-top: 0.65em;
+  margin-bottom: 0.65em;
+  line-height: 1.7;
+  word-break: break-word;
+  color: var(--de-text-main);
+}
+
+/* 标题系统 - 遵循亲密性原则 (Proximity Principle) */
+.editorContent :global(.ProseMirror h1) {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+  line-height: 1.3;
+  color: var(--de-text-main);
+  letter-spacing: -0.02em;
+}
+
+.editorContent :global(.ProseMirror h2) {
+  font-size: 1.35rem;
+  font-weight: 650;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.35;
+  color: var(--de-text-main);
+  letter-spacing: -0.01em;
+}
+
+.editorContent :global(.ProseMirror h3) {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.25em;
+  margin-bottom: 0.4em;
+  line-height: 1.4;
+  color: var(--de-text-main);
+}
+
+/* 连续标题协同：后一个标题上边距自动折半 */
+.editorContent :global(.ProseMirror h1 + h2),
+.editorContent :global(.ProseMirror h2 + h3),
+.editorContent :global(.ProseMirror h1 + h3) {
+  margin-top: 0.6em;
+}
+
+/* 多级有序与无序列表支持 */
+.editorContent :global(.ProseMirror ul),
+.editorContent :global(.ProseMirror ol) {
+  padding-left: 24px;
+  margin-left: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.editorContent :global(.ProseMirror ul) {
+  list-style-type: disc;
+}
+
+.editorContent :global(.ProseMirror ul ul) {
+  list-style-type: circle;
+}
+
+.editorContent :global(.ProseMirror ul ul ul) {
+  list-style-type: square;
+}
+
+.editorContent :global(.ProseMirror ol) {
+  list-style-type: decimal;
+}
+
+.editorContent :global(.ProseMirror ol ol) {
+  list-style-type: lower-alpha;
+}
+
+.editorContent :global(.ProseMirror ol ol ol) {
+  list-style-type: lower-roman;
+}
+
+.editorContent :global(.ProseMirror li) {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  line-height: 1.65;
+}
+
+.editorContent :global(.ProseMirror li > p) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.editorContent :global(.ProseMirror li > ul),
+.editorContent :global(.ProseMirror li > ol),
+.editorContent :global(.ProseMirror ul ul),
+.editorContent :global(.ProseMirror ol ol),
+.editorContent :global(.ProseMirror ul ol),
+.editorContent :global(.ProseMirror ol ul) {
+  padding-left: 24px;
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.editorContent :global(.ProseMirror ol > li::marker) {
+  color: var(--de-primary);
+  font-weight: 400;
+  font-family: inherit;
+}
+
+.editorContent :global(.ProseMirror ul > li::marker) {
+  color: var(--de-primary);
+  font-weight: 400;
+}
+
+/* 引用块 (Blockquote) */
+.editorContent :global(.ProseMirror blockquote) {
+  border-left: 3px solid var(--de-border-color, #cbd5e1);
+  background-color: transparent;
+  margin: 0.8em 0;
+  padding: 4px 0 4px 14px;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--de-text-muted, #64748b);
+  font-style: normal;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror blockquote),
+:global(:root[data-theme="dark"]) .editorContent :global(.ProseMirror blockquote) {
+  border-left-color: #475569;
+  color: #94a3b8;
+}
+
+.editorContent :global(.ProseMirror blockquote p) {
+  margin: 0 !important;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  font-style: normal;
+}

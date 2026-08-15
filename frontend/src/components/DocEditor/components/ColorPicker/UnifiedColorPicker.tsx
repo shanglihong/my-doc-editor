@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UNIFIED_COLOR_SYSTEM, DARK_THEME_COLOR_PRESETS, LIGHT_THEME_COLOR_PRESETS } from '../../utils/defaultTheme';
+import { DARK_THEME_COLOR_PRESETS, LIGHT_THEME_COLOR_PRESETS } from '../../utils/defaultTheme';
 import type { ColorCategory } from '../../utils/defaultTheme';
 import styles from './UnifiedColorPicker.module.css';
 
@@ -18,7 +18,6 @@ export interface UnifiedColorPickerProps {
 
 export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
   allowedCategories = ['textColor', 'backgroundColor', 'borderColor'],
-  defaultCategory = allowedCategories[0] || 'textColor',
   currentColor,
   currentTextColor,
   currentBgColor,

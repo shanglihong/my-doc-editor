@@ -1,0 +1,180 @@
+/* 3. 代码块 pre/code 与 Syntax Highlighting (Highlight.js) 高亮规范 */
+
+.editorContent :global(.ProseMirror pre) {
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: 'Fira Code', JetBrains Mono, Consolas, Monaco, monospace;
+  padding: 14px 18px;
+  border-radius: var(--de-radius-md);
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.editorContent :global(.ProseMirror code) {
+  background: var(--code-bg, #f1f5f9);
+  color: var(--de-text-main, #0f172a);
+  border: 1px solid var(--de-border-color, #e2e8f0);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.88em;
+  font-family: 'Fira Code', JetBrains Mono, Consolas, Monaco, monospace;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror code),
+:global(:root[data-theme="dark"]) .editorContent :global(.ProseMirror code) {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+/* Syntax Highlighting Colors (GitHub Light / Modern High-Contrast Theme) */
+
+/* 关键字 (Keywords) */
+.editorContent :global(.hljs-keyword),
+.editorContent :global(.hljs-selector-tag),
+.editorContent :global(.hljs-subst) {
+  color: #cf222e;
+  font-weight: 600;
+}
+
+/* 字符串 (Strings) & 符号 */
+.editorContent :global(.hljs-string),
+.editorContent :global(.hljs-regexp),
+.editorContent :global(.hljs-symbol),
+.editorContent :global(.hljs-char),
+.editorContent :global(.hljs-template-tag),
+.editorContent :global(.hljs-template-variable),
+.editorContent :global(.hljs-addition) {
+  color: #0a7a30;
+}
+
+/* 内置对象 & 标准函数 (Built-ins) */
+.editorContent :global(.hljs-built_in),
+.editorContent :global(.hljs-bullet) {
+  color: #0550ae;
+  font-weight: 500;
+}
+
+/* 函数与方法 (Functions & Methods) */
+.editorContent :global(.hljs-title.function_),
+.editorContent :global(.hljs-function),
+.editorContent :global(.hljs-title) {
+  color: #8250df;
+  font-weight: 600;
+}
+
+/* 类名 & 类型 (Classes & Types) */
+.editorContent :global(.hljs-type),
+.editorContent :global(.hljs-class),
+.editorContent :global(.hljs-title.class_) {
+  color: #953800;
+  font-weight: 600;
+}
+
+/* 属性 & JSON Key (Attributes & Keys) */
+.editorContent :global(.hljs-attr),
+.editorContent :global(.hljs-attribute),
+.editorContent :global(.hljs-property) {
+  color: #0550ae;
+}
+
+/* HTML/XML 标签与名称 (HTML Tags & Names) */
+.editorContent :global(.hljs-tag),
+.editorContent :global(.hljs-name),
+.editorContent :global(.hljs-section) {
+  color: #116329;
+}
+
+/* 数字、字面量与常量 (Numbers & Literals) */
+.editorContent :global(.hljs-number),
+.editorContent :global(.hljs-literal),
+.editorContent :global(.hljs-boolean) {
+  color: #0550ae;
+  font-weight: 500;
+}
+
+/* 注释与元数据 (Comments & Meta) */
+.editorContent :global(.hljs-comment),
+.editorContent :global(.hljs-quote),
+.editorContent :global(.hljs-deletion),
+.editorContent :global(.hljs-meta),
+.editorContent :global(.hljs-doctag) {
+  color: #6e7781;
+  font-style: italic;
+}
+
+/* 变量与参数 (Variables & Params) */
+.editorContent :global(.hljs-variable),
+.editorContent :global(.hljs-params) {
+  color: #24292f;
+}
+
+/* 运算符与标点 (Operators & Punctuation) */
+.editorContent :global(.hljs-operator),
+.editorContent :global(.hljs-punctuation) {
+  color: #57606a;
+}
+
+/* 链接 (Links) */
+.editorContent :global(.hljs-link) {
+  color: #0969da;
+  text-decoration: underline;
+}
+
+/* 语法高亮深色夜间模式 (GitHub Dark Theme Colors) */
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-keyword),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-selector-tag),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-subst) {
+  color: #ff7b72;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-string),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-regexp),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-symbol),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-char),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-template-tag),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-template-variable),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-addition) {
+  color: #a5d6ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-built_in),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-bullet) {
+  color: #79c0ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-title.function_),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-function),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-title) {
+  color: #d2a8ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-type),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-class),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-title.class_) {
+  color: #ffa657;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-attr),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-attribute),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-property) {
+  color: #79c0ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-number),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-literal),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-boolean) {
+  color: #79c0ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-comment),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-quote),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-deletion),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-meta) {
+  color: #8b949e;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-variable),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-params) {
+  color: #c9d1d9;
+}

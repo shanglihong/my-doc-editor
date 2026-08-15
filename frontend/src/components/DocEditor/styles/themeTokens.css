@@ -1,0 +1,87 @@
+/* 1. 设计系统基础 Token 与 8 大 Preset 色系变量 (Single Source of Truth) */
+:root {
+  --de-primary: #2563eb;
+  --de-primary-hover: #1d4ed8;
+  --de-bg-body: #ffffff;
+  --de-bg-hover: #f1f5f9;
+  --de-bg-active: #e2e8f0;
+  --de-border-color: #e2e8f0;
+  --de-text-main: #0f172a;
+  --de-text-muted: #64748b;
+  --de-radius-sm: 6px;
+  --de-radius-md: 10px;
+  --de-radius-lg: 14px;
+  --de-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --de-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --de-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+  --de-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 8 大 Preset 统一主题 Token */
+  --preset-slate-text-light: #64748b;
+  --preset-slate-text-dark: #94a3b8;
+  --preset-slate-bg-light: #f1f5f9;
+  --preset-slate-bg-dark: #2d2d30;
+  --preset-slate-border-light: #cbd5e1;
+  --preset-slate-border-dark: #475569;
+
+  --preset-rose-text-light: #dc2626;
+  --preset-rose-text-dark: #f87171;
+  --preset-rose-bg-light: #fee2e2;
+  --preset-rose-bg-dark: #552222;
+  --preset-rose-border-light: #fca5a5;
+  --preset-rose-border-dark: #991b1b;
+
+  --preset-amber-text-light: #ea580c;
+  --preset-amber-text-dark: #fbbf24;
+  --preset-amber-bg-light: #ffedd5;
+  --preset-amber-bg-dark: #5d3a1a;
+  --preset-amber-border-light: #fdba74;
+  --preset-amber-border-dark: #854d0e;
+
+  --preset-yellow-text-light: #ca8a04;
+  --preset-yellow-text-dark: #facc15;
+  --preset-yellow-bg-light: #fef08a;
+  --preset-yellow-bg-dark: #4c4b1a;
+  --preset-yellow-border-light: #fde047;
+  --preset-yellow-border-dark: #713f12;
+
+  --preset-emerald-text-light: #16a34a;
+  --preset-emerald-text-dark: #4ade80;
+  --preset-emerald-bg-light: #dcfce7;
+  --preset-emerald-bg-dark: #1f4522;
+  --preset-emerald-border-light: #86efac;
+  --preset-emerald-border-dark: #166534;
+
+  --preset-blue-text-light: #2563eb;
+  --preset-blue-text-dark: #60a5fa;
+  --preset-blue-bg-light: #dbeafe;
+  --preset-blue-bg-dark: #223965;
+  --preset-blue-border-light: #93c5fd;
+  --preset-blue-border-dark: #1e40af;
+
+  --preset-purple-text-light: #9333ea;
+  --preset-purple-text-dark: #c084fc;
+  --preset-purple-bg-light: #f3e8ff;
+  --preset-purple-bg-dark: #422560;
+  --preset-purple-border-light: #d8b4fe;
+  --preset-purple-border-dark: #6b21a8;
+
+  --preset-cyan-text-light: #0891b2;
+  --preset-cyan-text-dark: #38bdf8;
+  --preset-cyan-bg-light: #cffafe;
+  --preset-cyan-bg-dark: #164e63;
+  --preset-cyan-border-light: #67e8f9;
+  --preset-cyan-border-dark: #0891b2;
+}
+
+html[data-theme="dark"],
+:root[data-theme="dark"] {
+  --de-primary: #3b82f6;
+  --de-primary-hover: #60a5fa;
+  --de-bg-body: #0f172a;
+  --de-bg-hover: #1e293b;
+  --de-bg-active: #334155;
+  --de-border-color: #334155;
+  --de-text-main: #f8fafc;
+  --de-text-muted: #94a3b8;
+}
