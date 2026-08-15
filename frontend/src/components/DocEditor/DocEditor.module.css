@@ -18,6 +18,18 @@
   --de-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+html[data-theme="dark"],
+:root[data-theme="dark"] {
+  --de-primary: #3b82f6;
+  --de-primary-hover: #60a5fa;
+  --de-bg-body: #0f172a;
+  --de-bg-hover: #1e293b;
+  --de-bg-active: #334155;
+  --de-border-color: #334155;
+  --de-text-main: #f8fafc;
+  --de-text-muted: #94a3b8;
+}
+
 .editorContainer {
   position: relative;
   width: 100%;
@@ -140,7 +152,7 @@
   margin-top: 1.8em;
   margin-bottom: 0.6em;
   line-height: 1.3;
-  color: #0f172a;
+  color: var(--de-text-main);
   letter-spacing: -0.02em;
 }
 
@@ -150,7 +162,7 @@
   margin-top: 1.5em;
   margin-bottom: 0.5em;
   line-height: 1.35;
-  color: #1e293b;
+  color: var(--de-text-main);
   letter-spacing: -0.01em;
 }
 
@@ -160,7 +172,7 @@
   margin-top: 1.25em;
   margin-bottom: 0.4em;
   line-height: 1.4;
-  color: #334155;
+  color: var(--de-text-main);
 }
 
 /* 连续标题协同：后一个标题上边距自动折半，防止过空 */
@@ -239,6 +251,101 @@
   font-weight: 400;
 }
 
+/* 文本背景高亮 (Mark) 与文字前景色 (textColor) 日夜间 8 大 Preset 色相 1:1 动态响应与转换 */
+
+/* 1. 文字前景色 8 大色相夜间精准倒置 */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #dc2626"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(220, 38, 38)"]) {
+  color: #f87171 !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #ea580c"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(234, 88, 12)"]) {
+  color: #fbbf24 !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #ca8a04"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(202, 138, 4)"]) {
+  color: #facc15 !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #16a34a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(22, 163, 74)"]) {
+  color: #4ade80 !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #2563eb"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(37, 99, 235)"]) {
+  color: #60a5fa !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #9333ea"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(147, 51, 234)"]) {
+  color: #c084fc !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: #64748b"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror [style*="color: rgb(100, 116, 139)"]) {
+  color: #94a3b8 !important;
+}
+
+/* 2. 背景高亮 mark 日间色值在夜间模式下的 1:1 色相重映射 */
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fee2e2"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(254, 226, 226)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fca5a5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(252, 165, 165)"]) {
+  background-color: #552222 !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#ffedd5"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(255, 237, 213)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fdba74"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(253, 186, 116)"]) {
+  background-color: #5d3a1a !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fef08a"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(254, 240, 138)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#fde047"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(253, 224, 71)"]) {
+  background-color: #4c4b1a !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#dcfce7"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(220, 252, 231)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#86efac"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(134, 239, 172)"]) {
+  background-color: #1f4522 !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#dbeafe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(219, 234, 254)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#93c5fd"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(147, 197, 253)"]) {
+  background-color: #223965 !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#f3e8ff"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(243, 232, 255)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#d8b4fe"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(216, 180, 254)"]) {
+  background-color: #422560 !important;
+  color: #ffffff !important;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#f1f5f9"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(241, 245, 249)"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="#cbd5e1"]),
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror mark[style*="rgb(203, 213, 225)"]) {
+  background-color: #2d2d30 !important;
+  color: #ffffff !important;
+}
+
 /* 高级划选选区 (Text Selection) - 柔和天蓝浅背景 */
 .editorContent :global(.ProseMirror ::selection) {
   background-color: #dbeafe;
@@ -247,7 +354,7 @@
 
 /* 引用块 (Blockquote) - 极简中性低侵入设计，弱化视觉强度，不抢夺正文焦点 */
 .editorContent :global(.ProseMirror blockquote) {
-  border-left: 3px solid #cbd5e1;
+  border-left: 3px solid var(--de-border-color, #cbd5e1);
   background-color: transparent;
   margin: 0.8em 0;
   padding: 4px 0 4px 14px;
@@ -256,8 +363,14 @@
   font-size: inherit;
   font-weight: 400;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--de-text-muted, #64748b);
   font-style: normal;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror blockquote),
+:global(:root[data-theme="dark"]) .editorContent :global(.ProseMirror blockquote) {
+  border-left-color: #475569;
+  color: #94a3b8;
 }
 
 .editorContent :global(.ProseMirror blockquote p) {
@@ -281,13 +394,20 @@
 }
 
 .editorContent :global(.ProseMirror code) {
-  background: #f1f5f9;
-  color: #0f172a;
-  border: 1px solid #e2e8f0;
+  background: var(--code-bg, #f1f5f9);
+  color: var(--de-text-main, #0f172a);
+  border: 1px solid var(--de-border-color, #e2e8f0);
   padding: 2px 5px;
   border-radius: 4px;
   font-size: 0.88em;
   font-family: 'Fira Code', JetBrains Mono, Consolas, Monaco, monospace;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.ProseMirror code),
+:global(:root[data-theme="dark"]) .editorContent :global(.ProseMirror code) {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
 }
 
 /* Syntax Highlighting Colors (GitHub Light / Modern High-Contrast Theme) */
@@ -424,13 +544,71 @@
 .editorContent :global(.ProseMirror th) {
   font-weight: 600;
   text-align: left;
-  background-color: #f8fafc;
-  color: #334155;
+  background-color: var(--de-bg-hover, #f8fafc);
+  color: var(--de-text-main, #334155);
 }
 
 .editorContent :global(.ProseMirror td > *),
 .editorContent :global(.ProseMirror th > *) {
   margin: 0;
+}
+
+/* 语法高亮深色夜间模式 (GitHub Dark Theme Colors) */
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-keyword),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-selector-tag),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-subst) {
+  color: #ff7b72;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-string),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-regexp),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-symbol),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-char),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-template-tag),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-template-variable),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-addition) {
+  color: #a5d6ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-built_in),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-bullet) {
+  color: #79c0ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-title.function_),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-function),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-title) {
+  color: #d2a8ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-type),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-class),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-title.class_) {
+  color: #ffa657;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-attr),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-attribute),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-property) {
+  color: #79c0ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-number),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-literal),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-boolean) {
+  color: #79c0ff;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-comment),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-quote),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-deletion),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-meta) {
+  color: #8b949e;
+}
+
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-variable),
+:global(html[data-theme="dark"]) .editorContent :global(.hljs-params) {
+  color: #c9d1d9;
 }
 
 .editorContent :global(.ProseMirror .selectedCell:after),

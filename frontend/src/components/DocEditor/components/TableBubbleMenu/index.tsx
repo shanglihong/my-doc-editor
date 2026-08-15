@@ -31,6 +31,27 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [pickerStyle, setPickerStyle] = useState<React.CSSProperties>({});
 
+  // 监听全局隐藏事件或组件失焦时自动闭合调色板
+  React.useEffect(() => {
+    const handleResetPicker = () => {
+      setShowColorPicker(false);
+    };
+
+    const handleCloseOthers = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.source !== 'TableBubbleMenu') {
+        setShowColorPicker(false);
+      }
+    };
+
+    window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleResetPicker);
+    window.addEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
+    return () => {
+      window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleResetPicker);
+      window.removeEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
+    };
+  }, []);
+
   if (!editor) return null;
 
   // 校验当前 Selection 是否聚焦在 Table 内部
@@ -249,6 +270,9 @@ export const TableBubbleMenu: React.FC<TableBubbleMenuProps> = ({
             onClick={(e) => {
               if (!isCellFocused) return;
               if (!showColorPicker) {
+                window.dispatchEvent(
+                  new CustomEvent('CLOSE_OTHER_SUBMENUS', { detail: { source: 'TableBubbleMenu' } })
+                );
                 const btnRect = e.currentTarget.getBoundingClientRect();
                 const res = calculateSubMenuPosition({
                   buttonRect: btnRect,

@@ -24,6 +24,31 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
   const [currentBorder, setCurrentBorder] = useState<string | undefined>();
   const [activePos, setActivePos] = useState<number>(-1);
 
+  // 监听全局隐藏事件或选区/位置变动时自动重置收缩颜色选择菜单
+  React.useEffect(() => {
+    const handleResetPicker = () => {
+      setActivePicker(null);
+    };
+
+    const handleCloseOthers = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.source !== 'CalloutBubbleMenu') {
+        setActivePicker(null);
+      }
+    };
+
+    window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleResetPicker);
+    window.addEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
+    return () => {
+      window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleResetPicker);
+      window.removeEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    setActivePicker(null);
+  }, [activePos]);
+
   // 从当前 TipTap Selection 获取颜色属性
   const updateCurrentAttrs = () => {
     if (!editor) return;
@@ -125,6 +150,10 @@ export const CalloutBubbleMenu: React.FC<CalloutBubbleMenuProps> = ({
       setActivePicker(null);
       return;
     }
+
+    window.dispatchEvent(
+      new CustomEvent('CLOSE_OTHER_SUBMENUS', { detail: { source: 'CalloutBubbleMenu' } })
+    );
 
     const btnRect = e.currentTarget.getBoundingClientRect();
     const subWidth = picker === 'theme' ? 136 : 168;

@@ -382,5 +382,51 @@ export const TABLE_CELL_BG_PALETTE = [
   { label: '深灰', value: '#cbd5e1' },
 ];
 
+export interface DarkColorPreset {
+  hue: string;
+  name: string;
+  textValue: string;
+  bgValue: string;
+  bgValueSecondary?: string;
+}
+
+export interface DarkColorPreset {
+  hue: string;
+  name: string;
+  textValue: string;
+  bgValue: string;
+  bgValueSecondary?: string;
+}
+
+export const DARK_THEME_COLOR_PRESETS: DarkColorPreset[] = [
+  { hue: 'default', name: '默认', textValue: '#f8fafc', bgValue: 'transparent', bgValueSecondary: '#27272a' },
+  { hue: 'slate', name: '灰色', textValue: '#94a3b8', bgValue: '#2d2d30', bgValueSecondary: '#3f3f46' },
+  { hue: 'rose', name: '红色', textValue: '#f87171', bgValue: '#552222', bgValueSecondary: '#7f1d1d' },
+  { hue: 'amber', name: '棕黄', textValue: '#fbbf24', bgValue: '#5d3a1a', bgValueSecondary: '#713f12' },
+  { hue: 'yellow', name: '橄榄黄', textValue: '#facc15', bgValue: '#4c4b1a', bgValueSecondary: '#65641a' },
+  { hue: 'emerald', name: '绿色', textValue: '#4ade80', bgValue: '#1f4522', bgValueSecondary: '#14532d' },
+  { hue: 'blue', name: '蓝色', textValue: '#60a5fa', bgValue: '#223965', bgValueSecondary: '#1e3a8a' },
+  { hue: 'purple', name: '紫色', textValue: '#c084fc', bgValue: '#422560', bgValueSecondary: '#581c87' },
+];
+
+export interface LightColorPreset {
+  hue: string;
+  name: string;
+  textValue: string;
+  bgValue: string;
+  bgValueSecondary?: string;
+}
+
+export const LIGHT_THEME_COLOR_PRESETS: LightColorPreset[] = [
+  { hue: 'default', name: '默认', textValue: '#0f172a', bgValue: 'transparent', bgValueSecondary: '#e2e8f0' },
+  { hue: 'slate', name: '灰色', textValue: '#64748b', bgValue: '#f1f5f9', bgValueSecondary: '#cbd5e1' },
+  { hue: 'rose', name: '红色', textValue: '#dc2626', bgValue: '#fee2e2', bgValueSecondary: '#fca5a5' },
+  { hue: 'amber', name: '橙色', textValue: '#ea580c', bgValue: '#ffedd5', bgValueSecondary: '#fdba74' },
+  { hue: 'yellow', name: '黄色', textValue: '#ca8a04', bgValue: '#fef08a', bgValueSecondary: '#fde047' },
+  { hue: 'emerald', name: '绿色', textValue: '#16a34a', bgValue: '#dcfce7', bgValueSecondary: '#86efac' },
+  { hue: 'blue', name: '蓝色', textValue: '#2563eb', bgValue: '#dbeafe', bgValueSecondary: '#93c5fd' },
+  { hue: 'purple', name: '紫色', textValue: '#9333ea', bgValue: '#f3e8ff', bgValueSecondary: '#d8b4fe' },
+];
+
 
 

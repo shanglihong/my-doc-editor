@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Check, RotateCcw, Type, PaintBucket, Square } from 'lucide-react';
-import { UNIFIED_COLOR_SYSTEM } from '../../utils/defaultTheme';
-import type { ColorCategory, ColorGroup, ColorTier } from '../../utils/defaultTheme';
+import { UNIFIED_COLOR_SYSTEM, DARK_THEME_COLOR_PRESETS, LIGHT_THEME_COLOR_PRESETS } from '../../utils/defaultTheme';
+import type { ColorCategory } from '../../utils/defaultTheme';
 import styles from './UnifiedColorPicker.module.css';
 
 export interface UnifiedColorPickerProps {
@@ -13,24 +12,6 @@ export interface UnifiedColorPickerProps {
   className?: string;
 }
 
-const CATEGORY_TITLES: Record<ColorCategory, string> = {
-  textColor: '字体',
-  backgroundColor: '背景',
-  borderColor: '边框',
-};
-
-const CATEGORY_ICONS: Record<ColorCategory, React.ReactNode> = {
-  textColor: <Type size={12} />,
-  backgroundColor: <PaintBucket size={12} />,
-  borderColor: <Square size={12} />,
-};
-
-const TIERS_BY_CATEGORY: Record<ColorCategory, ColorTier[]> = {
-  textColor: ['light', 'medium', 'normal'],
-  backgroundColor: ['light', 'medium'],      // 填充去掉深色系 ('normal')
-  borderColor: ['medium', 'normal'],         // 边框去掉浅色系 ('light')
-};
-
 export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
   allowedCategories = ['textColor', 'backgroundColor', 'borderColor'],
   defaultCategory = allowedCategories[0] || 'textColor',
@@ -39,87 +20,194 @@ export const UnifiedColorPicker: React.FC<UnifiedColorPickerProps> = ({
   onResetColor,
   className = '',
 }) => {
-  const [activeCategory, setActiveCategory] = useState<ColorCategory>(defaultCategory);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+    return 'light';
+  });
 
-  const groups: ColorGroup[] = UNIFIED_COLOR_SYSTEM[activeCategory] || UNIFIED_COLOR_SYSTEM.textColor;
-  const showHeader = allowedCategories.length > 1 || !!onResetColor;
-  const currentTiers = TIERS_BY_CATEGORY[activeCategory] || ['light', 'medium', 'normal'];
-  const gridColumnsClass = currentTiers.length === 2 ? styles.colorGrid4Cols : styles.colorGrid6Cols;
+  // 监听 html[data-theme] 的变动，确保切换日/夜间模式时调色板色系 100% 实时同步切换
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const observer = new MutationObserver(() => {
+      const currentTheme =
+        document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      setTheme(currentTheme);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const isDarkMode = theme === 'dark';
+
+  const presets = isDarkMode ? DARK_THEME_COLOR_PRESETS : LIGHT_THEME_COLOR_PRESETS;
+  const hasTextColor = allowedCategories.includes('textColor');
+  const hasBgColor = allowedCategories.includes('backgroundColor');
 
   return (
     <div
       className={`${styles.container} ${className}`}
+      style={{ width: '228px', padding: '10px' }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      {showHeader && (
-        <div className={styles.topHeader}>
-          {allowedCategories.length > 1 ? (
-            <div className={styles.categoryTabs}>
-              {allowedCategories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={`${styles.tabBtn} ${activeCategory === cat ? styles.tabBtnActive : ''}`}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => setActiveCategory(cat)}
-                  title={CATEGORY_TITLES[cat]}
-                >
-                  {CATEGORY_ICONS[cat]}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 500 }}>
-              {CATEGORY_TITLES[activeCategory]}
-            </div>
-          )}
+      {/* 字体颜色分类 */}
+      {hasTextColor && (
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ fontSize: '11px', color: isDarkMode ? '#94a3b8' : '#64748b', marginBottom: '6px', fontWeight: 500 }}>
+            字体颜色
+          </div>
+          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px' }}>
+            {presets.map((preset, idx) => {
+              // 当无传入色值或传入为默认值时，高亮选中第一个默认色块
+              const isDefaultSelected = idx === 0 && (!currentColor || currentColor === 'inherit' || currentColor === 'default');
 
-          {onResetColor && (
-            <button
-              type="button"
-              className={styles.resetBtn}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={onResetColor}
-              title="重置"
-            >
-              <RotateCcw size={11} />
-            </button>
-          )}
+              const isSelected =
+                isDefaultSelected ||
+                (currentColor &&
+                  (currentColor.toLowerCase() === preset.textValue.toLowerCase() ||
+                    LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue)?.textValue.toLowerCase() === currentColor.toLowerCase() ||
+                    DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue)?.textValue.toLowerCase() === currentColor.toLowerCase()));
+
+              return (
+                <button
+                  key={`text-${preset.hue}`}
+                  type="button"
+                  className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                  style={{
+                    backgroundColor: isDarkMode ? '#27272a' : '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  title={`字体: ${preset.name}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => onSelectColor(preset.textValue, 'textColor')}
+                >
+                  <span style={{ color: preset.textValue, fontSize: '11px', fontWeight: 600, lineHeight: 1 }}>
+                    A
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      <div className={`${styles.colorGrid} ${gridColumnsClass}`}>
-        {groups.map((group) =>
-          currentTiers.map((tier) => {
-            const option = group.shades[tier];
-            const isSelected =
-              currentColor &&
-              option.value.toLowerCase() === currentColor.toLowerCase();
+      {/* 背景颜色分类 */}
+      {hasBgColor && (
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ fontSize: '11px', color: isDarkMode ? '#94a3b8' : '#64748b', marginBottom: '6px', fontWeight: 500 }}>
+            背景颜色
+          </div>
+          {/* 第一排 8 个（含斜线无背景） */}
+          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px', marginBottom: '3px' }}>
+            {presets.map((preset, idx) => {
+              const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+              const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
 
-            const tierText = tier === 'light' ? '浅' : tier === 'medium' ? '中' : '深';
-            const tooltipText = `${tierText}${group.hueName[0]}`;
+              // 当无背景色或传入为 transparent 时，高亮选中第一个斜线无背景块
+              const isDefaultSelected = idx === 0 && (!currentColor || currentColor === 'transparent' || currentColor === 'none');
 
-            return (
-              <button
-                key={`${group.hue}-${tier}`}
-                type="button"
-                className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
-                style={{ backgroundColor: option.value }}
-                title={tooltipText}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => onSelectColor(option.value, activeCategory)}
-              >
-                {isSelected && (
-                  <Check
-                    className={styles.checkIcon}
-                    color={tier === 'light' ? '#1e293b' : '#ffffff'}
-                  />
-                )}
-              </button>
-            );
-          })
-        )}
-      </div>
+              const isSelected =
+                isDefaultSelected ||
+                (currentColor &&
+                  ((currentColor.toLowerCase() === preset.bgValue.toLowerCase()) ||
+                    (preset.bgValue === 'transparent' && currentColor === 'transparent') ||
+                    (lightPreset && lightPreset.bgValue.toLowerCase() === currentColor.toLowerCase()) ||
+                    (darkPreset && darkPreset.bgValue.toLowerCase() === currentColor.toLowerCase())));
+
+              if (idx === 0) {
+                return (
+                  <button
+                    key="bg-none"
+                    type="button"
+                    className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                    style={{
+                      backgroundColor: isDarkMode ? '#27272a' : '#ffffff',
+                      position: 'relative',
+                    }}
+                    title="无背景"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => onSelectColor('transparent', 'backgroundColor')}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '1px',
+                        backgroundColor: '#94a3b8',
+                        transform: 'rotate(-45deg)',
+                      }}
+                    />
+                  </button>
+                );
+              }
+
+              return (
+                <button
+                  key={`bg-1-${preset.hue}`}
+                  type="button"
+                  className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                  style={{
+                    backgroundColor: preset.bgValue,
+                  }}
+                  title={`背景: ${preset.name}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => onSelectColor(preset.bgValue, 'backgroundColor')}
+                />
+              );
+            })}
+          </div>
+
+          {/* 第二排 8 个（深暗系或饱满背景块） */}
+          <div className={styles.colorGrid8Cols} style={{ display: 'grid', gap: '3px' }}>
+            {presets.map((preset) => {
+              const bgVal = preset.bgValueSecondary || preset.bgValue;
+              const lightPreset = LIGHT_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+              const darkPreset = DARK_THEME_COLOR_PRESETS.find((p) => p.hue === preset.hue);
+
+              const isSelected =
+                currentColor &&
+                ((currentColor.toLowerCase() === bgVal.toLowerCase()) ||
+                  (lightPreset && lightPreset.bgValueSecondary?.toLowerCase() === currentColor.toLowerCase()) ||
+                  (darkPreset && darkPreset.bgValueSecondary?.toLowerCase() === currentColor.toLowerCase()));
+
+              return (
+                <button
+                  key={`bg-2-${preset.hue}`}
+                  type="button"
+                  className={`${styles.colorSwatch} ${isSelected ? styles.colorSwatchActive : ''}`}
+                  style={{
+                    backgroundColor: bgVal,
+                  }}
+                  title={`背景: ${preset.name}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => onSelectColor(bgVal, 'backgroundColor')}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 恢复默认长条按钮 */}
+      {onResetColor && (
+        <button
+          type="button"
+          className={styles.fullResetBtn}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={onResetColor}
+        >
+          恢复默认
+        </button>
+      )}
     </div>
   );
 };

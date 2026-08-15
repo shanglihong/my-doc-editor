@@ -21,7 +21,7 @@
   height: 32px;
   border-radius: 6px;
   background-color: transparent;
-  color: #475569;
+  color: var(--de-text-muted);
   border: none;
   box-shadow: none;
   cursor: pointer;
@@ -29,7 +29,7 @@
 }
 
 .tocIconButton:hover {
-  color: #0f172a;
+  color: var(--de-text-main);
   background-color: transparent;
 }
 
@@ -77,25 +77,25 @@
   border-radius: 5px;
   font-size: 13px;
   line-height: 1.5;
-  color: #334155;
+  color: var(--de-text-muted);
   cursor: pointer;
   transition: background-color 0.12s ease, color 0.12s ease;
 }
 
 .tocItem:hover {
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: var(--de-bg-hover);
+  color: var(--de-text-main);
 }
 
 .tocItemActive {
-  color: #2563eb !important;
+  color: #3b82f6 !important;
   font-weight: 500;
   background-color: transparent;
 }
 
 .tocItemActive:hover {
-  color: #1d4ed8 !important;
-  background-color: #f1f5f9;
+  color: #60a5fa !important;
+  background-color: var(--de-bg-hover);
 }
 
 .tocItemText {
@@ -110,21 +110,21 @@
 .tocItemLevel1 {
   font-weight: 400;
   font-size: 13px;
-  color: #475569;
+  color: var(--de-text-muted);
   padding-left: 6px;
 }
 
 .tocItemLevel2 {
   font-weight: 400;
   font-size: 13px;
-  color: #475569;
+  color: var(--de-text-muted);
   padding-left: 18px;
 }
 
 .tocItemLevel3 {
   font-weight: 400;
   font-size: 13px;
-  color: #475569;
+  color: var(--de-text-muted);
   padding-left: 30px;
 }
 

@@ -75,3 +75,25 @@
   background-color: var(--de-border-color, #e2e8f0);
   margin: 4px 6px;
 }
+
+/* 深色夜间模式自适应 */
+:global(html[data-theme="dark"]) .slashMenu,
+:global(:root[data-theme="dark"]) .slashMenu {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+:global(html[data-theme="dark"]) .slashMenuItem {
+  color: #94a3b8;
+}
+
+:global(html[data-theme="dark"]) .slashMenuItem:hover,
+:global(html[data-theme="dark"]) .slashMenuItemSelected {
+  background-color: #1e3a8a;
+  color: #60a5fa;
+}
+
+:global(html[data-theme="dark"]) .slashMenuDivider {
+  background-color: #334155;
+}

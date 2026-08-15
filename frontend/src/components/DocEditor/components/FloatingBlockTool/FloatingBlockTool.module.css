@@ -92,3 +92,28 @@
   margin-bottom: 6px;
   z-index: 1000;
 }
+
+/* 深色夜间模式自适应 */
+:global(html[data-theme="dark"]) .menuBtn,
+:global(:root[data-theme="dark"]) .menuBtn {
+  color: #94a3b8;
+}
+
+:global(html[data-theme="dark"]) .menuBtn:hover:not(:disabled) {
+  background: #334155;
+  color: #f8fafc;
+}
+
+:global(html[data-theme="dark"]) .menuBtnActive {
+  background: #1e3a8a;
+  color: #60a5fa;
+}
+
+:global(html[data-theme="dark"]) .dangerBtn:hover:not(:disabled) {
+  background: #451a1a;
+  color: #f87171;
+}
+
+:global(html[data-theme="dark"]) .divider {
+  background-color: #334155;
+}

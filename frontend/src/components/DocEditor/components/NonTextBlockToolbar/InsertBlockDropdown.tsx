@@ -39,6 +39,11 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
+    // 无论如何第一时间广播关闭其它所有打开的弹窗/调色板菜单
+    window.dispatchEvent(
+      new CustomEvent('CLOSE_OTHER_SUBMENUS', { detail: { source: 'InsertBlockDropdown' } })
+    );
+
     const nextState = !isOpen;
     if (isControlled) {
       controlledOnToggle?.(nextState);
@@ -61,15 +66,24 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
     );
   }, [isOpen]);
 
-  // 监听全局隐藏菜单事件
+  // 监听全局隐藏菜单与子菜单互斥事件
   useEffect(() => {
     const handleHideAll = () => {
       handleClose();
     };
 
+    const handleCloseOthers = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.source !== 'InsertBlockDropdown') {
+        handleClose();
+      }
+    };
+
     window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+    window.addEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
     return () => {
       window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+      window.removeEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
     };
   }, [isControlled]);
 
@@ -141,12 +155,16 @@ export const InsertBlockDropdown: React.FC<InsertBlockDropdownProps> = ({
       ref={containerRef}
       className={styles.dropdownWrapper}
       style={{ position: 'relative', zIndex: 100 }}
-      onMouseDown={(e) => e.stopPropagation()}
     >
       <button
         ref={buttonRef}
         type="button"
         className={`${styles.iconBtn} ${isOpen ? styles.iconBtnActive : ''}`}
+        onMouseDown={() => {
+          window.dispatchEvent(
+            new CustomEvent('CLOSE_OTHER_SUBMENUS', { detail: { source: 'InsertBlockDropdown' } })
+          );
+        }}
         onClick={handleToggle}
         title="在上方或下方插入空白块"
       >

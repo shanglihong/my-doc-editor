@@ -1,0 +1,26 @@
+/* ThemeToggle 左下角固定按钮样式 */
+.themeToggleBtn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: var(--de-bg-body, #ffffff);
+  color: var(--de-text-muted, #64748b);
+  border: 1px solid var(--de-border-color, #e2e8f0);
+  box-shadow: var(--de-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.themeToggleBtn:hover {
+  color: var(--de-text-main, #0f172a);
+  background-color: var(--de-bg-hover, #f1f5f9);
+  border-color: var(--de-text-muted, #94a3b8);
+  transform: translateY(-1px);
+}

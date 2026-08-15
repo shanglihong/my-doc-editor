@@ -74,6 +74,13 @@ export const FloatingBlockTool: React.FC<FloatingBlockToolProps> = ({
     };
   }, []);
 
+  // 当 FloatingBlockTool 隐藏时，主动广播复位所有调色板及子菜单弹窗
+  useEffect(() => {
+    if (!menuState.visible) {
+      window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
+    }
+  }, [menuState.visible]);
+
   // 主更新与定位逻辑
   useEffect(() => {
     if (!editor) return;

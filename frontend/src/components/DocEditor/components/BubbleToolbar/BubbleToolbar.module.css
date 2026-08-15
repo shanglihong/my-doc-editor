@@ -185,4 +185,33 @@
   flex-shrink: 0;
 }
 
+/* 深色夜间模式自适应 */
+:global(html[data-theme="dark"]) .bubbleToolbar,
+:global(:root[data-theme="dark"]) .bubbleToolbar,
+:global(html[data-theme="dark"]) .blockTypeDropdown,
+:global(:root[data-theme="dark"]) .blockTypeDropdown,
+:global(html[data-theme="dark"]) .alignDropdown,
+:global(:root[data-theme="dark"]) .alignDropdown {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+:global(html[data-theme="dark"]) .blockTypeOption,
+:global(html[data-theme="dark"]) .alignOption {
+  color: #94a3b8;
+}
+
+:global(html[data-theme="dark"]) .blockTypeOption:hover,
+:global(html[data-theme="dark"]) .alignOption:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+:global(html[data-theme="dark"]) .blockTypeOptionActive,
+:global(html[data-theme="dark"]) .alignOptionActive {
+  background: #1e3a8a;
+  color: #60a5fa;
+}
+
 

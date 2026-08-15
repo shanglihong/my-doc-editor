@@ -196,6 +196,10 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
 
     setPickerStyle(res.style);
 
+    window.dispatchEvent(
+      new CustomEvent('CLOSE_OTHER_SUBMENUS', { detail: { source: 'BubbleToolbar' } })
+    );
+
     if (type === 'blockType') {
       setShowBlockTypePicker(!showBlockTypePicker);
       setShowAlignPicker(false);
@@ -316,6 +320,17 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       setShowLinkPanel(false);
     };
 
+    const handleCloseOthers = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.source !== 'BubbleToolbar') {
+        setShowBlockTypePicker(false);
+        setShowAlignPicker(false);
+        setShowColorPicker(false);
+        setShowHighlightPicker(false);
+        setShowLinkPanel(false);
+      }
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setShowBlockTypePicker(false);
@@ -339,14 +354,15 @@ export const BubbleToolbar: React.FC<BubbleToolbarProps> = ({ editor, isDragging
       }
     };
 
-
     window.addEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+    window.addEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       editor.off('selectionUpdate', updatePosition);
       editor.off('transaction', updatePosition);
       window.removeEventListener('HIDE_ALL_FLOATING_MENUS', handleHideAll);
+      window.removeEventListener('CLOSE_OTHER_SUBMENUS', handleCloseOthers);
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [editor, isDragging]);

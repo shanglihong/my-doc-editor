@@ -163,3 +163,54 @@
   padding: 0 !important;
   font-size: inherit !important;
 }
+
+/* 深色 (夜间) 模式适配 */
+:global(html[data-theme="dark"]) .codeBlockWrapper,
+:global(:root[data-theme="dark"]) .codeBlockWrapper {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global(html[data-theme="dark"]) .codeBlockHeader,
+:global(:root[data-theme="dark"]) .codeBlockHeader {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:global(html[data-theme="dark"]) .codeBlockSelect,
+:global(:root[data-theme="dark"]) .codeBlockSelect {
+  color: #94a3b8;
+}
+
+:global(html[data-theme="dark"]) .codeBlockSelect:hover,
+:global(html[data-theme="dark"]) .codeBlockSelect:focus {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:global(html[data-theme="dark"]) .codeBlockIconBtn,
+:global(:root[data-theme="dark"]) .codeBlockIconBtn {
+  color: #94a3b8;
+}
+
+:global(html[data-theme="dark"]) .codeBlockIconBtn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:global(html[data-theme="dark"]) .codeBlockBody,
+:global(:root[data-theme="dark"]) .codeBlockBody {
+  background: #1e293b;
+}
+
+:global(html[data-theme="dark"]) .codeLineNumbers,
+:global(:root[data-theme="dark"]) .codeLineNumbers {
+  background: #0f172a;
+  border-color: #334155;
+  color: #64748b;
+}
+
+:global(html[data-theme="dark"]) .codeBlockContainer,
+:global(:root[data-theme="dark"]) .codeBlockContainer {
+  color: #f8fafc !important;
+}
