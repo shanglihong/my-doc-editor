@@ -9,10 +9,14 @@ interface DrawIOModalProps {
   onClose: () => void;
 }
 
-const DEFAULT_DRAWIO_EMBED = 'https://embed.diagrams.net/?embed=1&ui=min&spin=1&modified=unsaved&proto=json';
+const ONLINE_DRAWIO_APP = 'https://embed.diagrams.net/?embed=1&ui=min&spin=1&modified=unsavedChanges&proto=json&lang=zh';
 const LOCAL_DRAWIO_APP = '/drawio/drawio-app.html';
 
-const INLINE_BRIDGE_HTML = `<!DOCTYPE html>
+/**
+ * 生成内置的 Bridge 桥接 HTML，统一离线与在线 draw.io 的 postMessage 协议转换
+ */
+function getBridgeHtml(targetAppUrl: string): string {
+  return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -22,7 +26,7 @@ const INLINE_BRIDGE_HTML = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <iframe id="drawio-iframe" src="${LOCAL_DRAWIO_APP}?embed=1&ui=min&spin=1&modified=unsavedChanges&proto=json" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"></iframe>
+  <iframe id="drawio-iframe" src="${targetAppUrl}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"></iframe>
   <script>
     (function() {
       const iframe = document.getElementById('drawio-iframe');
@@ -32,28 +36,47 @@ const INLINE_BRIDGE_HTML = `<!DOCTYPE html>
         let msg = e.data;
         if (typeof msg === 'string') { try { msg = JSON.parse(msg); } catch (err) {} }
         if (typeof msg !== 'object') return;
-        if (msg.type === 'SET_INITIAL_XML') { currentXml = msg.xml || ''; return; }
+
+        if (msg.type === 'SET_INITIAL_XML') {
+          currentXml = msg.xml || '';
+          return;
+        }
+
         if (msg.event === 'init') {
-          try { iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: currentXml, autosave: 1 }), '*'); } catch (err) {}
-          try { window.parent.postMessage(JSON.stringify({ event: 'drawio-ready' }), '*'); } catch (err) {}
+          try {
+            iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: currentXml, autosave: 1 }), '*');
+          } catch (err) {}
+          try {
+            window.parent.postMessage(JSON.stringify({ event: 'drawio-ready' }), '*');
+          } catch (err) {}
         }
+
         if (msg.event === 'save') {
-          try { iframe.contentWindow.postMessage(JSON.stringify({ action: 'export', format: 'xmlsvg', spin: 'Saving' }), '*'); } catch (err) {}
+          try {
+            iframe.contentWindow.postMessage(JSON.stringify({ action: 'export', format: 'xmlsvg', spin: 'Saving' }), '*');
+          } catch (err) {}
         }
+
         if (msg.event === 'export') {
           const previewData = msg.data || msg.xmlpng || '';
-          try { window.parent.postMessage(JSON.stringify({ event: 'save', xml: msg.xml || currentXml, svg: previewData }), '*'); } catch (err) {}
+          try {
+            window.parent.postMessage(JSON.stringify({ event: 'save', xml: msg.xml || currentXml, svg: previewData }), '*');
+          } catch (err) {}
         }
+
         if (msg.event === 'exit') {
-          try { window.parent.postMessage(JSON.stringify({ event: 'exit' }), '*'); } catch (err) {}
+          try {
+            window.parent.postMessage(JSON.stringify({ event: 'exit' }), '*');
+          } catch (err) {}
         }
       });
     })();
   </script>
 </body>
 </html>`;
+}
 
-type RenderMode = { type: 'url'; url: string } | { type: 'srcdoc'; html: string };
+type RenderMode = { type: 'srcdoc'; html: string };
 
 let cachedMode: RenderMode | null = null;
 
@@ -72,7 +95,6 @@ async function checkRealDrawIOFile(url: string, expectedPattern: string): Promis
     const lowerText = text.toLowerCase();
     const lowerPattern = expectedPattern.toLowerCase();
 
-    // 如果是宿主 SPA 降级返回的 index.html (通常含有 root 挂载点) 且缺少 draw.io 关键字，判定为不可用
     if (lowerText.includes('id="root"') && !lowerText.includes(lowerPattern) && !lowerText.includes('drawio')) {
       return false;
     }
@@ -90,7 +112,7 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [renderMode, setRenderMode] = useState<RenderMode>(
-    () => cachedMode || { type: 'url', url: DEFAULT_DRAWIO_EMBED }
+    () => cachedMode || { type: 'srcdoc', html: getBridgeHtml(ONLINE_DRAWIO_APP) }
   );
 
   useEffect(() => {
@@ -101,12 +123,14 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
 
     let isMounted = true;
 
-    // 探针检测调用方是否部署了离线画图主程序 /drawio/drawio-app.html
+    // 探针检测：判断调用方是否部署了离线画图主程序 /drawio/drawio-app.html
     checkRealDrawIOFile(LOCAL_DRAWIO_APP, 'drawio')
       .then((isOfflineAvailable) => {
-        const mode: RenderMode = isOfflineAvailable
-          ? { type: 'srcdoc', html: INLINE_BRIDGE_HTML }
-          : { type: 'url', url: DEFAULT_DRAWIO_EMBED };
+        const targetUrl = isOfflineAvailable
+          ? `${LOCAL_DRAWIO_APP}?embed=1&ui=min&spin=1&modified=unsavedChanges&proto=json&lang=zh`
+          : ONLINE_DRAWIO_APP;
+
+        const mode: RenderMode = { type: 'srcdoc', html: getBridgeHtml(targetUrl) };
 
         cachedMode = mode;
         if (isMounted) {
@@ -201,8 +225,7 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
       <div style={{ flex: 1, position: 'relative', width: '100%', height: 'calc(100% - 48px)' }}>
         <iframe
           ref={iframeRef}
-          src={renderMode.type === 'url' ? renderMode.url : undefined}
-          srcDoc={renderMode.type === 'srcdoc' ? renderMode.html : undefined}
+          srcDoc={renderMode.html}
           onLoad={handleIframeLoad}
           style={{
             width: '100%',
