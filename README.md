@@ -75,3 +75,20 @@ export const MyEditorApp = () => {
 - `getJSON()`: 获取当前文档的 AST JSON 对象
 - `setMarkdown(content: string)`: 重置文档 Markdown 内容
 - `isEmpty()`: 判断正文是否为空
+
+---
+
+## Draw.io 静态资源初始化说明 (`setup-drawio.mjs`)
+
+本项目集成了 draw.io 流程图/架构图编辑扩展。为保证流程图块在离线及本地环境下的稳定运行，项目内置了 [scripts/setup-drawio.mjs](scripts/setup-drawio.mjs) 初始化脚本，用于拉取部署离线 draw.io webapp 静态资源至 `public/drawio/`。
+
+### 自动化机制
+- **自动触发**: 在执行 `npm install` 依赖安装后，会自动通过 `postinstall` 钩子触发 `node scripts/setup-drawio.mjs`。
+- **智能增量检测**: 脚本会自动检查 `public/drawio/js` 目标目录；若离线资源已就绪则自动跳过重复下载。
+
+### 手动运行命令
+如需手动触发拉取或重置静态资源，可在项目根目录运行：
+
+```bash
+npm run setup:drawio
+```
