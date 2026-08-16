@@ -1,10 +1,10 @@
 /* 自动生成文档目录 (TOC) - 纯粹极简专业级 CSS 样式 */
 
 .tocContainer {
-  position: fixed;
-  top: 44px;
-  left: 24px;
-  z-index: 1000;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -130,7 +130,7 @@
 
 @media (max-width: 1024px) {
   .tocContainer {
-    top: 60px;
+    top: 12px;
     left: 12px;
   }
 }

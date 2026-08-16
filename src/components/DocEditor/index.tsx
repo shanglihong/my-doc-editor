@@ -42,6 +42,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       onBlur,
       onSelectionChange,
       onUploadImage,
+      showToc = true,
     },
     ref
   ) => {
@@ -159,6 +160,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           drawioModalState={modals.drawioModalState}
           setDrawioModalState={modals.setDrawioModalState}
           handleSaveDrawIO={modals.handleSaveDrawIO}
+          showToc={showToc}
         />
       </div>
     );

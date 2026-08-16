@@ -123,6 +123,9 @@ export interface DocEditorProps {
 
   /** 自定义异步图片上传处理 Hook */
   onUploadImage?: (file: File) => Promise<string>;
+
+  /** 是否自动展示文档大纲目录 (TOC)，默认为 true */
+  showToc?: boolean;
 }
 
 export interface DocEditorRef {
