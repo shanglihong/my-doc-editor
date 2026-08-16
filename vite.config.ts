@@ -15,6 +15,9 @@ export default defineConfig({
       name: 'MyDocEditor',
       fileName: (format) => `my-doc-editor.${format === 'es' ? 'js' : 'umd.cjs'}`,
     },
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
