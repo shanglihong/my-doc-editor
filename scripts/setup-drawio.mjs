@@ -120,6 +120,17 @@ async function copyToPublic() {
     log('已生成 drawio-app.html（draw.io 原生入口）');
   }
 
+  // 确保 drawio-embed.html 桥接文件也同步部署至宿主工程的 public/ 目录
+  const bridgeSrcInDist = path.join(PKG_ROOT, 'dist', 'drawio-embed.html');
+  const bridgeSrcInPublic = path.join(PKG_ROOT, 'public', 'drawio-embed.html');
+  const hostBridgeDest = path.join(TARGET_ROOT, 'public', 'drawio-embed.html');
+
+  const srcBridge = existsSync(bridgeSrcInDist) ? bridgeSrcInDist : (existsSync(bridgeSrcInPublic) ? bridgeSrcInPublic : null);
+  if (srcBridge && (!existsSync(hostBridgeDest) || PKG_ROOT !== TARGET_ROOT)) {
+    await execAsync(`cp "${srcBridge}" "${hostBridgeDest}"`);
+    log('已同步部署 drawio-embed.html 桥接文件至宿主 public/ 目录');
+  }
+
   log('复制完成');
 }
 

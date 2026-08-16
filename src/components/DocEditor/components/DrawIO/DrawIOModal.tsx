@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { parseDrawIOMessage, sendInitialXmlToDrawIO } from './drawioProtocol';
 import { X } from 'lucide-react';
 
@@ -11,6 +11,10 @@ interface DrawIOModalProps {
 }
 
 const DEFAULT_DRAWIO_EMBED = 'https://embed.diagrams.net/?embed=1&ui=min&spin=1&modified=unsaved&proto=json';
+const LOCAL_BRIDGE_URL = '/drawio-embed.html';
+
+// 模块级缓存，避免每次打开弹窗都重复发送探针请求
+let isLocalBridgeAvailableCache: boolean | null = null;
 
 export const DrawIOModal: React.FC<DrawIOModalProps> = ({
   isOpen,
@@ -20,7 +24,46 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
   drawioUrl,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const targetUrl = drawioUrl || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? '/drawio-embed.html' : DEFAULT_DRAWIO_EMBED);
+  const [resolvedUrl, setResolvedUrl] = useState<string>(() => {
+    if (drawioUrl) return drawioUrl;
+    if (isLocalBridgeAvailableCache === true) return LOCAL_BRIDGE_URL;
+    if (isLocalBridgeAvailableCache === false) return DEFAULT_DRAWIO_EMBED;
+    return LOCAL_BRIDGE_URL;
+  });
+
+  useEffect(() => {
+    if (drawioUrl) {
+      setResolvedUrl(drawioUrl);
+      return;
+    }
+
+    if (isLocalBridgeAvailableCache !== null) {
+      setResolvedUrl(isLocalBridgeAvailableCache ? LOCAL_BRIDGE_URL : DEFAULT_DRAWIO_EMBED);
+      return;
+    }
+
+    let isMounted = true;
+    // 探针检测使用方是否离线/部署了 draw 桥接文件
+    fetch(LOCAL_BRIDGE_URL, { method: 'HEAD' })
+      .then((res) => {
+        const available = res.ok;
+        isLocalBridgeAvailableCache = available;
+        if (isMounted) {
+          setResolvedUrl(available ? LOCAL_BRIDGE_URL : DEFAULT_DRAWIO_EMBED);
+        }
+      })
+      .catch(() => {
+        isLocalBridgeAvailableCache = false;
+        if (isMounted) {
+          setResolvedUrl(DEFAULT_DRAWIO_EMBED);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [drawioUrl]);
+
 
   useEffect(() => {
     if (!isOpen) return;
@@ -104,7 +147,7 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
       <div style={{ flex: 1, position: 'relative', width: '100%', height: 'calc(100% - 48px)' }}>
         <iframe
           ref={iframeRef}
-          src={targetUrl}
+          src={resolvedUrl}
           onLoad={handleIframeLoad}
           style={{
             width: '100%',
