@@ -95,6 +95,7 @@ export const MyEditorApp = () => {
 | `titlePlaceholder` | `string` | `'请输入文档标题'` | 第一行标题占位文本 |
 | `placeholder` | `string` | `'输入 "/" 唤起快捷菜单...'` | 正文区占位文本 |
 | `className` | `string` | `""` | 容器根节点扩展 class |
+| `drawioUrl` | `string` | `undefined` | 自定义 draw.io 嵌入页面的 URL 路径（未提供时默认开箱即用 fallback） |
 | `onFocus` | `(event: FocusEvent) => void` | `undefined` | 获得焦点时的回调 |
 | `onBlur` | `(event: FocusEvent) => void` | `undefined` | 失去焦点时的回调 |
 | `onSelectionChange` | `(selection: { empty: boolean; from: number; to: number }) => void` | `undefined` | 选择区域或光标位置变更时的回调 |
@@ -112,17 +113,29 @@ export const MyEditorApp = () => {
 
 ---
 
-## Draw.io 静态资源初始化说明 (`setup-drawio.mjs`)
+## 主题控制 (Dark Mode)
 
-本项目集成了 draw.io 流程图/架构图编辑扩展。为保证流程图块在离线及本地环境下的稳定运行，项目内置了 [scripts/setup-drawio.mjs](scripts/setup-drawio.mjs) 初始化脚本，用于拉取部署离线 draw.io webapp 静态资源至 `public/drawio/`。
+`DocEditor` 内部集成了完整的暗色夜间模式。只需在组件上配置 `theme="dark"` 即可完全生效：
 
-### 自动化机制
-- **自动触发**: 在执行 `npm install` 依赖安装后，会自动通过 `postinstall` 钩子触发 `node scripts/setup-drawio.mjs`。
-- **智能增量检测**: 脚本会自动检查 `public/drawio/js` 目标目录；若离线资源已就绪则自动跳过重复下载。
+```tsx
+<DocEditor theme="dark" />
+```
 
-### 手动运行命令
-如需手动触发拉取或重置静态资源，可在项目根目录运行：
+编辑器及其浮动工具栏、斜杠快捷菜单、调色板与各弹窗组件均会完美呈现暗色样式，无需强制在宿主根节点 `html` 上增加全局属性。
+
+---
+
+## Draw.io 静态资源与 Embed 说明
+
+本项目集成了 draw.io 流程图/架构图编辑扩展，具备**开箱即用（Out-of-the-box）**与**离线自托管**双重支持：
+
+1. **开箱即用模式**：宿主工程零配置即可点击唤起画图功能，组件默认提供稳定可靠的 Fallback 嵌入机制。
+2. **自定义/自托管模式**：可以通过传递 `drawioUrl="/drawio-embed.html"` 指定宿主的本地离线画图路径。
+
+### 本地/离线静态资源初始化 (`setup-drawio.mjs`)
+如需在本地/私有化部署中完全离线运行 draw.io，可在本项目根目录运行以下脚本拉取离线 webapp 资源至 `public/drawio/`：
 
 ```bash
 npm run setup:drawio
 ```
+

@@ -22,7 +22,7 @@ export interface BlockIconConfig {
   level?: number;
   label: string;
   description: string;
-  icon: React.ComponentType<{ size?: number; className?: string; color?: string }>;
+  icon: React.ComponentType<{ size?: number | string; className?: string; color?: string }>;
   color: string;
   bgColor: string;
 }
@@ -180,7 +180,7 @@ export interface BlockIconProps {
   type: string;
   level?: number;
   isEmpty?: boolean;
-  size?: number;
+  size?: number | string;
   showBg?: boolean;
   className?: string;
   color?: string;

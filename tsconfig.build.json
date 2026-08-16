@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist",
+    "rootDir": "./src/components/DocEditor",
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src/components/DocEditor/**/*"]
+}

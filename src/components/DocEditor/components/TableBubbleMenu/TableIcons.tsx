@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const RowInsertAboveIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const RowInsertAboveIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -17,7 +17,7 @@ export const RowInsertAboveIcon: React.FC<{ size?: number }> = ({ size = 16 }) =
   </svg>
 );
 
-export const RowInsertBelowIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const RowInsertBelowIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -34,7 +34,7 @@ export const RowInsertBelowIcon: React.FC<{ size?: number }> = ({ size = 16 }) =
   </svg>
 );
 
-export const ColumnInsertLeftIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const ColumnInsertLeftIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -51,7 +51,7 @@ export const ColumnInsertLeftIcon: React.FC<{ size?: number }> = ({ size = 16 })
   </svg>
 );
 
-export const ColumnInsertRightIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const ColumnInsertRightIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -68,7 +68,7 @@ export const ColumnInsertRightIcon: React.FC<{ size?: number }> = ({ size = 16 }
   </svg>
 );
 
-export const RowDeleteIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const RowDeleteIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -84,7 +84,7 @@ export const RowDeleteIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   </svg>
 );
 
-export const ColumnDeleteIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const ColumnDeleteIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -100,7 +100,7 @@ export const ColumnDeleteIcon: React.FC<{ size?: number }> = ({ size = 16 }) => 
   </svg>
 );
 
-export const CellMergeIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const CellMergeIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}
@@ -118,7 +118,7 @@ export const CellMergeIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   </svg>
 );
 
-export const CellSplitIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+export const CellSplitIcon: React.FC<{ size?: number | string }> = ({ size = 16 }) => (
   <svg
     width={size}
     height={size}

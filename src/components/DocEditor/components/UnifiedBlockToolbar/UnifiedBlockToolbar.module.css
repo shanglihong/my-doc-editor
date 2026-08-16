@@ -58,27 +58,26 @@
 }
 
 /* 深色夜间模式自适应 */
-:global(html[data-theme="dark"]) .unifiedToolbarContainer,
-:global(:root[data-theme="dark"]) .unifiedToolbarContainer {
+:global([data-theme="dark"]) .unifiedToolbarContainer {
   background: #1e293b;
   border-color: #334155;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-:global(html[data-theme="dark"]) .divider {
+:global([data-theme="dark"]) .divider {
   background-color: #334155;
 }
 
-:global(html[data-theme="dark"]) .iconBtn {
+:global([data-theme="dark"]) .iconBtn {
   color: #94a3b8;
 }
 
-:global(html[data-theme="dark"]) .iconBtn:hover {
+:global([data-theme="dark"]) .iconBtn:hover {
   background-color: #334155;
   color: #f8fafc;
 }
 
-:global(html[data-theme="dark"]) .dangerBtn:hover {
+:global([data-theme="dark"]) .dangerBtn:hover {
   background-color: #451a1a;
   color: #f87171;
 }

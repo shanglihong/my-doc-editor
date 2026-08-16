@@ -7,15 +7,20 @@ interface DrawIOModalProps {
   initialXml: string;
   onSave: (xml: string, svg: string) => void;
   onClose: () => void;
+  drawioUrl?: string;
 }
+
+const DEFAULT_DRAWIO_EMBED = 'https://embed.diagrams.net/?embed=1&ui=min&spin=1&modified=unsaved&proto=json';
 
 export const DrawIOModal: React.FC<DrawIOModalProps> = ({
   isOpen,
   initialXml,
   onSave,
   onClose,
+  drawioUrl,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const targetUrl = drawioUrl || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? '/drawio-embed.html' : DEFAULT_DRAWIO_EMBED);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -99,7 +104,7 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
       <div style={{ flex: 1, position: 'relative', width: '100%', height: 'calc(100% - 48px)' }}>
         <iframe
           ref={iframeRef}
-          src="/drawio-embed.html"
+          src={targetUrl}
           onLoad={handleIframeLoad}
           style={{
             width: '100%',

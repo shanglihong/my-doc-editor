@@ -26,7 +26,7 @@ import { calculateSubMenuPosition } from '../../utils/floatingPosition';
 
 interface IconConfig {
   name: string;
-  icon: React.ComponentType<{ size?: number; color?: string }>;
+  icon: React.ComponentType<{ size?: number | string; className?: string; color?: string }>;
   defaultColor: string;
 }
 

@@ -127,42 +127,40 @@
 }
 
 /* 深色 (夜间) 模式默认后备 */
-:global(html[data-theme="dark"]) .calloutWrapper,
-:global(:root[data-theme="dark"]) .calloutWrapper {
+:global([data-theme="dark"]) .calloutWrapper {
   background-color: #1e293b;
   border-color: #334155;
   color: #f8fafc;
 }
 
-:global(html[data-theme="dark"]) .calloutContent,
-:global(html[data-theme="dark"]) .calloutContent p,
-:global(html[data-theme="dark"]) .calloutContent h1,
-:global(html[data-theme="dark"]) .calloutContent h2,
-:global(html[data-theme="dark"]) .calloutContent h3,
-:global(html[data-theme="dark"]) .calloutContent li {
+:global([data-theme="dark"]) .calloutContent,
+:global([data-theme="dark"]) .calloutContent p,
+:global([data-theme="dark"]) .calloutContent h1,
+:global([data-theme="dark"]) .calloutContent h2,
+:global([data-theme="dark"]) .calloutContent h3,
+:global([data-theme="dark"]) .calloutContent li {
   color: #f8fafc;
 }
 
-:global(html[data-theme="dark"]) .calloutIconBtn:hover {
+:global([data-theme="dark"]) .calloutIconBtn:hover {
   background: rgba(255, 255, 255, 0.08);
 }
 
-:global(html[data-theme="dark"]) .calloutPickerPopover,
-:global(:root[data-theme="dark"]) .calloutPickerPopover {
+:global([data-theme="dark"]) .calloutPickerPopover {
   background: #1e293b;
   border-color: #334155;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-:global(html[data-theme="dark"]) .pickerTitle {
+:global([data-theme="dark"]) .pickerTitle {
   color: #64748b;
 }
 
-:global(html[data-theme="dark"]) .iconOption:hover {
+:global([data-theme="dark"]) .iconOption:hover {
   background: #334155;
 }
 
-:global(html[data-theme="dark"]) .iconOptionActive {
+:global([data-theme="dark"]) .iconOptionActive {
   border-color: #3b82f6;
   background: #1e3a8a;
 }

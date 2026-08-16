@@ -112,6 +112,9 @@ export interface DocEditorProps {
   /** 是否启用 draw.io 画图块扩展 */
   enableDrawIO?: boolean;
 
+  /** 自定义 draw.io 嵌入页面的 URL 路径，若未提供则默认离线资源或 Fallback 链接 */
+  drawioUrl?: string;
+
   /** 获得焦点时的回调 */
   onFocus?: (event: FocusEvent) => void;
 

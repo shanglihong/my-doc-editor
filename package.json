@@ -5,26 +5,27 @@
   "type": "module",
   "main": "./dist/my-doc-editor.umd.cjs",
   "module": "./dist/my-doc-editor.js",
-  "types": "./src/components/DocEditor/index.tsx",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/my-doc-editor.js",
       "require": "./dist/my-doc-editor.umd.cjs"
     },
-    "./dist/style.css": "./dist/style.css"
+    "./dist/style.css": "./dist/my-doc-editor.css",
+    "./dist/my-doc-editor.css": "./dist/my-doc-editor.css"
   },
   "files": [
-    "dist",
-    "src/components/DocEditor"
+    "dist"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
+    "prepare": "npm run build",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "setup:drawio": "node scripts/setup-drawio.mjs",
-    "postinstall": "node scripts/setup-drawio.mjs"
+    "setup:drawio": "node scripts/setup-drawio.mjs"
   },
   "dependencies": {
     "@tiptap/extension-code-block-lowlight": "^3.30.0",

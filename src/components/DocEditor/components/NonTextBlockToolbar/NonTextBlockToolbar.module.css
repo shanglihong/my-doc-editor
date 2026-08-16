@@ -155,68 +155,66 @@
 }
 
 /* 深色夜间模式自适应 */
-:global(html[data-theme="dark"]) .toolbarContainer,
-:global(:root[data-theme="dark"]) .toolbarContainer {
+:global([data-theme="dark"]) .toolbarContainer {
   background-color: rgba(30, 41, 59, 0.95);
   border-color: #334155;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-:global(html[data-theme="dark"]) .divider {
+:global([data-theme="dark"]) .divider {
   background-color: #334155;
 }
 
-:global(html[data-theme="dark"]) .iconBtn,
-:global(html[data-theme="dark"]) .textBtn {
+:global([data-theme="dark"]) .iconBtn,
+:global([data-theme="dark"]) .textBtn {
   color: #94a3b8;
 }
 
-:global(html[data-theme="dark"]) .iconBtn:hover,
-:global(html[data-theme="dark"]) .textBtn:hover {
+:global([data-theme="dark"]) .iconBtn:hover,
+:global([data-theme="dark"]) .textBtn:hover {
   background-color: #334155;
   color: #f8fafc;
 }
 
-:global(html[data-theme="dark"]) .iconBtnActive {
+:global([data-theme="dark"]) .iconBtnActive {
   background-color: #1e3a8a;
   color: #60a5fa;
 }
 
-:global(html[data-theme="dark"]) .deleteBtn:hover {
+:global([data-theme="dark"]) .deleteBtn:hover {
   background-color: #451a1a;
   color: #f87171;
 }
 
-:global(html[data-theme="dark"]) .selectInput {
+:global([data-theme="dark"]) .selectInput {
   background-color: #1e293b;
   border-color: #334155;
   color: #f8fafc;
 }
 
-:global(html[data-theme="dark"]) .selectInput:hover {
+:global([data-theme="dark"]) .selectInput:hover {
   border-color: #475569;
 }
 
-:global(html[data-theme="dark"]) .dropdownMenu,
-:global(:root[data-theme="dark"]) .dropdownMenu {
+:global([data-theme="dark"]) .dropdownMenu {
   background-color: #1e293b;
   border-color: #334155;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-:global(html[data-theme="dark"]) .dropdownItem {
+:global([data-theme="dark"]) .dropdownItem {
   color: #94a3b8;
 }
 
-:global(html[data-theme="dark"]) .dropdownItem:hover {
+:global([data-theme="dark"]) .dropdownItem:hover {
   background-color: #334155;
   color: #f8fafc;
 }
 
-:global(html[data-theme="dark"]) .dropdownItemIcon {
+:global([data-theme="dark"]) .dropdownItemIcon {
   color: #94a3b8;
 }
 
-:global(html[data-theme="dark"]) .dropdownItem:hover .dropdownItemIcon {
+:global([data-theme="dark"]) .dropdownItem:hover .dropdownItemIcon {
   color: #f8fafc;
 }
