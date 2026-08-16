@@ -2,7 +2,38 @@
 
 `DocEditor` 是一个基于 TipTap 引擎的高性能、可扩展富文本与块级文档编辑器组件，支持 Markdown 双向转换、丰富块级扩展以及完全代码受控的主题控制。
 
-## 安装与引入
+## 基于 GitHub 仓库安装与导入
+
+宿主应用（第三方工程）可以直接通过 GitHub 链接将本项目作为依赖包进行安装与消费。
+
+### 1. 宿主工程安装命令
+
+在宿主 React 项目的根目录下执行以下命令：
+
+```bash
+# 使用 npm
+npm install git+https://github.com/shanglihong/my-doc-editor.git
+
+# 或使用 yarn
+yarn add git+https://github.com/shanglihong/my-doc-editor.git
+
+# 或使用 pnpm
+pnpm add git+https://github.com/shanglihong/my-doc-editor.git
+```
+
+也可以直接在宿主项目的 `package.json` 的 `dependencies` 中添加：
+
+```json
+{
+  "dependencies": {
+    "my-doc-editor": "git+https://github.com/shanglihong/my-doc-editor.git#main"
+  }
+}
+```
+
+### 2. 宿主工程代码引入
+
+在宿主项目的组件中引入 `DocEditor` 组件与其样式文件：
 
 ```tsx
 import { 
@@ -11,7 +42,10 @@ import {
   type DocEditorProps, 
   type DocumentNode, 
   type EditorTheme 
-} from '@/components/DocEditor';
+} from 'my-doc-editor';
+
+// 引入组件样式
+import 'my-doc-editor/dist/my-doc-editor.css';
 ```
 
 ## 快速使用

@@ -1,8 +1,22 @@
 {
   "name": "my-doc-editor",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "main": "./dist/my-doc-editor.umd.cjs",
+  "module": "./dist/my-doc-editor.js",
+  "types": "./src/components/DocEditor/index.tsx",
+  "exports": {
+    ".": {
+      "import": "./dist/my-doc-editor.js",
+      "require": "./dist/my-doc-editor.umd.cjs"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "src/components/DocEditor"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
