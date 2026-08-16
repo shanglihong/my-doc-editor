@@ -10,7 +10,6 @@ interface DrawIOModalProps {
 }
 
 const DEFAULT_DRAWIO_EMBED = 'https://embed.diagrams.net/?embed=1&ui=min&spin=1&modified=unsaved&proto=json';
-const LOCAL_BRIDGE_URL = '/drawio-embed.html';
 const LOCAL_DRAWIO_APP = '/drawio/drawio-app.html';
 
 const INLINE_BRIDGE_HTML = `<!DOCTYPE html>
@@ -58,6 +57,31 @@ type RenderMode = { type: 'url'; url: string } | { type: 'srcdoc'; html: string 
 
 let cachedMode: RenderMode | null = null;
 
+/**
+ * 校验 HTTP 响应文本，防止 Vite/Webpack DevServer SPA 路由兜底拦截将 404 请求误判为 200 (返回宿主 index.html)
+ */
+async function checkRealDrawIOFile(url: string, expectedPattern: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) return false;
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('text/html')) return false;
+
+    const text = await res.text();
+    const lowerText = text.toLowerCase();
+    const lowerPattern = expectedPattern.toLowerCase();
+
+    // 如果是宿主 SPA 降级返回的 index.html (通常含有 root 挂载点) 且缺少 draw.io 关键字，判定为不可用
+    if (lowerText.includes('id="root"') && !lowerText.includes(lowerPattern) && !lowerText.includes('drawio')) {
+      return false;
+    }
+    return lowerText.includes(lowerPattern) || lowerText.includes('drawio');
+  } catch {
+    return false;
+  }
+}
+
 export const DrawIOModal: React.FC<DrawIOModalProps> = ({
   isOpen,
   initialXml,
@@ -77,37 +101,16 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
 
     let isMounted = true;
 
-    // 智能探针检测：检测离线桥接文件或离线主程序包
-    fetch(LOCAL_BRIDGE_URL, { method: 'HEAD' })
-      .then((res) => {
-        if (res.ok) {
-          const mode: RenderMode = { type: 'url', url: LOCAL_BRIDGE_URL };
-          cachedMode = mode;
-          if (isMounted) setRenderMode(mode);
-          return true;
-        }
-        return false;
-      })
-      .catch(() => false)
-      .then((bridgeOk) => {
-        if (bridgeOk) return;
-        return fetch(LOCAL_DRAWIO_APP, { method: 'HEAD' })
-          .then((res) => {
-            if (res.ok) {
-              const mode: RenderMode = { type: 'srcdoc', html: INLINE_BRIDGE_HTML };
-              cachedMode = mode;
-              if (isMounted) setRenderMode(mode);
-              return true;
-            }
-            return false;
-          })
-          .catch(() => false);
-      })
-      .then((handled) => {
-        if (!handled && cachedMode === null) {
-          const mode: RenderMode = { type: 'url', url: DEFAULT_DRAWIO_EMBED };
-          cachedMode = mode;
-          if (isMounted) setRenderMode(mode);
+    // 探针检测调用方是否部署了离线画图主程序 /drawio/drawio-app.html
+    checkRealDrawIOFile(LOCAL_DRAWIO_APP, 'drawio')
+      .then((isOfflineAvailable) => {
+        const mode: RenderMode = isOfflineAvailable
+          ? { type: 'srcdoc', html: INLINE_BRIDGE_HTML }
+          : { type: 'url', url: DEFAULT_DRAWIO_EMBED };
+
+        cachedMode = mode;
+        if (isMounted) {
+          setRenderMode(mode);
         }
       });
 
