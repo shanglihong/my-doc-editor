@@ -34,6 +34,7 @@
   border-radius: 0;
   box-sizing: border-box;
   text-align: left;
+  overflow-x: hidden;
 }
 
 .excalidrawContainer {
@@ -63,10 +64,25 @@
   margin: 0 auto;
   padding: 0 56px;
   box-sizing: border-box;
+  transition: margin-left 0.25s cubic-bezier(0.2, 0, 0, 1), margin-right 0.25s cubic-bezier(0.2, 0, 0, 1), max-width 0.25s cubic-bezier(0.2, 0, 0, 1);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* 当大纲展开时，正文内容向右避让，防止与大纲遮挡重叠 */
+.hasExpandedToc .editorContent {
+  margin-left: max(calc((100% - 900px) / 2), 256px);
+  margin-right: auto;
+  max-width: min(900px, calc(100% - 276px));
 }
 
 @media (max-width: 768px) {
   .editorContent {
     padding: 0 20px;
+  }
+  .hasExpandedToc .editorContent {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
   }
 }

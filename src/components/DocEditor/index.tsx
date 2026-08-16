@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useCallback } from 'react';
+import { forwardRef, useRef, useCallback, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 
 import styles from './DocEditor.module.css';
@@ -112,12 +112,14 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     const modals = useDocEditorModals(editor);
     useDocEditorRef(ref, editor);
 
+    const [isTocExpanded, setIsTocExpanded] = useState(false);
+
     const activeThemeAttr = theme === 'auto' ? undefined : theme;
 
     return (
       <div
         data-theme={activeThemeAttr}
-        className={`${styles.editorContainer} ${className}`}
+        className={`${styles.editorContainer} ${isTocExpanded ? styles.hasExpandedToc : ''} ${className}`}
         onClick={(e) => {
           if (
             (e.target === e.currentTarget || (e.target as HTMLElement).classList?.contains(styles.editorContent)) &&
@@ -161,6 +163,8 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           setDrawioModalState={modals.setDrawioModalState}
           handleSaveDrawIO={modals.handleSaveDrawIO}
           showToc={showToc}
+          isTocExpanded={isTocExpanded}
+          onTocExpandChange={setIsTocExpanded}
         />
       </div>
     );

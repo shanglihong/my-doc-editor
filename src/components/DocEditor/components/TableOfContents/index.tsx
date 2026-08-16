@@ -6,15 +6,27 @@ import { useDocEditorTOC } from '../../hooks/useDocEditorTOC';
 
 export interface TableOfContentsProps {
   editor: Editor | null;
+  isExpanded?: boolean;
+  onExpandChange?: (expanded: boolean) => void;
 }
 
-export const TableOfContents: React.FC<TableOfContentsProps> = ({ editor }) => {
+export const TableOfContents: React.FC<TableOfContentsProps> = ({
+  editor,
+  isExpanded: controlledExpanded,
+  onExpandChange,
+}) => {
   const { items, activeId, scrollToHeading } = useDocEditorTOC(editor);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
+
+  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
 
   const toggleExpand = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-  }, []);
+    const nextState = !isExpanded;
+    if (controlledExpanded === undefined) {
+      setInternalExpanded(nextState);
+    }
+    onExpandChange?.(nextState);
+  }, [isExpanded, controlledExpanded, onExpandChange]);
 
   return (
     <div
