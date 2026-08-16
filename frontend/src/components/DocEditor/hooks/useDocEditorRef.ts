@@ -50,9 +50,25 @@ export function useDocEditorRef(ref: ForwardedRef<DocEditorRef>, editor: Editor 
         if (!editor) return;
         editor.commands.clearContent();
       },
+      clearContent: () => {
+        if (!editor) return;
+        editor.commands.clearContent();
+      },
       focus: () => {
         if (!editor) return;
         editor.commands.focus();
+      },
+      blur: () => {
+        if (!editor) return;
+        editor.commands.blur();
+      },
+      setMarkdown: (content: string) => {
+        if (!editor) return;
+        editor.commands.setContent(content);
+      },
+      isEmpty: (): boolean => {
+        if (!editor) return true;
+        return editor.isEmpty;
       },
     }),
     [editor]

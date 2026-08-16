@@ -8,6 +8,7 @@ import { ImageUploadService } from '../services/imageUploadService';
 
 export interface ImageBlockOptions {
   HTMLAttributes: Record<string, any>;
+  onUploadImage?: (file: File) => Promise<string>;
 }
 
 declare module '@tiptap/core' {
@@ -32,6 +33,7 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
+      onUploadImage: undefined,
     };
   },
 
@@ -102,6 +104,7 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
   },
 
   addProseMirrorPlugins() {
+    const self = this;
     return [
       new Plugin({
         key: new PluginKey('imageBlockPasteDropHandler'),
@@ -136,7 +139,11 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
             const transaction = view.state.tr.replaceSelectionWith(node);
             view.dispatch(transaction);
 
-            ImageUploadService.uploadImage(file)
+            const uploadPromise = self.options.onUploadImage
+              ? self.options.onUploadImage(file).then((url) => ({ url }))
+              : ImageUploadService.uploadImage(file);
+
+            uploadPromise
               .then((result) => {
                 view.state.doc.descendants((docNode, pos) => {
                   if (
@@ -204,7 +211,11 @@ export const ImageBlockExtension = Node.create<ImageBlockOptions>({
             const tr = view.state.tr.insert(insertPos, node);
             view.dispatch(tr);
 
-            ImageUploadService.uploadImage(imageFile)
+            const dropUploadPromise = self.options.onUploadImage
+              ? self.options.onUploadImage(imageFile).then((url) => ({ url }))
+              : ImageUploadService.uploadImage(imageFile);
+
+            dropUploadPromise
               .then((result) => {
                 view.state.doc.descendants((docNode, pos) => {
                   if (

@@ -82,6 +82,8 @@ export interface SelectionState {
   activeColor: string;
 }
 
+export type EditorTheme = 'light' | 'dark' | 'auto';
+
 export interface DocEditorProps {
   /** 初始内容，支持传递 JSON Block AST 对象或 Markdown 文本 */
   value?: DocumentNode | string;
@@ -101,14 +103,26 @@ export interface DocEditorProps {
   /** 自定义正文占位符文本 */
   placeholder?: string;
 
-  /** 编辑器主题样式 */
-  theme?: 'light' | 'dark' | 'auto';
+  /** 编辑器主题样式，支持 'light' | 'dark' | 'auto' */
+  theme?: EditorTheme;
 
   /** 样式类名扩展 */
   className?: string;
 
   /** 是否启用 draw.io 画图块扩展 */
   enableDrawIO?: boolean;
+
+  /** 获得焦点时的回调 */
+  onFocus?: (event: FocusEvent) => void;
+
+  /** 失去焦点时的回调 */
+  onBlur?: (event: FocusEvent) => void;
+
+  /** 选择区域或光标变更时的回调 */
+  onSelectionChange?: (selection: { empty: boolean; from: number; to: number }) => void;
+
+  /** 自定义异步图片上传处理 Hook */
+  onUploadImage?: (file: File) => Promise<string>;
 }
 
 export interface DocEditorRef {
@@ -130,6 +144,18 @@ export interface DocEditorRef {
   /** 清空当前编辑器正文 (保留标题) */
   clear: () => void;
 
+  /** 清空当前编辑器正文 (保留标题的快捷别名) */
+  clearContent: () => void;
+
   /** 使编辑器获得焦点 */
   focus: () => void;
+
+  /** 使编辑器失去焦点 */
+  blur: () => void;
+
+  /** 覆盖设置文档 Markdown 内容 */
+  setMarkdown: (content: string) => void;
+
+  /** 检查当前编辑器正文是否为空 */
+  isEmpty: () => boolean;
 }

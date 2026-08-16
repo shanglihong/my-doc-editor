@@ -33,6 +33,7 @@ const lowlight = createLowlight(all);
 export interface UseDocEditorExtensionsOptions {
   titlePlaceholder: string;
   placeholder: string;
+  onUploadImage?: (file: File) => Promise<string>;
   onDragNodeChange: (data: {
     top: number;
     left: number;
@@ -46,6 +47,7 @@ export interface UseDocEditorExtensionsOptions {
 export function useDocEditorExtensions({
   titlePlaceholder,
   placeholder,
+  onUploadImage,
   onDragNodeChange,
 }: UseDocEditorExtensionsOptions) {
   return useMemo(() => {
@@ -109,7 +111,9 @@ export function useDocEditorExtensions({
       FontSizeMark,
       CalloutExtension,
       DrawIOExtension,
-      ImageBlockExtension,
+      ImageBlockExtension.configure({
+        onUploadImage,
+      }),
       SlashMenuExtension,
       TaskList,
       TaskItem.configure({
@@ -120,5 +124,5 @@ export function useDocEditorExtensions({
         onNodeChange: onDragNodeChange,
       }),
     ];
-  }, [titlePlaceholder, placeholder, onDragNodeChange]);
+  }, [titlePlaceholder, placeholder, onUploadImage, onDragNodeChange]);
 }

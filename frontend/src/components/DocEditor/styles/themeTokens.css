@@ -75,7 +75,8 @@
 }
 
 html[data-theme="dark"],
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+[data-theme="dark"] {
   --de-primary: #3b82f6;
   --de-primary-hover: #60a5fa;
   --de-bg-body: #0f172a;

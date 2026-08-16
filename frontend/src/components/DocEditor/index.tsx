@@ -36,7 +36,12 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       readOnly = false,
       titlePlaceholder = '请输入文档标题',
       placeholder: _placeholder = '输入 "/" 唤起快捷菜单，或直接输入内容...',
+      theme = 'light',
       className = '',
+      onFocus,
+      onBlur,
+      onSelectionChange,
+      onUploadImage,
     },
     ref
   ) => {
@@ -50,6 +55,7 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     const extensions = useDocEditorExtensions({
       titlePlaceholder,
       placeholder: _placeholder,
+      onUploadImage,
       onDragNodeChange: handleDragNodeChange,
     });
 
@@ -61,14 +67,22 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       editorProps: {
         handlePaste: handleEditorPaste,
         handleDOMEvents: {
-          keydown: () => {
-            window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
-            return false;
-          },
           copy: handleEditorCopy,
           mouseover: handleEditorMouseOver,
           mouseleave: handleEditorMouseLeave,
         },
+      },
+      onFocus: ({ event }) => {
+        onFocus?.(event as FocusEvent);
+      },
+      onBlur: ({ event }) => {
+        onBlur?.(event as FocusEvent);
+      },
+      onSelectionUpdate: ({ editor: currentEditor }) => {
+        if (onSelectionChange) {
+          const { empty, from, to } = currentEditor.state.selection;
+          onSelectionChange({ empty, from, to });
+        }
       },
       onUpdate: ({ editor: currentEditor }) => {
         if (onTitleChange) {
@@ -97,8 +111,11 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
     const modals = useDocEditorModals(editor);
     useDocEditorRef(ref, editor);
 
+    const activeThemeAttr = theme === 'auto' ? undefined : theme;
+
     return (
       <div
+        data-theme={activeThemeAttr}
         className={`${styles.editorContainer} ${className}`}
         onClick={(e) => {
           if (

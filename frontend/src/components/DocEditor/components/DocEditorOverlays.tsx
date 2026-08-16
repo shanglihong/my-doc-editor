@@ -74,7 +74,7 @@ export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
   setDrawioModalState,
   handleSaveDrawIO,
 }) => {
-  // 全局捕获阶段点击外部区域收起所有展开的下拉菜单/调色板弹窗
+  // 捕获阶段点击外部区域收起所有展开的下拉菜单/调色板弹窗
   React.useEffect(() => {
     const handleGlobalMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
@@ -97,7 +97,7 @@ export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
         target.closest('[class*="slashMenu"]');
 
       if (!isInsidePopup) {
-        window.dispatchEvent(new CustomEvent('HIDE_ALL_FLOATING_MENUS'));
+        setTypeMenuState((prev) => (prev.isOpen ? { ...prev, isOpen: false } : prev));
       }
     };
 
@@ -105,7 +105,7 @@ export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleGlobalMouseDown, true);
     };
-  }, []);
+  }, [setTypeMenuState]);
   return (
     <>
       {dropIndicatorState.visible && (
