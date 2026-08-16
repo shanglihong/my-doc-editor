@@ -2,8 +2,6 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>draw.io Embed Editor</title>
   <style>
     html, body {
       margin: 0;
@@ -11,7 +9,6 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: #f8f9fa;
     }
     #drawio-iframe {
@@ -24,7 +21,7 @@
 <body>
   <iframe
     id="drawio-iframe"
-    src="./drawio/drawio-app.html?embed=1&ui=min&spin=1&modified=unsavedChanges&proto=json&lang=zh"
+    src="__TARGET_APP_URL__"
     sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
   ></iframe>
 
@@ -53,29 +50,19 @@
           return;
         }
 
-        // 处理 draw.io 内部发送的消息
+        // 处理 draw.io 内部发送的消息并转发给父窗口
         if (msg.event === 'init') {
           try {
-            iframe.contentWindow.postMessage(JSON.stringify({
-              action: 'load',
-              xml: currentXml,
-              autosave: 1
-            }), '*');
+            iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: currentXml, autosave: 1 }), '*');
           } catch (err) {}
-
           try {
             window.parent.postMessage(JSON.stringify({ event: 'drawio-ready' }), '*');
           } catch (err) {}
         }
 
         if (msg.event === 'save') {
-          // 尝试触发 export 获取矢量/图片数据
           try {
-            iframe.contentWindow.postMessage(JSON.stringify({
-              action: 'export',
-              format: 'xmlsvg',
-              spin: 'Saving'
-            }), '*');
+            iframe.contentWindow.postMessage(JSON.stringify({ action: 'export', format: 'xmlsvg', spin: 'Saving' }), '*');
           } catch (err) {}
         }
 

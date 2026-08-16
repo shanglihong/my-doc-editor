@@ -17,24 +17,9 @@ const externalDeps = [
   ...Object.keys(pkg.peerDependencies || {}),
 ];
 
-// 简单插件：将 public/drawio-embed.html 打包/复制至 dist 目录
-function copyDrawioEmbedPlugin() {
-  return {
-    name: 'copy-drawio-embed',
-    closeBundle() {
-      const src = path.resolve(__dirname, 'public/drawio-embed.html');
-      const dist = path.resolve(__dirname, 'dist/drawio-embed.html');
-      if (fs.existsSync(src)) {
-        fs.mkdirSync(path.dirname(dist), { recursive: true });
-        fs.copyFileSync(src, dist);
-      }
-    },
-  };
-}
-
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), copyDrawioEmbedPlugin()],
+  plugins: [react()],
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/components/DocEditor/index.tsx'),

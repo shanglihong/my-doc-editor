@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { parseDrawIOMessage, sendInitialXmlToDrawIO } from './drawioProtocol';
 import { X } from 'lucide-react';
+import drawioBridgeTemplate from './drawioBridgeTemplate.html?raw';
 
 interface DrawIOModalProps {
   isOpen: boolean;
@@ -16,64 +17,7 @@ const LOCAL_DRAWIO_APP = '/drawio/drawio-app.html';
  * 生成内置的 Bridge 桥接 HTML，统一离线与在线 draw.io 的 postMessage 协议转换
  */
 function getBridgeHtml(targetAppUrl: string): string {
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #f8f9fa; }
-    #drawio-iframe { width: 100%; height: 100%; border: none; }
-  </style>
-</head>
-<body>
-  <iframe id="drawio-iframe" src="${targetAppUrl}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"></iframe>
-  <script>
-    (function() {
-      const iframe = document.getElementById('drawio-iframe');
-      let currentXml = '';
-      window.addEventListener('message', function(e) {
-        if (!e.data) return;
-        let msg = e.data;
-        if (typeof msg === 'string') { try { msg = JSON.parse(msg); } catch (err) {} }
-        if (typeof msg !== 'object') return;
-
-        if (msg.type === 'SET_INITIAL_XML') {
-          currentXml = msg.xml || '';
-          return;
-        }
-
-        if (msg.event === 'init') {
-          try {
-            iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: currentXml, autosave: 1 }), '*');
-          } catch (err) {}
-          try {
-            window.parent.postMessage(JSON.stringify({ event: 'drawio-ready' }), '*');
-          } catch (err) {}
-        }
-
-        if (msg.event === 'save') {
-          try {
-            iframe.contentWindow.postMessage(JSON.stringify({ action: 'export', format: 'xmlsvg', spin: 'Saving' }), '*');
-          } catch (err) {}
-        }
-
-        if (msg.event === 'export') {
-          const previewData = msg.data || msg.xmlpng || '';
-          try {
-            window.parent.postMessage(JSON.stringify({ event: 'save', xml: msg.xml || currentXml, svg: previewData }), '*');
-          } catch (err) {}
-        }
-
-        if (msg.event === 'exit') {
-          try {
-            window.parent.postMessage(JSON.stringify({ event: 'exit' }), '*');
-          } catch (err) {}
-        }
-      });
-    })();
-  </script>
-</body>
-</html>`;
+  return drawioBridgeTemplate.replace('__TARGET_APP_URL__', targetAppUrl);
 }
 
 type RenderMode = { type: 'srcdoc'; html: string };
