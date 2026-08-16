@@ -7,63 +7,114 @@ interface DrawIOModalProps {
   initialXml: string;
   onSave: (xml: string, svg: string) => void;
   onClose: () => void;
-  drawioUrl?: string;
 }
 
 const DEFAULT_DRAWIO_EMBED = 'https://embed.diagrams.net/?embed=1&ui=min&spin=1&modified=unsaved&proto=json';
 const LOCAL_BRIDGE_URL = '/drawio-embed.html';
+const LOCAL_DRAWIO_APP = '/drawio/drawio-app.html';
 
-// 模块级缓存，避免每次打开弹窗都重复发送探针请求
-let isLocalBridgeAvailableCache: boolean | null = null;
+const INLINE_BRIDGE_HTML = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #f8f9fa; }
+    #drawio-iframe { width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+  <iframe id="drawio-iframe" src="${LOCAL_DRAWIO_APP}?embed=1&ui=min&spin=1&modified=unsavedChanges&proto=json" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"></iframe>
+  <script>
+    (function() {
+      const iframe = document.getElementById('drawio-iframe');
+      let currentXml = '';
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        let msg = e.data;
+        if (typeof msg === 'string') { try { msg = JSON.parse(msg); } catch (err) {} }
+        if (typeof msg !== 'object') return;
+        if (msg.type === 'SET_INITIAL_XML') { currentXml = msg.xml || ''; return; }
+        if (msg.event === 'init') {
+          try { iframe.contentWindow.postMessage(JSON.stringify({ action: 'load', xml: currentXml, autosave: 1 }), '*'); } catch (err) {}
+          try { window.parent.postMessage(JSON.stringify({ event: 'drawio-ready' }), '*'); } catch (err) {}
+        }
+        if (msg.event === 'save') {
+          try { iframe.contentWindow.postMessage(JSON.stringify({ action: 'export', format: 'xmlsvg', spin: 'Saving' }), '*'); } catch (err) {}
+        }
+        if (msg.event === 'export') {
+          const previewData = msg.data || msg.xmlpng || '';
+          try { window.parent.postMessage(JSON.stringify({ event: 'save', xml: msg.xml || currentXml, svg: previewData }), '*'); } catch (err) {}
+        }
+        if (msg.event === 'exit') {
+          try { window.parent.postMessage(JSON.stringify({ event: 'exit' }), '*'); } catch (err) {}
+        }
+      });
+    })();
+  </script>
+</body>
+</html>`;
+
+type RenderMode = { type: 'url'; url: string } | { type: 'srcdoc'; html: string };
+
+let cachedMode: RenderMode | null = null;
 
 export const DrawIOModal: React.FC<DrawIOModalProps> = ({
   isOpen,
   initialXml,
   onSave,
   onClose,
-  drawioUrl,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [resolvedUrl, setResolvedUrl] = useState<string>(() => {
-    if (drawioUrl) return drawioUrl;
-    if (isLocalBridgeAvailableCache === true) return LOCAL_BRIDGE_URL;
-    if (isLocalBridgeAvailableCache === false) return DEFAULT_DRAWIO_EMBED;
-    return LOCAL_BRIDGE_URL;
-  });
+  const [renderMode, setRenderMode] = useState<RenderMode>(
+    () => cachedMode || { type: 'url', url: DEFAULT_DRAWIO_EMBED }
+  );
 
   useEffect(() => {
-    if (drawioUrl) {
-      setResolvedUrl(drawioUrl);
-      return;
-    }
-
-    if (isLocalBridgeAvailableCache !== null) {
-      setResolvedUrl(isLocalBridgeAvailableCache ? LOCAL_BRIDGE_URL : DEFAULT_DRAWIO_EMBED);
+    if (cachedMode) {
+      setRenderMode(cachedMode);
       return;
     }
 
     let isMounted = true;
-    // 探针检测使用方是否离线/部署了 draw 桥接文件
+
+    // 智能探针检测：检测离线桥接文件或离线主程序包
     fetch(LOCAL_BRIDGE_URL, { method: 'HEAD' })
       .then((res) => {
-        const available = res.ok;
-        isLocalBridgeAvailableCache = available;
-        if (isMounted) {
-          setResolvedUrl(available ? LOCAL_BRIDGE_URL : DEFAULT_DRAWIO_EMBED);
+        if (res.ok) {
+          const mode: RenderMode = { type: 'url', url: LOCAL_BRIDGE_URL };
+          cachedMode = mode;
+          if (isMounted) setRenderMode(mode);
+          return true;
         }
+        return false;
       })
-      .catch(() => {
-        isLocalBridgeAvailableCache = false;
-        if (isMounted) {
-          setResolvedUrl(DEFAULT_DRAWIO_EMBED);
+      .catch(() => false)
+      .then((bridgeOk) => {
+        if (bridgeOk) return;
+        return fetch(LOCAL_DRAWIO_APP, { method: 'HEAD' })
+          .then((res) => {
+            if (res.ok) {
+              const mode: RenderMode = { type: 'srcdoc', html: INLINE_BRIDGE_HTML };
+              cachedMode = mode;
+              if (isMounted) setRenderMode(mode);
+              return true;
+            }
+            return false;
+          })
+          .catch(() => false);
+      })
+      .then((handled) => {
+        if (!handled && cachedMode === null) {
+          const mode: RenderMode = { type: 'url', url: DEFAULT_DRAWIO_EMBED };
+          cachedMode = mode;
+          if (isMounted) setRenderMode(mode);
         }
       });
 
     return () => {
       isMounted = false;
     };
-  }, [drawioUrl]);
-
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -147,7 +198,8 @@ export const DrawIOModal: React.FC<DrawIOModalProps> = ({
       <div style={{ flex: 1, position: 'relative', width: '100%', height: 'calc(100% - 48px)' }}>
         <iframe
           ref={iframeRef}
-          src={resolvedUrl}
+          src={renderMode.type === 'url' ? renderMode.url : undefined}
+          srcDoc={renderMode.type === 'srcdoc' ? renderMode.html : undefined}
           onLoad={handleIframeLoad}
           style={{
             width: '100%',

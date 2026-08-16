@@ -58,7 +58,6 @@ export interface DocEditorOverlaysProps {
   drawioModalState: DrawIOModalState;
   setDrawioModalState: React.Dispatch<React.SetStateAction<DrawIOModalState>>;
   handleSaveDrawIO: (xml: string, svg: string) => void;
-  drawioUrl?: string;
 }
 
 export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
@@ -74,7 +73,6 @@ export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
   drawioModalState,
   setDrawioModalState,
   handleSaveDrawIO,
-  drawioUrl,
 }) => {
   // 捕获阶段点击外部区域收起所有展开的下拉菜单/调色板弹窗
   React.useEffect(() => {
@@ -178,7 +176,6 @@ export const DocEditorOverlays: React.FC<DocEditorOverlaysProps> = ({
         initialXml={drawioModalState.initialXml}
         onSave={handleSaveDrawIO}
         onClose={() => setDrawioModalState((prev) => ({ ...prev, isOpen: false }))}
-        drawioUrl={drawioUrl}
       />
       <TableOfContents editor={editor} />
     </>

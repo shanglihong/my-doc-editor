@@ -38,7 +38,6 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
       placeholder: _placeholder = '输入 "/" 唤起快捷菜单，或直接输入内容...',
       theme = 'light',
       className = '',
-      drawioUrl,
       onFocus,
       onBlur,
       onSelectionChange,
@@ -160,7 +159,6 @@ export const DocEditor = forwardRef<DocEditorRef, DocEditorProps>(
           drawioModalState={modals.drawioModalState}
           setDrawioModalState={modals.setDrawioModalState}
           handleSaveDrawIO={modals.handleSaveDrawIO}
-          drawioUrl={drawioUrl}
         />
       </div>
     );

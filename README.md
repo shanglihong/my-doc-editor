@@ -95,7 +95,6 @@ export const MyEditorApp = () => {
 | `titlePlaceholder` | `string` | `'请输入文档标题'` | 第一行标题占位文本 |
 | `placeholder` | `string` | `'输入 "/" 唤起快捷菜单...'` | 正文区占位文本 |
 | `className` | `string` | `""` | 容器根节点扩展 class |
-| `drawioUrl` | `string` | `undefined` | 自定义 draw.io 嵌入页面的 URL 路径（可选，默认自动探针感知离线文件或降级在线服务，通常无需填写） |
 | `onFocus` | `(event: FocusEvent) => void` | `undefined` | 获得焦点时的回调 |
 | `onBlur` | `(event: FocusEvent) => void` | `undefined` | 失去焦点时的回调 |
 | `onSelectionChange` | `(selection: { empty: boolean; from: number; to: number }) => void` | `undefined` | 选择区域或光标位置变更时的回调 |
@@ -127,32 +126,24 @@ export const MyEditorApp = () => {
 
 ## Draw.io 静态资源与 Embed 说明
 
-本项目集成了 draw.io 流程图/架构图编辑扩展，具备**智能感知与离线无缝降级**支持：
+本项目集成了 draw.io 流程图/架构图编辑扩展，具备**全自动离线感知与在线无缝降级**支持，接口做到完全零配置（无需传递任何传参属性）：
 
-### 1. 离线桥接智能探针（调用方无需显式配置 drawioUrl）
-当在调用方项目中使用 `<DocEditor />` 时，**无需手动传入 `drawioUrl` 属性**：
-- **离线感知**：组件库会自动探测宿主域下的 `/drawio-embed.html`；若检测成功（调用方离线部署了 draw.io 资源），则自动切换为离线桥接文件模式。
-- **平滑降级**：若未检测到离线桥接文件，则自动无缝降级至在线官方服务，点击画图依然开箱即用。
+### 1. 零配置与三重智能探针
+在调用方项目中渲染 `<DocEditor />` 组件时，无需配置任何额外属性：
+- **离线感知**：组件库会自动按顺序探针检测离线桥接文件 `/drawio-embed.html` 或离线资源主包 `/drawio/drawio-app.html`；
+- **内置桥接 HTML**：若检测到调用方部署了离线资源包（`/drawio/drawio-app.html`），组件库会自动使用内部打入 JS 包中的桥接模板进行加载，即使调用方 `public/` 目录下没有放置 `drawio-embed.html` 文件也能完美运行离线画图；
+- **平滑降级**：若探针未检测到任何离线画图包，则自动平滑降级至官方在线画图服务，点击画图依然开箱即用。
 
-### 2. 调用方项目路径映射
-离线资源与桥接文件在调用方项目中的对应路径如下：
-
-| 位置 | 路径 | 描述 |
-|---|---|---|
-| 依赖包产物 | `node_modules/my-doc-editor/dist/drawio-embed.html` | npm 包打包自带的桥接文件 |
-| 宿主源码路径 | `public/drawio-embed.html` | 执行 `npx setup-drawio` 后自动部署至宿主 `public/` |
-| 离线画图资源 | `public/drawio/` | 离线 draw.io webapp 静态资源包目录 |
-| Web 访问路径 | `/drawio-embed.html` | 浏览器环境下访问离线桥接文件的默认根路径 |
-
-### 3. 私有化/完全离线包部署模式 (npx CLI)
+### 2. 私有化/完全离线包部署模式 (npx CLI)
 若宿主工程需要在**完全无网/私有化环境**下运行画图，宿主只需在其项目根目录下运行如下命令即可：
 
 ```bash
-# 一键拉取并部署离线 Draw.io 资源与桥接文件到宿主 public/ 目录
+# 一键拉取并部署离线 Draw.io 资源包到宿主 public/ 目录
 npx setup-drawio
 ```
 
-命令行运行完成后，宿主无需在组件上添加额外的配置代码，直接使用 `<DocEditor />` 即可自动畅享完全离线的画图功能。
+命令行运行完成后，直接使用 `<DocEditor />` 即可自动畅享完全离线的画图功能。
+
 
 
 
