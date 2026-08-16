@@ -69,11 +69,11 @@
   word-break: break-word;
 }
 
-/* 当大纲展开时，正文内容向右避让，防止与大纲遮挡重叠 */
+/* 当大纲展开时，仅在留白不足导致可能遮盖时才向右避让；留白充足时（宽度>=1420px）保持居中物理零移动 */
 .hasExpandedToc .editorContent {
-  margin-left: max(calc((100% - 900px) / 2), 256px);
-  margin-right: auto;
-  max-width: min(900px, calc(100% - 276px));
+  margin-left: max(calc((100% - 900px) / 2), 260px);
+  margin-right: max(calc((100% - 900px) / 2), 20px);
+  max-width: min(900px, calc(100% - 280px));
 }
 
 @media (max-width: 768px) {
