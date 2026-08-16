@@ -95,7 +95,7 @@ export const MyEditorApp = () => {
 | `titlePlaceholder` | `string` | `'请输入文档标题'` | 第一行标题占位文本 |
 | `placeholder` | `string` | `'输入 "/" 唤起快捷菜单...'` | 正文区占位文本 |
 | `className` | `string` | `""` | 容器根节点扩展 class |
-| `drawioUrl` | `string` | `undefined` | 自定义 draw.io 嵌入页面的 URL 路径（未提供时默认开箱即用 fallback） |
+| `drawioUrl` | `string` | `undefined` | 自定义 draw.io 嵌入页面的 URL 路径（可选，默认自动探针感知离线文件或降级在线服务，通常无需填写） |
 | `onFocus` | `(event: FocusEvent) => void` | `undefined` | 获得焦点时的回调 |
 | `onBlur` | `(event: FocusEvent) => void` | `undefined` | 失去焦点时的回调 |
 | `onSelectionChange` | `(selection: { empty: boolean; from: number; to: number }) => void` | `undefined` | 选择区域或光标位置变更时的回调 |
@@ -129,26 +129,30 @@ export const MyEditorApp = () => {
 
 本项目集成了 draw.io 流程图/架构图编辑扩展，具备**智能感知与离线无缝降级**支持：
 
-### 1. 桥接文件打包包含 (dist/drawio-embed.html)
-组件库在构建（`npm run build`）时会自动将 `public/drawio-embed.html` 桥接文件打包输出至 `dist/drawio-embed.html`，发布到依赖包中供宿主环境直接引用或打包处理。
+### 1. 离线桥接智能探针（调用方无需显式配置 drawioUrl）
+当在调用方项目中使用 `<DocEditor />` 时，**无需手动传入 `drawioUrl` 属性**：
+- **离线感知**：组件库会自动探测宿主域下的 `/drawio-embed.html`；若检测成功（调用方离线部署了 draw.io 资源），则自动切换为离线桥接文件模式。
+- **平滑降级**：若未检测到离线桥接文件，则自动无缝降级至在线官方服务，点击画图依然开箱即用。
 
-### 2. 离线桥接智能探针与自动 Fallback（零配置）
-当组件未显式配置 `drawioUrl` 时：
-- **离线部署检测**：组件库会自动发送探针检测使用方是否部署了 `/drawio-embed.html` 桥接文件；若检测成功（使用方离线部署了 draw.io 资源），则自动开启离线模式并使用离线桥接文件。
-- **在线平滑降级**：若未检测到离线桥接文件，则自动无缝降级至官方在线服务，点击画图依然开箱即用。
+### 2. 调用方项目路径映射
+离线资源与桥接文件在调用方项目中的对应路径如下：
+
+| 位置 | 路径 | 描述 |
+|---|---|---|
+| 依赖包产物 | `node_modules/my-doc-editor/dist/drawio-embed.html` | npm 包打包自带的桥接文件 |
+| 宿主源码路径 | `public/drawio-embed.html` | 执行 `npx setup-drawio` 后自动部署至宿主 `public/` |
+| 离线画图资源 | `public/drawio/` | 离线 draw.io webapp 静态资源包目录 |
+| Web 访问路径 | `/drawio-embed.html` | 浏览器环境下访问离线桥接文件的默认根路径 |
 
 ### 3. 私有化/完全离线包部署模式 (npx CLI)
-若宿主工程需要在**完全无网/私有化环境**下运行画图，宿主在其项目根目录下运行如下命令即可：
+若宿主工程需要在**完全无网/私有化环境**下运行画图，宿主只需在其项目根目录下运行如下命令即可：
 
 ```bash
-# 宿主工程一键拉取并部署离线 Draw.io 资源与桥接文件到宿主 public/ 目录
+# 一键拉取并部署离线 Draw.io 资源与桥接文件到宿主 public/ 目录
 npx setup-drawio
 ```
 
-运行后，脚本会自动将 draw.io 静态资源拉取并复制到宿主项目的 `public/drawio/` 目录，同时将桥接文件部署为 `public/drawio-embed.html`。也可以在组件上显式指定自定义路径：
+命令行运行完成后，宿主无需在组件上添加额外的配置代码，直接使用 `<DocEditor />` 即可自动畅享完全离线的画图功能。
 
-```tsx
-<DocEditor drawioUrl="/drawio-embed.html" />
-```
 
 
