@@ -16,10 +16,15 @@
     "./dist/my-doc-editor.css": "./dist/my-doc-editor.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
+  "bin": {
+    "setup-drawio": "./scripts/setup-drawio.mjs",
+    "my-doc-editor-setup": "./scripts/setup-drawio.mjs"
+  },
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/setup-drawio.mjs && vite",
     "build": "tsc -p tsconfig.build.json && vite build",
     "prepare": "npm run build",
     "lint": "oxlint",

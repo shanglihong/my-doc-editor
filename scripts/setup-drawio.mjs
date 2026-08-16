@@ -24,10 +24,12 @@ const DRAWIO_VERSION = '31.1.8';
 const DRAWIO_ZIP_URL = `https://github.com/jgraph/drawio/archive/refs/tags/v${DRAWIO_VERSION}.zip`;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, '..');
-const PUBLIC_DRAWIO = path.join(ROOT, 'public', 'drawio');
-const TMP_ZIP = path.join(ROOT, 'node_modules', '.cache', `drawio-v${DRAWIO_VERSION}.zip`);
-const TMP_EXTRACT = path.join(ROOT, 'node_modules', '.cache', `drawio-extract-${DRAWIO_VERSION}`);
+const PKG_ROOT = path.resolve(__dirname, '..');
+// 当在宿主工程通过 CLI (npx) 运行脚本时，TARGET_ROOT 为宿主工程根目录
+const TARGET_ROOT = process.cwd();
+const PUBLIC_DRAWIO = path.join(TARGET_ROOT, 'public', 'drawio');
+const TMP_ZIP = path.join(PKG_ROOT, 'node_modules', '.cache', `drawio-v${DRAWIO_VERSION}.zip`);
+const TMP_EXTRACT = path.join(PKG_ROOT, 'node_modules', '.cache', `drawio-extract-${DRAWIO_VERSION}`);
 const WEBAPP_SRC = path.join(TMP_EXTRACT, `drawio-${DRAWIO_VERSION}`, 'src', 'main', 'webapp');
 
 // 通过检测 js 目录判断是否已就绪，避免重复下载
@@ -122,6 +124,15 @@ async function copyToPublic() {
 }
 
 async function main() {
+  // 检查是否为 CLI 主动调用命令 (如 npx setup-drawio 或 npm run setup:drawio)
+  const isExplicitCliCall = process.env.npm_lifecycle_event === 'setup:drawio' || process.argv.includes('--cli') || process.argv[1]?.includes('setup-drawio');
+
+  // 若仅在 node_modules 中被动挂载而非主动调用，静默跳过
+  if (PKG_ROOT.includes('node_modules') && !isExplicitCliCall) {
+    log('检测到作为第三方依赖包安装，跳过静态资源初始化。');
+    return;
+  }
+
   // 已经存在则跳过
   if (existsSync(SENTINEL)) {
     log(`draw.io v${DRAWIO_VERSION} 静态资源已就绪，跳过下载。`);

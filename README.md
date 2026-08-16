@@ -127,15 +127,22 @@ export const MyEditorApp = () => {
 
 ## Draw.io 静态资源与 Embed 说明
 
-本项目集成了 draw.io 流程图/架构图编辑扩展，具备**开箱即用（Out-of-the-box）**与**离线自托管**双重支持：
+本项目集成了 draw.io 流程图/架构图编辑扩展，具备**开箱即用（Out-of-the-box）**与**一键离线部署**双重支持：
 
-1. **开箱即用模式**：宿主工程零配置即可点击唤起画图功能，组件默认提供稳定可靠的 Fallback 嵌入机制。
-2. **自定义/自托管模式**：可以通过传递 `drawioUrl="/drawio-embed.html"` 指定宿主的本地离线画图路径。
+### 1. 默认开箱即用模式（零配置）
+宿主工程无需手动配置或下载任何本地静态文件，组件库默认提供稳定可靠的 Fallback 嵌入机制，点击画图直接可用。
 
-### 本地/离线静态资源初始化 (`setup-drawio.mjs`)
-如需在本地/私有化部署中完全离线运行 draw.io，可在本项目根目录运行以下脚本拉取离线 webapp 资源至 `public/drawio/`：
+### 2. 私有化/完全离线包部署模式 (npx CLI)
+若宿主工程需要在**完全无网/私有化环境**下运行画图，宿主只需在其项目根目录下运行以下一条 CLI 命令：
 
 ```bash
-npm run setup:drawio
+# 宿主工程一键拉取并部署离线 Draw.io 资源到宿主 public/ 目录
+npx setup-drawio
+```
+
+运行后，脚本会自动将 draw.io 静态资源拉取并复制到宿主项目的 `public/drawio/` 目录下。随后在组件上配置指定路径即可：
+
+```tsx
+<DocEditor drawioUrl="/drawio-embed.html" />
 ```
 
