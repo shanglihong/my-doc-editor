@@ -302,9 +302,15 @@ export const BlockTypeMenu: React.FC<BlockTypeMenuProps> = ({
                 title={opt.label}
                 onClick={() => {
                   try {
-                    editor.chain().focus().setTextSelection(pos).run();
+                    const { from, to } = editor.state.selection;
+                    const isSelectionInside = from >= pos && to <= pos + nodeSize;
+
+                    if (!isSelectionInside) {
+                      const targetPos = Math.min(pos + 1, editor.state.doc.content.size);
+                      editor.chain().focus().setTextSelection(targetPos).run();
+                    }
                   } catch (_e) {
-                    // 忽略选区越界
+                    // 忽略选区设置异常
                   }
                   opt.action(editor, pos);
                   onClose();

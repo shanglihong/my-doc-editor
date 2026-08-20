@@ -25,7 +25,7 @@
   },
   "scripts": {
     "dev": "node scripts/setup-drawio.mjs && vite",
-    "build": "tsc -p tsconfig.build.json && vite build",
+    "build": "vite build && tsc -p tsconfig.build.json",
     "prepare": "npm run build",
     "lint": "oxlint",
     "preview": "vite preview",

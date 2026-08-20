@@ -1,9 +1,14 @@
 /* 4. 块级组件扩展 (Table, TaskList, DropIndicator & Selection) */
 
-/* 高级划选选区 (Text Selection) - 柔和天蓝浅背景 */
+/* 高级划选选区 (Text Selection) - 柔和天蓝半透明背景，确保适应高亮块等背景色 */
 .editorContent :global(.ProseMirror ::selection) {
-  background-color: #dbeafe;
-  color: #0f172a;
+  background-color: rgba(37, 99, 235, 0.28);
+  color: inherit;
+}
+
+:global([data-theme="dark"]) .editorContent :global(.ProseMirror ::selection) {
+  background-color: rgba(96, 165, 250, 0.4);
+  color: inherit;
 }
 
 .editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
